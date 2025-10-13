@@ -34,7 +34,7 @@ function Signup() {
           Create Account
         </h2>
 
-        <form className="flex flex-col space-y-4" onSubmit={()=>Navigate()}>
+        <form className="flex flex-col space-y-4" onSubmit={() => Navigate()}>
           {/* Username */}
           <label htmlFor="username" className="text-gray-700 font-medium">
             Username
@@ -127,6 +127,12 @@ function Signup() {
           >
             Sign Up
           </button>
+          <p className="mt-4 text-center text-gray-600">
+            Already have an account?{" "}
+            <Link to="/login" className="text-indigo-600 hover:underline">
+              Login
+            </Link>
+          </p>
         </form>
       </div>
     </div>

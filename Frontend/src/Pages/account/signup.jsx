@@ -5,8 +5,10 @@ import {
   verifyOtp,
   setEmail,
 } from "../../redux/authentication/action";
+import { useNavigate } from "react-router-dom";
 
 function Signup() {
+  const Navigate = useNavigate();
   const dispatch = useDispatch();
   const { email, showOtp, isVerified, loading } = useSelector(
     (state) => state.auth
@@ -32,7 +34,7 @@ function Signup() {
           Create Account
         </h2>
 
-        <form className="flex flex-col space-y-4">
+        <form className="flex flex-col space-y-4" onSubmit={()=>Navigate()}>
           {/* Username */}
           <label htmlFor="username" className="text-gray-700 font-medium">
             Username

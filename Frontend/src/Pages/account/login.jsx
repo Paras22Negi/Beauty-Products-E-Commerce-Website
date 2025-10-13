@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setEmail } from "../../redux/authentication/action";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Login() {
+  const Navigate = useNavigate();
   const dispatch = useDispatch();
   const { email } = useSelector((state) => state.auth);
   const [password, setPassword] = useState("");
@@ -21,6 +22,7 @@ function Login() {
       alert("Login failed");
     } finally {
       setLoading(false);
+      Navigate("/account");
     }
   };
 

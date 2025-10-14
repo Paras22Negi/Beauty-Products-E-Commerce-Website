@@ -10,6 +10,12 @@ import {Link, useNavigate } from "react-router-dom";
 function Signup() {
   const Navigate = useNavigate();
   const dispatch = useDispatch();
+  const [FormData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+  }
+  )
   const { email, showOtp, isVerified, loading } = useSelector(
     (state) => state.auth
   );
@@ -27,14 +33,18 @@ function Signup() {
     dispatch(verifyOtp(email, otp));
   };
 
+  const handleSignup = ()=>{
+
+  }
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex items-center justify-center h-[40rem] bg-gray-100">
       <div className="bg-white p-8 rounded-2xl shadow-lg w-100">
         <h2 className="text-gray-800 text-2xl font-bold mb-6 text-center">
           Create Account
         </h2>
 
-        <form className="flex flex-col space-y-4" onSubmit={() => Navigate()}>
+        <form className="flex flex-col space-y-4" onSubmit={() => handleSignup}>
           {/* Username */}
           <label htmlFor="username" className="text-gray-700 font-medium">
             Username

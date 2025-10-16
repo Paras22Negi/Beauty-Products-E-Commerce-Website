@@ -6,7 +6,8 @@ import { BrowserRouter } from 'react-router-dom'
 import Header from './Pages/Header.jsx'
 import { Provider } from "react-redux";
 import store from './redux/store.js';
-import AddsBar from './Pages/AddsBar.jsx'
+import AddsBar from './Pages/PromoBanner.jsx'
+import Footer from './Pages/Footer.jsx'
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -15,6 +16,7 @@ createRoot(document.getElementById("root")).render(
         <AddsBar />
         <Header />
         <App />
+        <Footer />
       </Provider>
     </BrowserRouter>
   </StrictMode>

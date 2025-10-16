@@ -20,7 +20,7 @@ export const setEmail = (email) => ({
 export const sendOtp = (email) => async (dispatch) => {
   dispatch({ type: SEND_OTP_REQUEST });
   try {
-    const res = await axios.post("http://your-backend-url/send-otp", { email });
+    const res = await axios.post("http://localhost:5000/api/send-otp", { email });
     dispatch({ type: SEND_OTP_SUCCESS, payload: res.data });
   } catch (error) {
     dispatch({
@@ -34,7 +34,7 @@ export const sendOtp = (email) => async (dispatch) => {
 export const verifyOtp = (email, otp) => async (dispatch) => {
   dispatch({ type: VERIFY_OTP_REQUEST });
   try {
-    const res = await axios.post("http://your-backend-url/verify-otp", {
+    const res = await axios.post("http://localhost:5000/api/verify-otp", {
       email,
       otp,
     });

@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setEmail } from "../../redux/authentication/action";
 import { Link, useNavigate } from "react-router-dom";
+import { FaEyeSlash } from "react-icons/fa";
+import { FaEye } from "react-icons/fa";
+import { login } from "../../redux/account/action";
 
 function Login() {
   const Navigate = useNavigate();
@@ -9,58 +12,77 @@ function Login() {
   const { email } = useSelector((state) => state.auth);
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      // Replace with your backend login request
-      console.log("Logging in with:", email, password);
-      alert("Login successful (mock)");
+      const formData = { email, password };
+      dispatch(login(formData));
     } catch (error) {
       console.error(error);
       alert("Login failed");
     } finally {
       setLoading(false);
-      Navigate("/account");
+      Navigate("/");
     }
   };
 
   return (
-    <div className="flex items-center justify-center h-[40rem] bg-gray-100">
-      <div className="bg-white p-8 rounded-2xl shadow-lg w-100">
-        <h2 className="text-gray-800 text-2xl font-bold mb-6 text-center">
+    <div className="flex items-center justify-center h-[40rem] bg-gray-100 px-4">
+      <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
+        <h2 className="text-gray-800 text-3xl font-bold mb-6 text-center">
           Login
         </h2>
+
         <form className="flex flex-col space-y-4" onSubmit={handleLogin}>
           {/* Email */}
-          <label htmlFor="email" className="text-gray-700 font-medium">
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => dispatch(setEmail(e.target.value))}
-            className="p-2 rounded border border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none"
-            required
-          />
+          <div>
+            <label
+              htmlFor="email"
+              className="text-gray-700 font-medium block mb-1"
+            >
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => dispatch(setEmail(e.target.value))}
+              className="w-full p-2 rounded border border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none"
+              required
+            />
+          </div>
 
           {/* Password */}
-          <label htmlFor="password" className="text-gray-700 font-medium">
-            Password
-          </label>
-          <input
-            id="password"
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="p-2 rounded border border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none"
-            required
-          />
+          <div className="relative">
+            <label
+              htmlFor="password"
+              className="text-gray-700 font-medium block mb-1"
+            >
+              Password
+            </label>
+            <input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-2 pr-10 rounded border border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-[2.65rem] text-gray-500 hover:text-indigo-600"
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
+          </div>
 
+          {/* Login Button */}
           <button
             type="submit"
             disabled={loading}
@@ -77,7 +99,10 @@ function Login() {
         {/* Switch to Signup */}
         <p className="mt-4 text-center text-gray-600">
           Don't have an account?{" "}
-          <Link to="/signup" className="text-indigo-600 hover:underline">
+          <Link
+            to="/signup"
+            className="text-indigo-600 hover:underline font-medium"
+          >
             Sign Up
           </Link>
         </p>

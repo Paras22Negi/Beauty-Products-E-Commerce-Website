@@ -36,15 +36,10 @@ const SendOtp = async (req, res) => {
                 console.error('Error sending email:', err);
                 return res.status(500).json({ message: "Failed to send OTP" });
             }
-            console.log('Email sent:', info.response);
-            const hashOtp = bycrypt.hash(otp, saltrounds=10, (err, hashOtp)=> {
-                if (err) {
-                    console.error('Error hashing OTP:', err);
-                    return res.status(500).json({ message: "Server error" });
-                }
-            });
+            const hashedOtp = bycrypt
+              .hashSync(otp, saltrounds, (expiresIn = "5m"));
             // In a real application, store the OTP in a database or cache with an expiration time
-            const newOtp = new OtpModel({ email, otp: hashOtp });
+            const newOtp = new OtpModel({ email, otp: hashedOtp });
             newOtp.save();
             return res.status(200).json({ message: "OTP sent successfully" });
         });
@@ -64,7 +59,7 @@ const verifyOtp = async (req, res) => {
         if (!record) {
             return res.status(400).json({ message: "No OTP record found for this email" });
         }
-        const isOtpValid = await bycrypt.compare(otp, record.otp);
+        const isOtpValid = await bycrypt.compare(otp.toString(), record.otp);
         if (!isOtpValid) {
             return res.status(400).json({ message: "Invalid OTP" });
         }
@@ -92,6 +87,7 @@ const registerUser = async (req, res) => {
         const hashPassword = await bycrypt.hash(password, saltrounds);
         const newUser = new userModel({ username, email, password: hashPassword });
         await newUser.save();
+        console.log("signup success")
         return res.status(201).json({ message: "User registered successfully" });
     }catch (error) {
         console.error('Error in registerUser:', error);
@@ -114,14 +110,29 @@ const loginUser = async (req, res) => {
         if (!isPasswordValid) {
             return res.status(400).json({ message: "Invalid password" });
         }
-        return res.status(200).json({ message: "Login successful", user });
+        // Generate JWT token
+        const token = jwt.sign({ userId: user._id, username: user.username, email: user.email}, JWT_SECRET, { expiresIn: '1h' });
+        return res
+          .status(200)
+          .json({ message: "Login successful", token });
     } catch (error) {
         console.error('Error in loginUser:', error);
         return res.status(500).json({ message: "Server error", error });
     }
 };
 
+// get user details
+const getUserDetails = async (req, res) => {
+    const userId = req.params;
+    try {
+        const user = await userModel.findById(userId).select('-password');
+        res.status(200).json(user);
+    } catch (error) {
+        console.error('Error in getUserDetails:', error);
+        res.status(500).json({ message: "Server error", error });
+    }
+};
 
 
-module.exports = { SendOtp, verifyOtp, registerUser };
+module.exports = { SendOtp, verifyOtp, registerUser, loginUser, getUserDetails };
 

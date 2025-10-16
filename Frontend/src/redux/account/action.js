@@ -26,20 +26,27 @@ export const signup = (userData) => async (dispatch) => {
 };
 
 export const login = (credentials) => async (dispatch) => {
-    dispatch({ type: LOGIN_REQUEST });
-    try {
-        const res = await axios.post(
-          "http://localhost:5000/api/login",
-          credentials
-        );
-        dispatch({ type: LOGIN_SUCCESS, payload: res.data });
-        } catch (error) {
-        dispatch({
-            type: LOGIN_FAILURE,
-            payload: error.response?.data || "Failed to login",
-        });
-    }
+  dispatch({ type: LOGIN_REQUEST });
+  try {
+    const res = await axios.post(
+      "http://localhost:5000/api/login",
+      credentials
+    );
+    dispatch({ type: LOGIN_SUCCESS, payload: res.data });
+
+    // Store token in localStorage (if not already in reducer)
+    localStorage.setItem("token", res.data.token);
+
+    return res.data; // return data for component to act on
+  } catch (error) {
+    dispatch({
+      type: LOGIN_FAILURE,
+      payload: error.response?.data || "Failed to login",
+    });
+    throw error; // throw error so component knows login failed
+  }
 };
+
 
 export const fetchUserDetails = (token) => async (dispatch) => {
     dispatch({ type: FETCH_USER_DETAILS });

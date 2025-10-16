@@ -19,13 +19,15 @@ function Login() {
     setLoading(true);
     try {
       const formData = { email, password };
-      dispatch(login(formData));
-    } catch (error) {
-      console.error(error);
-      alert("Login failed");
+      const data = await dispatch(login(formData)); // wait for login action
+      if (data?.token) {
+        Navigate("/account"); // only navigate if login succeeded
+      }
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
-      Navigate("/");
     }
   };
 

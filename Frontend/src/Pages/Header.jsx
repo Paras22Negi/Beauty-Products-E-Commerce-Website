@@ -4,6 +4,7 @@ import { MdAccountCircle } from "react-icons/md";
 import { IoSearchSharp, IoCartOutline } from "react-icons/io5";
 
 function Header() {
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const navigate = useNavigate();
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   let closeTimeout= 200;
@@ -12,6 +13,8 @@ function Header() {
     clearTimeout(closeTimeout);
     setIsCategoryOpen(true);
   };
+
+  
 
   const handleMouseLeave = () => {
     clearTimeout(closeTimeout);
@@ -76,7 +79,8 @@ function Header() {
           </ul>
 
           <ul className="flex items-center space-x-4 text-2xl">
-            <li className="cursor-pointer hover:text-gray-300">
+            <li className="cursor-pointer hover:text-gray-300"
+            onClick={()=> setIsSearchOpen(!isSearchOpen)}>
               <IoSearchSharp />
             </li>
             <li

@@ -8,6 +8,8 @@ import {
   FaChevronDown,
   FaChevronUp,
 } from "react-icons/fa";
+import { footerSections } from "./Data/FooterData";
+
 
 // Dropdown component with slide + fade effect
 const Dropdown = ({ title, items, isOpen, toggle }) => {
@@ -26,7 +28,7 @@ const Dropdown = ({ title, items, isOpen, toggle }) => {
   }, [isOpen]);
 
   return (
-    <div className="rounded-xl overflow-hidden">
+    <div className={`rounded-xl overflow-hidden transition-all duration-300 ${isOpen ? "" : "h-15"}`}>
       {/* Header */}
       <div
         className="flex justify-between items-center cursor-pointer p-4 bg-gray-900"
@@ -69,41 +71,6 @@ const Dropdown = ({ title, items, isOpen, toggle }) => {
 function Footer() {
   const [openSection, setOpenSection] = useState(null);
 
-  const sections = [
-    {
-      title: "Categories",
-      items: [
-        "Best Sellers",
-        "New Arrivals",
-        "Face",
-        "Lips",
-        "Eyes",
-        "Tools",
-        "Combos",
-        "Lip Combos",
-      ],
-    },
-    {
-      title: "Policies and More",
-      items: [
-        "Privacy Policy",
-        "Refund Policy",
-        "Shipping Policy",
-        "Terms of Service",
-        "Subscription Policy",
-      ],
-    },
-    {
-      title: "Connect",
-      items: [
-        "For Queries: support@marscosmetics.in",
-        "For Collaborations: collaborations@marscosmetics.in",
-        "+91 9289507849",
-        "Mon–Fri: 10 AM – 6 PM",
-      ],
-    },
-  ];
-
   return (
     <footer className="bg-black text-white py-10 px-6 relative w-full">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8 w-full">
@@ -139,7 +106,7 @@ function Footer() {
         </div>
 
         {/* DROPDOWN SECTIONS */}
-        {sections.map((section, idx) => (
+        {footerSections.map((section, idx) => (
           <Dropdown
             key={idx}
             title={section.title}

@@ -1,4 +1,3 @@
-// src/redux/authentication/action.js
 import axios from "axios";
 import {
   SEND_OTP_REQUEST,
@@ -20,13 +19,20 @@ export const setEmail = (email) => ({
 export const sendOtp = (email) => async (dispatch) => {
   dispatch({ type: SEND_OTP_REQUEST });
   try {
-    const res = await axios.post("http://localhost:5000/api/send-otp", { email });
-    dispatch({ type: SEND_OTP_SUCCESS, payload: res.data });
-  } catch (error) {
-    dispatch({
-      type: SEND_OTP_FAILURE,
-      payload: error.response?.data || "Failed to send OTP",
+    const res = await axios.post("http://localhost:5000/api/send-otp", {
+      email,
     });
+    dispatch({ type: SEND_OTP_SUCCESS, payload: res.data });
+
+    // ✅ Return response so component can handle message
+    return { success: true, payload: res.data };
+  } catch (error) {
+    const errMsg =
+      error.response?.data?.message || "Failed to send OTP. Please try again.";
+    dispatch({ type: SEND_OTP_FAILURE, payload: errMsg });
+
+    // ✅ Return error so frontend can read and show it
+    return { success: false, payload: { message: errMsg } };
   }
 };
 
@@ -39,10 +45,13 @@ export const verifyOtp = (email, otp) => async (dispatch) => {
       otp,
     });
     dispatch({ type: VERIFY_OTP_SUCCESS, payload: res.data });
+
+    return { success: true, payload: res.data };
   } catch (error) {
-    dispatch({
-      type: VERIFY_OTP_FAILURE,
-      payload: error.response?.data || "OTP verification failed",
-    });
+    const errMsg =
+      error.response?.data?.message || "OTP verification failed. Try again.";
+    dispatch({ type: VERIFY_OTP_FAILURE, payload: errMsg });
+
+    return { success: false, payload: { message: errMsg } };
   }
 };

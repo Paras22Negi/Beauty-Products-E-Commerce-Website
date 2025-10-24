@@ -1,7 +1,7 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
 require("dotenv").config();
-const bycrypt = require('bcrypt');
+const bcrypt = require('bcrypt');
 const saltrounds = 10;
 const OtpModel = require('../Models/otp');
 const userModel = require('../Models/userModel');
@@ -13,6 +13,10 @@ const SendOtp = async (req, res) => {
     const { email } = req.body;
     if (!email) {
         return res.status(400).json({ message: "Email is required" });
+    }
+    const existingUser = await userModel.findOne({ email });
+    if (existingUser) {
+        return res.status(400).json({ message: "Email already in use" });
     }
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     try {
@@ -36,8 +40,8 @@ const SendOtp = async (req, res) => {
                 console.error('Error sending email:', err);
                 return res.status(500).json({ message: "Failed to send OTP" });
             }
-            const hashedOtp = bycrypt
-              .hashSync(otp, saltrounds, (expiresIn = "5m"));
+            const hashedOtp = bcrypt
+              .hashSync(otp, saltrounds);
             // In a real application, store the OTP in a database or cache with an expiration time
             const newOtp = new OtpModel({ email, otp: hashedOtp });
             newOtp.save();
@@ -59,7 +63,7 @@ const verifyOtp = async (req, res) => {
         if (!record) {
             return res.status(400).json({ message: "No OTP record found for this email" });
         }
-        const isOtpValid = await bycrypt.compare(otp.toString(), record.otp);
+        const isOtpValid = await bcrypt.compare(otp.toString(), record.otp);
         if (!isOtpValid) {
             return res.status(400).json({ message: "Invalid OTP" });
         }
@@ -80,11 +84,7 @@ const registerUser = async (req, res) => {
         return res.status(400).json({ message: "All fields are required" });
     }
     try {
-        const existingUser = await userModel.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({ message: "Email already in use" });
-        }
-        const hashPassword = await bycrypt.hash(password, saltrounds);
+        const hashPassword = await bcrypt.hash(password, saltrounds);
         const newUser = new userModel({ username, email, password: hashPassword });
         await newUser.save();
         console.log("signup success")
@@ -106,7 +106,7 @@ const loginUser = async (req, res) => {
         if (!user) {
             return res.status(400).json({ message: "Email not found" });
         }
-        const isPasswordValid = await bycrypt.compare(password, user.password);
+        const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
             return res.status(400).json({ message: "Invalid password" });
         }

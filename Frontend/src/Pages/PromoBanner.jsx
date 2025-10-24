@@ -14,7 +14,7 @@ const addClicked = () => {
 
 function AddsBar() {
   return (
-    <div className="w-full bg-gradient-to-r from-pink-700 to-pink-900 text-white px-4 py-2">
+    <div className="w-full bg-gradient-to-r from-red-700 to-red-900 text-white px-4 py-2">
       <Marquee gradient={false} speed={150}>
         {ads.map((ad, index) => (
           <span

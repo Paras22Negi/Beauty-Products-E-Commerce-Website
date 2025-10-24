@@ -4,11 +4,13 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 import { Autoplay, Pagination, Navigation } from "swiper/modules";
-import { slides } from "./Data/SlideData";
+import { slides } from "../Data/SlideData";
+import CategorySection from "./CategorySection";
 
 function Home() {
   return (
     <div className="w-full relative">
+      <CategorySection />
       <Swiper
         slidesPerView={1}
         spaceBetween={30}

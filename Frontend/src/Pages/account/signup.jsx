@@ -62,6 +62,14 @@ function Signup() {
     }
     try {
       dispatch(signup(formData));
+      setSuccess("Signup successful!");
+      setFormData({
+        username: "",
+        email: "",
+        password: "",
+      });
+      setEmailLocked(false);
+      setOtp("");
       Navigate("/login");
     } catch (error) {
       console.error(error);

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Route, Routes } from 'react-router-dom'
-import Home from './Pages/Home'
+import Home from './Pages/Home/Home'
 import Blog from './Pages/Blog'
 import AboutUs from './Pages/aboutUs'
 import Support from './Pages/support'

@@ -49,7 +49,7 @@ function OffersSection() {
                 )}
               </div>
 
-              <button className="mt-4 text-white underline font-medium self-start">
+              <button className="mt-4 text-white underline font-medium cursor-pointer self-start">
                 Explore
               </button>
             </div>

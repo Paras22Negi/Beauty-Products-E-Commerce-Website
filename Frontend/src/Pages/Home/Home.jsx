@@ -10,6 +10,7 @@ import BestSellers from "./BestSellers";
 import GiftComboSection from "./GiftComboSection";
 import OffersSection from "./OffersSection";
 import PromoOfferSection from "./PromoOfferSection";
+import VideoSection from "./VideoSection";
 
 function Home() {
   return (
@@ -50,6 +51,7 @@ function Home() {
       <GiftComboSection />
       <OffersSection />
       <PromoOfferSection />
+      <VideoSection />
       <style>
         {`
           .swiper-pagination-bullet {

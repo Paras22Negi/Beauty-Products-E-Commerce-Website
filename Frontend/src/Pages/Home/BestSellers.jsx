@@ -18,7 +18,7 @@ function BestSellers() {
           <button
             key={category}
             onClick={() => setActiveCategory(category)}
-            className={`text-lg font-medium pb-2 transition-all duration-300 ${
+            className={`text-lg font-medium pb-2 transition-all duration-300 cursor-pointer ${
               activeCategory === category
                 ? "border-b-2 border-black text-black"
                 : "text-gray-500 hover:text-black"

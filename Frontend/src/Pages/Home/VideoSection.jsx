@@ -49,6 +49,7 @@ export default function OwnThisLookSwiper() {
           slidesPerView={1}
           spaceBetween={10}
           modules={[Navigation]}
+          loop={true}
           navigation={{
             prevEl: prevRef.current,
             nextEl: nextRef.current,

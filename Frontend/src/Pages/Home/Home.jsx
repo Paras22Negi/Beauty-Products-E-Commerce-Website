@@ -11,6 +11,8 @@ import GiftComboSection from "./GiftComboSection";
 import OffersSection from "./OffersSection";
 import PromoOfferSection from "./PromoOfferSection";
 import VideoSection from "./VideoSection";
+import MarsHelpSection from "./MarsHelpSection";
+import JoinMarsParty from "./JoinMarsParty";
 
 function Home() {
   return (
@@ -52,6 +54,9 @@ function Home() {
       <OffersSection />
       <PromoOfferSection />
       <VideoSection />
+      <MarsHelpSection />
+      <JoinMarsParty />
+
       <style>
         {`
           .swiper-pagination-bullet {

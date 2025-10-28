@@ -1,3 +1,5 @@
+import { categories } from "./CategorySectionData";
+
 export const looksData = [
   {
     id: 1,
@@ -62,5 +64,99 @@ export const looksData = [
     title: "Cancel Concealer | Liquid Concealer",
     category: "Concealer",
     price: "249 INR",
+  },
+  {
+    id: 9,
+    video:
+      "https://cevoidcontent.com/videos/Kvrjl8304TJNHmnkeWjfg/original.mp4",
+    title:
+      "Meet Mastani, The fierce and captivating warrior princess who inspires with her strength and grace",
+  },
+  {
+    id: 10,
+    video:
+      "https://cevoidcontent.com/videos/SbVX6oyClp0-fcVstvKzs/original.mp4",
+    title:
+      "Meet Begum, The regal queen of hearts A bold, royal red that exudes confidence and elegance",
+  },
+  {
+    id: 11,
+    video:
+      "https://cevoidcontent.com/videos/7dGslrxM8ZbD_QVMuZgpr/original.mp4",
+    title: "Blush Hour | Liquid Blush",
+    category: "Blush",
+    price: "299 INR",
+  },
+  {
+    id: 12,
+    video:
+      "https://cevoidcontent.com/videos/6gZ9JVhGn5pKVORh2MRrG/original.mp4",
+    title: "Dewy Face Primer | It's Glow O'Clock Primer",
+    category: "Primer",
+    price: "399 INR",
+  },
+  {
+    id: 13,
+    video:
+      "https://cevoidcontent.com/videos/Pa7K1YknLN1rbgLdcGU8V/original.mp4",
+    title: "Cover Rangers | All in one Palette",
+    category: "Concealer",
+    price: "549 INR",
+  },
+  {
+    id: 14,
+    video:
+      "https://cevoidcontent.com/videos/CDtD9FLGso54auvkvKRIL/original.mp4",
+    title: "Dewy Face Primer | It's Glow O'Clock Primer",
+    category: "Primer",
+    price: "399 INR",
+  },
+  {
+    id: 15,
+    video:
+      "https://cevoidcontent.com/videos/zwZ8YwFAS-55H_zTML-F-/original.mp4",
+    title: "Blush Hour | Liquid Blush",
+    category: "Blush",
+    price: "299 INR",
+  },
+  {
+    id: 16,
+    video:
+      "https://cevoidcontent.com/videos/dNkLhv-04s2uuScbSLV0m/original.mp4",
+    title: "Colorbum | Liquid Lipstick",
+    category: "Lipstick",
+    price: "229 INR",
+  },
+  {
+    id: 17,
+    video:
+      "https://cevoidcontent.com/videos/i0BsADa3sn2HgdFIts-cC/original.mp4",
+    title: "Colorbum | Liquid Lipstick",
+    category: "Lipstick",
+    price: "229 INR",
+  },
+  {
+    id: 18,
+    video:
+      "https://cevoidcontent.com/videos/XE3PFmPuzFdlX7dP1dXKp/original.mp4",
+    title: "Glitter Liquid Eyeshadow",
+    category: "Eyeshadow",
+    price: "249 INR",
+  },
+  {
+    id: 19,
+    video:
+      "https://cevoidcontent.com/videos/JhmqvM2dTeNxg0-ogW3gl/original.mp4",
+    title: "Zero Primer | Pore Perfecting Primer",
+    category: "Primer",
+    price: "249 INR",
+  },
+  {
+    id: 20,
+    video:
+      "https://cevoidcontent.com/videos/ZF53ac2IO7iha2RyEaUvC/original.mp4",
+    title: "Cover Rangers | All in one Palette",
+    category: "Concealer",
+    price: "549 INR",
   },
 ];

@@ -14,13 +14,13 @@ const addClicked = () => {
 
 function AddsBar() {
   return (
-    <div className="w-full bg-gradient-to-r from-red-700 to-red-900 text-white px-4 py-2">
-      <Marquee gradient={false} speed={150}>
+    <div className="fixed top-0 left-0 w-full bg-gradient-to-r from-red-700 to-red-900 text-white text-sm sm:text-base font-medium py-3 sm:py-2.5 z-[120]">
+      <Marquee gradient={false} speed={80}>
         {ads.map((ad, index) => (
           <span
             key={index}
             onClick={addClicked}
-            className="mx-8 cursor-pointer hover:underline hover:text-yellow-200 transition"
+            className="mx-8 cursor-pointer hover:underline hover:text-yellow-200 transition whitespace-nowrap"
           >
             {ad}
           </span>

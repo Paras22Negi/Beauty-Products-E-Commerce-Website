@@ -10,8 +10,7 @@ import {
 } from "react-icons/fa";
 import { footerSections } from "./Data/FooterData";
 
-
-// Dropdown component with slide + fade effect
+// Reusable Dropdown Component
 const Dropdown = ({ title, items, isOpen, toggle }) => {
   const contentRef = useRef(null);
   const [height, setHeight] = useState("0px");
@@ -28,7 +27,11 @@ const Dropdown = ({ title, items, isOpen, toggle }) => {
   }, [isOpen]);
 
   return (
-    <div className={`rounded-xl overflow-hidden transition-all duration-300 ${isOpen ? "" : "h-15"}`}>
+    <div
+      className={`rounded-xl overflow-hidden transition-all duration-300 ${
+        isOpen ? "" : "h-15"
+      }`}
+    >
       {/* Header */}
       <div
         className="flex justify-between items-center cursor-pointer p-4 bg-gray-900"
@@ -46,12 +49,12 @@ const Dropdown = ({ title, items, isOpen, toggle }) => {
       >
         <ul
           style={{ opacity, transition: "opacity 0.4s ease 0.1s" }}
-          className="text-gray-300 p-2 space-y-2"
+          className="text-gray-300 p-3 space-y-2"
         >
           {items.map((item, idx) => (
             <li
               key={idx}
-              className="hover:text-pink-500 cursor-pointer transition-colors"
+              className="hover:text-pink-500 cursor-pointer transition-colors text-sm sm:text-base"
             >
               {item.includes("@") ? (
                 <a href={`mailto:${item.split(": ")[1]}`} className="underline">
@@ -72,18 +75,19 @@ function Footer() {
   const [openSection, setOpenSection] = useState(null);
 
   return (
-    <footer className="bg-black text-white py-10 px-6 relative w-full">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8 w-full">
-        {/* LEFT COLUMN */}
+    <footer className="bg-black text-white py-10 px-6 md:px-10 relative w-full">
+      {/* Top Section */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 max-w-7xl mx-auto">
+        {/* Left Column */}
         <div>
           <div className="flex items-center mb-4">
             <img
               src="https://marscosmetics.in/cdn/shop/files/LOGO_WHITE-_MARS_150x@2x.png?v=1633455993"
               alt="MARS"
-              className="h-10 w-35 mr-2"
+              className="h-10 w-auto mr-2"
             />
           </div>
-          <p className="text-gray-300 mb-4 leading-relaxed">
+          <p className="text-gray-300 mb-4 leading-relaxed text-sm sm:text-base">
             <span className="font-semibold text-white">
               Makeup for everyone
             </span>
@@ -93,7 +97,9 @@ function Footer() {
             Based in India, we're here to embrace your unique and diverse
             beauty.
           </p>
-          <div className="flex space-x-3 mt-2">
+
+          {/* Social Icons */}
+          <div className="flex space-x-4 mt-3 text-lg">
             {[FaTwitter, FaFacebookF, FaInstagram, FaLinkedinIn, FaYoutube].map(
               (Icon, idx) => (
                 <Icon
@@ -105,7 +111,7 @@ function Footer() {
           </div>
         </div>
 
-        {/* DROPDOWN SECTIONS */}
+        {/* Dropdown Sections */}
         {footerSections.map((section, idx) => (
           <Dropdown
             key={idx}
@@ -121,17 +127,19 @@ function Footer() {
         ))}
       </div>
 
-      {/* BOTTOM LINE */}
-      <hr className="border-gray-700 my-6" />
-      <div className="text-gray-500 text-sm flex flex-col md:flex-row justify-between items-center w-full px-2">
+      {/* Divider */}
+      <hr className="border-gray-700 my-8 max-w-7xl mx-auto" />
+
+      {/* Bottom Section */}
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3 text-gray-500 text-xs sm:text-sm px-2 text-center">
         <p>© 2025, MARS Cosmetics</p>
         <p>
           Designed with <span className="text-pink-500">❤️</span> in India
         </p>
       </div>
 
-      {/* HELP BUTTON */}
-      <button className="absolute bottom-16 right-4 bg-gray-700 text-white px-4 py-2 rounded-full hover:bg-gray-600 flex items-center gap-2 transition">
+      {/* Help Button */}
+      <button className="fixed bottom-6 right-6 bg-gray-700 text-white px-5 py-2 rounded-full hover:bg-gray-600 flex items-center gap-2 text-sm sm:text-base shadow-lg transition z-[9999]">
         <span className="text-lg">❓</span> HELP
       </button>
     </footer>

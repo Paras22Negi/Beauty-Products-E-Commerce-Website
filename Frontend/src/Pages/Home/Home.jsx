@@ -5,6 +5,7 @@ import "swiper/css/pagination";
 import "swiper/css/navigation";
 import { Autoplay, Pagination, Navigation } from "swiper/modules";
 import { slides } from "../Data/SlideData";
+
 import CategorySection from "./CategorySection";
 import BestSellers from "./BestSellers";
 import GiftComboSection from "./GiftComboSection";
@@ -17,11 +18,13 @@ import JoinMarsParty from "./JoinMarsParty";
 function Home() {
   return (
     <div className="w-full relative">
+      {/* Category Section */}
       <CategorySection />
 
+      {/* Hero Swiper Slider */}
       <Swiper
         slidesPerView={1}
-        spaceBetween={30}
+        spaceBetween={20}
         loop={true}
         autoplay={{
           delay: 4000,
@@ -31,7 +34,7 @@ function Home() {
           el: ".custom-pagination",
           clickable: true,
           renderBullet: (index, className) => {
-            return `<span class="${className} inline-block h-[6px] w-[35px] bg-white/50 rounded-full mx-[6px] transition-all duration-300 ease-in-out"></span>`;
+            return `<span class="${className} inline-block h-[5px] sm:h-[6px] w-[25px] sm:w-[35px] bg-white/60 rounded-full mx-[4px] transition-all duration-300 ease-in-out"></span>`;
           },
         }}
         navigation={false}
@@ -43,12 +46,14 @@ function Home() {
             <img
               src={slide.image}
               alt={slide.title}
-              className="w-full h-96 md:h-[500px] object-cover"
+              className="w-full h-[220px] sm:h-[320px] md:h-[450px] lg:h-[520px] object-cover"
             />
           </SwiperSlide>
         ))}
-        <div className="custom-pagination absolute bottom-4 left-0 w-full flex justify-center items-center z-10"></div>
+        <div className="custom-pagination absolute bottom-3 sm:bottom-4 left-0 w-full flex justify-center items-center z-10"></div>
       </Swiper>
+
+      {/* Sections */}
       <BestSellers />
       <GiftComboSection />
       <OffersSection />
@@ -57,6 +62,7 @@ function Home() {
       <MarsHelpSection />
       <JoinMarsParty />
 
+      {/* Custom Swiper Styles */}
       <style>
         {`
           .swiper-pagination-bullet {
@@ -64,9 +70,16 @@ function Home() {
           }
 
           .swiper-pagination-bullet-active {
-            width: 55px !important;
+            width: 45px !important;
             background-color: #ec4899 !important; /* Tailwind pink-500 */
-            height: 6px !important;
+            height: 5px !important;
+          }
+
+          @media (min-width: 640px) {
+            .swiper-pagination-bullet-active {
+              width: 55px !important;
+              height: 6px !important;
+            }
           }
         `}
       </style>

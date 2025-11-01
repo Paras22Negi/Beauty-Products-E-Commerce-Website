@@ -11,14 +11,14 @@ function BestSellers() {
   const products = bestSellersData[activeCategory];
 
   return (
-    <div className="bg-gray-50 py-10">
+    <div className="bg-gray-50 py-10 px-4 sm:px-6 lg:px-10">
       {/* Category Tabs */}
-      <div className="flex justify-center gap-8 mb-6">
+      <div className="flex flex-wrap justify-center gap-4 sm:gap-6 md:gap-8 mb-6">
         {Object.keys(bestSellersData).map((category) => (
           <button
             key={category}
             onClick={() => setActiveCategory(category)}
-            className={`text-lg font-medium pb-2 transition-all duration-300 cursor-pointer ${
+            className={`text-base sm:text-lg font-medium pb-2 transition-all duration-300 cursor-pointer ${
               activeCategory === category
                 ? "border-b-2 border-black text-black"
                 : "text-gray-500 hover:text-black"
@@ -32,23 +32,28 @@ function BestSellers() {
       {/* Swiper Section */}
       <Swiper
         modules={[Navigation, Pagination]}
-        slidesPerView={4}
-        spaceBetween={25}
+        spaceBetween={20}
         navigation
         pagination={{
           el: ".custom-pagination",
           clickable: true,
           renderBullet: (index, className) => {
-            return `<span class="${className} inline-block h-[2px] w-[30px] bg-gray-300 rounded transition-all duration-300 ease-in-out mx-1"></span>`;
+            return `<span class="${className} inline-block h-[2px] w-[25px] bg-gray-300 rounded transition-all duration-300 ease-in-out mx-1"></span>`;
           },
         }}
-        className="px-8"
+        breakpoints={{
+          320: { slidesPerView: 1 },
+          480: { slidesPerView: 2 },
+          768: { slidesPerView: 3 },
+          1024: { slidesPerView: 4 },
+        }}
+        className="px-2 sm:px-4 md:px-6"
       >
         {products.map((product) => (
           <SwiperSlide key={product.id}>
-            <div className="group bg-white rounded-xl shadow-sm border border-gray-100 p-3 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] cursor-pointer">
+            <div className="group bg-white rounded-xl shadow-sm border border-gray-100 p-3 sm:p-4 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] cursor-pointer">
               {/* Product Image */}
-              <div className="relative overflow-hidden h-[280px] flex items-center justify-center rounded-md">
+              <div className="relative overflow-hidden h-[220px] sm:h-[260px] md:h-[280px] flex items-center justify-center rounded-md">
                 <img
                   src={product.image}
                   alt={product.title}
@@ -72,24 +77,24 @@ function BestSellers() {
 
               {/* Product Info */}
               <div className="mt-3 text-left">
-                <h3 className="text-sm font-semibold text-gray-900 line-clamp-2">
+                <h3 className="text-sm sm:text-base font-semibold text-gray-900 line-clamp-2">
                   {product.title}
                 </h3>
 
                 {/* Rating & Reviews */}
-                <div className="text-yellow-500 my-1">
+                <div className="text-yellow-500 my-1 text-sm sm:text-base">
                   {"★".repeat(product.rating)}{" "}
-                  <span className="text-gray-400 text-sm">
+                  <span className="text-gray-400 text-xs sm:text-sm">
                     {product.reviews}
                   </span>
                 </div>
 
                 {/* Price & Offer */}
-                <div className="flex items-center gap-2">
-                  <p className="font-semibold text-gray-800">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="font-semibold text-gray-800 text-sm sm:text-base">
                     {product.price}
                     {product.oldPrice && (
-                      <span className="line-through text-gray-400 text-sm ml-2">
+                      <span className="line-through text-gray-400 text-xs sm:text-sm ml-2">
                         {product.oldPrice}
                       </span>
                     )}
@@ -102,7 +107,7 @@ function BestSellers() {
                 </div>
 
                 {/* Shades */}
-                <div className="flex gap-2 mt-2">
+                <div className="flex gap-2 mt-2 flex-wrap">
                   {product.shades.map((shade, i) => (
                     <span
                       key={i}
@@ -113,7 +118,7 @@ function BestSellers() {
                 </div>
 
                 {/* Show More Button */}
-                <button className="mt-4 w-full bg-black text-white text-sm py-2 rounded-md transition-all duration-300 hover:bg-gray-800">
+                <button className="mt-4 w-full bg-black text-white text-xs sm:text-sm py-2 rounded-md transition-all duration-300 hover:bg-gray-800">
                   Show More
                 </button>
               </div>

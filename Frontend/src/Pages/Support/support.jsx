@@ -1,9 +1,35 @@
 import React from "react";
+import { useDispatch } from "react-redux";
+import { addSupportRequest } from "../../redux/Support/action";
 
 function Support() {
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  const dispatch = useDispatch();
+  const [FormData, setFormData] = React.useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
+  });
+
+  const handleSubmit = () => {
+    try {
+      dispatch(addSupportRequest(FormData));
+      setFormData({
+        name: "",
+        email: "",
+        subject: "",
+        message: "",
+      });
+    } catch (error) {
+      console.error("Error submitting support request:", error);
+    }
     alert("Thank you! Your message has been submitted successfully.");
+  };
+
+  const handleChange = (event) => {
+    // Handle input changes if needed
+    const { name, value } = event.target;
+    setFormData({ ...FormData, [name]: value });
   };
 
   return (
@@ -34,6 +60,7 @@ function Support() {
               required
               placeholder="Enter your name"
               className="border border-gray-300 rounded-lg px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
+              onChange={handleChange}
             />
           </div>
 
@@ -48,6 +75,7 @@ function Support() {
               required
               placeholder="you@example.com"
               className="border border-gray-300 rounded-lg px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
+              onChange={handleChange}
             />
           </div>
 
@@ -59,6 +87,7 @@ function Support() {
               name="subject"
               placeholder="What's this about?"
               className="border border-gray-300 rounded-lg px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
+              onChange={handleChange}
             />
           </div>
 
@@ -71,6 +100,7 @@ function Support() {
               required
               placeholder="Type your message here..."
               className="border border-gray-300 rounded-lg px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all resize-none"
+              onChange={handleChange}
             />
           </div>
 

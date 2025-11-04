@@ -47,7 +47,6 @@ export const login = (credentials) => async (dispatch) => {
   }
 };
 
-
 export const fetchUserDetails = (token) => async (dispatch) => {
     dispatch({ type: FETCH_USER_DETAILS });
     try {

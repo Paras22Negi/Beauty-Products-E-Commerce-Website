@@ -7,6 +7,7 @@ const OtpModel = require('../Models/otp');
 const userModel = require('../Models/userModel');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET;
+const supportUserModel = require('../Models/SupportRequest');
 
 
 const SendOtp = async (req, res) => {
@@ -133,6 +134,67 @@ const getUserDetails = async (req, res) => {
     }
 };
 
+// update user details
+const updateUserDetails = async (req, res) => {
+    const userId = req.params.id;
+    const { username, email } = req.body;
+    try {
+        const updatedUser = await userModel.findByIdAndUpdate(
+            userId,
+            { username, email },
+            { new: true }
+        );
+        res.status(200).json(updatedUser);
+    } catch (error) {
+        console.error('Error in updateUserDetails:', error);
+        res.status(500).json({ message: "Server error", error });
+    }
+};
 
-module.exports = { SendOtp, verifyOtp, registerUser, loginUser, getUserDetails };
+// delete user
+const deleteUser = async (req, res) => {
+    const userId = req.params.id;
+    try {
+        await userModel.findByIdAndDelete(userId);
+        res.status(200).json({ message: "User deleted successfully" });
+    } catch (error) {
+        console.error('Error in deleteUser:', error);
+        res.status(500).json({ message: "Server error", error });
+    }
+};
+
+// update user password
+const updateUserPassword = async (req, res) => {
+    const userId = req.params.id;
+    const { oldPassword, newPassword } = req.body;
+    try {
+        const user = await userModel.findById(userId);
+        const isOldPasswordValid = await bcrypt.compare(oldPassword, user.password);
+        if (!isOldPasswordValid) {
+            return res.status(400).json({ message: "Old password is incorrect" });
+        }
+        const hashedNewPassword = await bcrypt.hash(newPassword, saltrounds);
+        user.password = hashedNewPassword;
+        await user.save();
+        res.status(200).json({ message: "Password updated successfully" });
+    } catch (error) {
+        console.error('Error in updateUserPassword:', error);
+        res.status(500).json({ message: "Server error", error });
+    }
+};
+
+// support user
+const supportUser = async (req, res) => {
+    const { name, email, subject, message } = req.body;
+    try {
+        const SupportUser = new supportUserModel({ name, email, subject, message });
+        await SupportUser.save();
+        res.status(200).json({ message: "Support request submitted successfully" });
+    } catch (error) {
+        console.error('Error in supportUser:', error);
+        res.status(500).json({ message: "Server error", error });
+    }
+};
+
+module.exports = { SendOtp, verifyOtp, registerUser, loginUser, getUserDetails, updateUserDetails, deleteUser, updateUserPassword, supportUser };
 

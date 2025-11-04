@@ -11,11 +11,12 @@ import {
   FETCH_USER_DETAILS_FAILURE,
   LOGOUT,
 } from "./actionType";
+import env from "react-dotenv";
 
 export const signup = (userData) => async (dispatch) => {
     dispatch({ type: SIGNUP_REQUEST });
     try {
-        const res = await axios.post("http://localhost:5000/api/signup", userData);
+        const res = await axios.post(`${env.BACKEND_URL}/signup`, userData);
         dispatch({ type: SIGNUP_SUCCESS, payload: res.data });
     } catch (error) {
         dispatch({
@@ -29,7 +30,7 @@ export const login = (credentials) => async (dispatch) => {
   dispatch({ type: LOGIN_REQUEST });
   try {
     const res = await axios.post(
-      "http://localhost:5000/api/login",
+      `${env.BACKEND_URL}/login`,
       credentials
     );
     dispatch({ type: LOGIN_SUCCESS, payload: res.data });
@@ -50,7 +51,7 @@ export const login = (credentials) => async (dispatch) => {
 export const fetchUserDetails = (token) => async (dispatch) => {
     dispatch({ type: FETCH_USER_DETAILS });
     try {
-        const res = await axios.get("http://localhost:5000/api/user-details", {
+        const res = await axios.get(`${env.BACKEND_URL}/user-details`, {
             headers: { Authorization: `Bearer ${token}` },
         });
         dispatch({ type: FETCH_USER_DETAILS_SUCCESS, payload: res.data });

@@ -8,6 +8,7 @@ import {
   VERIFY_OTP_FAILURE,
   SET_EMAIL,
 } from "./actionType";
+import env from "react-dotenv";
 
 // Set Email
 export const setEmail = (email) => ({
@@ -19,7 +20,7 @@ export const setEmail = (email) => ({
 export const sendOtp = (email) => async (dispatch) => {
   dispatch({ type: SEND_OTP_REQUEST });
   try {
-    const res = await axios.post("http://localhost:5000/api/send-otp", {
+    const res = await axios.post(`${env.BACKEND_URL}/send-otp`, {
       email,
     });
     dispatch({ type: SEND_OTP_SUCCESS, payload: res.data });
@@ -40,7 +41,7 @@ export const sendOtp = (email) => async (dispatch) => {
 export const verifyOtp = (email, otp) => async (dispatch) => {
   dispatch({ type: VERIFY_OTP_REQUEST });
   try {
-    const res = await axios.post("http://localhost:5000/api/verify-otp", {
+    const res = await axios.post(`${env.BACKEND_URL}/verify-otp`, {
       email,
       otp,
     });

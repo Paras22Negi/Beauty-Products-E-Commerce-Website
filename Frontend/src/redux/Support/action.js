@@ -4,12 +4,13 @@ import {
   ADD_SUPORT_SUCCESS,
   ADD_SUPORT_FAILURE,
 } from "./actionType";
+import env from "react-dotenv";
 
 export const addSupportRequest = (supportData) => async (dispatch) => {
   dispatch({ type: ADD_SUPORT_REQUEST });
   try {
     const res = await axios.post(
-      "http://localhost:5000/api/support",
+      `${env.BACKEND_URL}/support`,
       supportData
     );
     dispatch({ type: ADD_SUPORT_SUCCESS, payload: res.data });

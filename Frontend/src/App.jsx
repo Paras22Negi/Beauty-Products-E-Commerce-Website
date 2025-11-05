@@ -9,6 +9,7 @@ import Account from './Pages/account/account'
 import Login from './Pages/account/login'
 import Signup from './Pages/account/signup'
 import ProtectedRoute from "./Components/ProtectedRoute";
+import ProductDetails from './Pages/productDetails.jsx'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -32,6 +33,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="*" element={<Login />} />
+        <Route path="/ProductDetails/:id" element={<ProductDetails />} />
       </Routes>
     </>
   );

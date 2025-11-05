@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -16,6 +17,14 @@ import MarsHelpSection from "./MarsHelpSection";
 import JoinMarsParty from "./JoinMarsParty";
 
 function Home() {
+
+  const Navigate = useNavigate();
+  const handleProductDetails = () => {
+    // Logic to navigate to product details page
+    // This can be implemented using useNavigate from react-router-dom
+    Navigate('/ProductDetails/11'); // Example navigation to product with id 1
+  };
+
   return (
     <div className="w-full relative">
       {/* Category Section */}
@@ -39,7 +48,8 @@ function Home() {
         }}
         navigation={false}
         modules={[Pagination, Navigation, Autoplay]}
-        className="mySwiper relative"
+        className="mySwiper relative cursor-pointer"
+        onClick={handleProductDetails}
       >
         {slides.map((slide) => (
           <SwiperSlide key={slide.id} className="flex flex-col items-center">

@@ -1,7 +1,12 @@
 import React from "react";
 import { offers } from "../Data/OfferData";
+import { useNavigate } from "react-router-dom";
 
 function OffersSection() {
+  const navigate = useNavigate();
+  const handleExploreClick = () => {
+    navigate("/products");
+  }
   return (
     <div className="bg-white py-10 sm:py-12 md:py-16">
       {/* Heading */}
@@ -49,7 +54,9 @@ function OffersSection() {
                 )}
               </div>
 
-              <button className="mt-3 sm:mt-4 text-white underline font-medium cursor-pointer self-start">
+              <button className="mt-3 sm:mt-4 text-white underline font-medium cursor-pointer self-start"
+              onClick={handleExploreClick}
+              >
                 Explore
               </button>
             </div>

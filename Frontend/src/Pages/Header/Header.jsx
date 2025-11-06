@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { MdAccountCircle } from "react-icons/md";
 import { IoSearchSharp, IoCartOutline } from "react-icons/io5";
 import { HiOutlineDotsVertical } from "react-icons/hi";
-import { HeaderCategoryData } from "./Data/HeaderCategoryData";
+import { HeaderCategoryData } from "../Data/HeaderCategoryData";
+import SearchBar from "./SearchBar";
 
 function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -25,22 +26,8 @@ function Header() {
   return (
     <>
       {/* 🔍 Search Bar */}
-      {isSearchOpen && (
-        <div className="fixed top-0 left-0 w-full bg-white text-black shadow-md z-[130] py-3 px-6 flex items-center justify-center gap-3">
-          <input
-            type="text"
-            placeholder="Search for products..."
-            className="w-[80%] sm:w-[60%] md:w-[40%] border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-500"
-          />
-          <button
-            onClick={() => setIsSearchOpen(false)}
-            className="text-gray-500 hover:text-pink-600 font-semibold text-lg"
-          >
-            ✕
-          </button>
-        </div>
-      )}
-
+      {isSearchOpen && <SearchBar onClose={() => setIsSearchOpen(false)} />}
+        
       {/* 🔹 Header */}
       <div className="fixed top-[40px] sm:top-[44px] left-0 w-full bg-black text-white z-[110] shadow-md">
         <div className="flex items-center justify-between px-3 sm:px-6 md:px-10 py-4 sm:py-5 md:py-4">

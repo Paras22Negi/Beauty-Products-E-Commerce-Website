@@ -32,7 +32,9 @@ const productReducer = (state = initialState, action) => {
       return {
         ...state,
         loading: false,
-        product: action.payload,
+        product: Array.isArray(action.payload)
+          ? action.payload
+          : action.payload.products || [], // ✅ always extract .products if object
       };
 
     case FETCH_PRODUCTS_FAILURE:

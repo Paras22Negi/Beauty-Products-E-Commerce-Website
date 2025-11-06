@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import { fetchProduct, searchProduct } from "../Redux/Product/action";
+import { fetchProduct, searchProduct } from "../redux/Product/action";
 import { ClipLoader } from "react-spinners";
 
 function ProductsPage() {

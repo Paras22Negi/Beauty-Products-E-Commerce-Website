@@ -28,3 +28,19 @@ const BlogListPage = () => {
 };
 
 export default BlogListPage;
+
+
+// // Remove this:
+// import { blogsData } from '../data/BlogData';
+
+// // Add this:
+// import { useDispatch, useSelector } from 'react-redux';
+// import { fetchBlogs } from '../redux/blog/action';
+
+// // In component:
+// const dispatch = useDispatch();
+// const { blogs, loading, error } = useSelector((state) => state.blog);
+
+// useEffect(() => {
+//   dispatch(fetchBlogs());
+// }, [dispatch]);

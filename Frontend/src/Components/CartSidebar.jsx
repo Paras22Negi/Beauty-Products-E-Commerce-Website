@@ -9,6 +9,16 @@ const CartSidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const { items, totalPrice } = useSelector((state) => state.cart);
 
+  // ✅ Helper: format price for INR
+  const formatPrice = (price) => {
+    return price.toLocaleString("en-IN", {
+      style: "currency",
+      currency: "INR",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  };
+
   const handleRemove = (cartId) => {
     dispatch(removeFromCart(cartId));
   };
@@ -31,7 +41,7 @@ const CartSidebar = ({ isOpen, onClose }) => {
       {/* Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-[120]"
+          className="fixed inset-0 z-[120] bg-black/30 backdrop-blur-sm transition-opacity duration-300"
           onClick={onClose}
         ></div>
       )}
@@ -77,7 +87,7 @@ const CartSidebar = ({ isOpen, onClose }) => {
                     ></div>
                   </div>
                   <p className="text-xs text-gray-600">
-                    Add ₹{999 - totalPrice} more to get free gift
+                    Add {formatPrice(999 - totalPrice)} more to get free gift
                   </p>
                 </div>
               )}
@@ -112,18 +122,29 @@ const CartSidebar = ({ isOpen, onClose }) => {
                     <img
                       src={item.thumbnail || item.image}
                       alt={item.title}
-                      className="w-24 h-24 object-cover rounded-lg"
+                      className="w-20 h-20 object-cover rounded-lg"
                     />
                     <div className="flex-1">
-                      <h3 className="font-semibold text-gray-800 text-sm mb-1">
-                        {item.title}
-                      </h3>
-                      {item.selectedShade && (
-                        <p className="text-xs text-gray-600 mb-2">
-                          Color: {item.selectedShade}
-                        </p>
-                      )}
-                      <div className="flex items-center justify-between">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-semibold text-gray-800 text-sm mb-1">
+                            {item.title}
+                          </h3>
+                          {item.selectedShade && (
+                            <p className="text-xs text-gray-600 mb-2">
+                              Color: {item.selectedShade}
+                            </p>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => handleRemove(item.cartId)}
+                          className="text-red-500 hover:text-red-700 text-xs underline"
+                        >
+                          Remove
+                        </button>
+                      </div>
+
+                      <div className="flex items-center justify-between mt-2">
                         <div className="flex items-center gap-2 bg-white border border-gray-300 rounded-lg">
                           <button
                             onClick={() =>
@@ -136,7 +157,7 @@ const CartSidebar = ({ isOpen, onClose }) => {
                           >
                             -
                           </button>
-                          <span className="px-2 font-medium">
+                          <span className="px-2 font-medium w-6 text-center">
                             {item.quantity}
                           </span>
                           <button
@@ -151,17 +172,13 @@ const CartSidebar = ({ isOpen, onClose }) => {
                             +
                           </button>
                         </div>
-                        <p className="font-bold text-gray-800">
-                          Rs. {item.price * item.quantity}
+
+                        {/* ✅ Price formatted and right-aligned */}
+                        <p className="font-bold text-gray-800 text-right min-w-[90px]">
+                          {formatPrice(item.price * item.quantity)}
                         </p>
                       </div>
                     </div>
-                    <button
-                      onClick={() => handleRemove(item.cartId)}
-                      className="text-red-500 hover:text-red-700 text-sm underline self-start"
-                    >
-                      Remove
-                    </button>
                   </div>
                 ))}
               </div>
@@ -174,7 +191,7 @@ const CartSidebar = ({ isOpen, onClose }) => {
               <div className="flex items-center justify-between mb-4">
                 <span className="text-lg font-bold text-gray-800">TOTAL</span>
                 <span className="text-2xl font-bold text-gray-900">
-                  Rs. {totalPrice}
+                  {formatPrice(totalPrice)}
                 </span>
               </div>
               <p className="text-xs text-gray-600 mb-4">

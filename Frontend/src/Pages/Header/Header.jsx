@@ -1,16 +1,22 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { MdAccountCircle } from "react-icons/md";
 import { IoSearchSharp, IoCartOutline } from "react-icons/io5";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { HeaderCategoryData } from "../Data/HeaderCategoryData";
 import SearchBar from "./SearchBar";
+import CartSidebar from "../../Components/CartSidebar"; // ADD THIS
 
 function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false); // ADD THIS
+
   const navigate = useNavigate();
+  const { totalItems } = useSelector((state) => state.cart); // ADD THIS
+
   let closeTimeout;
 
   const handleMouseEnter = () => {
@@ -25,10 +31,13 @@ function Header() {
 
   return (
     <>
-      {/* 🔍 Search Bar */}
+      {/* Search Bar */}
       {isSearchOpen && <SearchBar onClose={() => setIsSearchOpen(false)} />}
-        
-      {/* 🔹 Header */}
+
+      {/* Cart Sidebar - ADD THIS */}
+      <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+
+      {/* Header */}
       <div className="fixed top-[40px] sm:top-[44px] left-0 w-full bg-black text-white z-[110] shadow-md">
         <div className="flex items-center justify-between px-3 sm:px-6 md:px-10 py-4 sm:py-5 md:py-4">
           {/* Logo & Category */}
@@ -105,8 +114,17 @@ function Header() {
               >
                 <MdAccountCircle />
               </li>
-              <li className="cursor-pointer hover:text-gray-300">
+              <li
+                className="cursor-pointer hover:text-gray-300 relative"
+                onClick={() => setIsCartOpen(true)} // UPDATE THIS
+              >
                 <IoCartOutline />
+                {/* ADD CART BADGE */}
+                {totalItems > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-rose-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                    {totalItems}
+                  </span>
+                )}
               </li>
             </ul>
           </div>

@@ -11,11 +11,14 @@ import {
   FaChevronUp,
 } from "react-icons/fa";
 import { fetchProductDetail } from "../redux/Product/action";
+import { addToCart } from "../redux/cart/action"; // ADD THIS
 
 function ProductDetails() {
   const [selectedImage, setSelectedImage] = useState("");
   const [imgLoading, setImgLoading] = useState(false);
   const [openSection, setOpenSection] = useState(null);
+  const [selectedShade, setSelectedShade] = useState(0); // ADD THIS
+  const [quantity, setQuantity] = useState(1); // ADD THIS
 
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -39,6 +42,31 @@ function ProductDetails() {
     return (
       <p className="text-center text-red-500 font-semibold mt-10">{error}</p>
     );
+
+    const handleAddToCart = () => {
+      const shades = [
+        "01 Leading Lady",
+        "02 Berry Bliss",
+        "03 Coral Dreams",
+        "04 Nude Elegance",
+      ];
+      dispatch(addToCart(productDetail, quantity, shades[selectedShade]));
+
+      // Optional: Show success message
+      alert("Product added to cart!");
+    };
+
+    const shadeColors = [
+      "#b56a63",
+      "#813b3b",
+      "#a46346",
+      "#d68574",
+      "#e07d85",
+      "#c44534",
+      "#7a2f3b",
+      "#a34760",
+    ];
+
 
   const handleImgChange = (img) => {
     setImgLoading(true);
@@ -138,20 +166,14 @@ function ProductDetails() {
               <div className="mt-5">
                 <p className="text-gray-700 font-semibold mb-2">Shade:</p>
                 <div className="flex flex-wrap gap-2">
-                  {[
-                    "#b56a63",
-                    "#813b3b",
-                    "#a46346",
-                    "#d68574",
-                    "#e07d85",
-                    "#c44534",
-                    "#7a2f3b",
-                    "#a34760",
-                  ].map((color, i) => (
+                  {shadeColors.map((color, i) => (
                     <div
                       key={i}
-                      className={`w-9 h-9 rounded-full border cursor-pointer ${
-                        i === 0 ? "border-gray-800" : "border-gray-300"
+                      onClick={() => setSelectedShade(i)}
+                      className={`w-9 h-9 rounded-full border-2 cursor-pointer transition ${
+                        selectedShade === i
+                          ? "border-gray-800 scale-110"
+                          : "border-gray-300 hover:border-gray-500"
                       }`}
                       style={{ backgroundColor: color }}
                     ></div>
@@ -159,9 +181,34 @@ function ProductDetails() {
                 </div>
               </div>
 
+              {/* Quantity Selector */}
+              <div className="mt-5">
+                <p className="text-gray-700 font-semibold mb-2">Quantity:</p>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition"
+                  >
+                    -
+                  </button>
+                  <span className="px-6 py-2 bg-gray-100 rounded-lg font-semibold">
+                    {quantity}
+                  </span>
+                  <button
+                    onClick={() => setQuantity(quantity + 1)}
+                    className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
               {/* Action Buttons */}
               <div className="mt-6 flex gap-4">
-                <button className="flex-1 bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition">
+                <button
+                  onClick={handleAddToCart}
+                  className="flex-1 bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition"
+                >
                   ADD TO CART
                 </button>
                 <button className="flex-1 bg-rose-600 text-white py-3 rounded-lg hover:bg-rose-700 transition">

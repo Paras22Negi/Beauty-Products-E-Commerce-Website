@@ -24,6 +24,11 @@ function Header() {
     setIsCategoryOpen(true);
   };
 
+  const handleCategorySelect = (e) => {
+    console.log(e.target.innerText.toLowerCase());
+    navigate(`/products/${e.target.innerText.toLowerCase()}`);
+  }
+
   const handleMouseLeave = () => {
     clearTimeout(closeTimeout);
     closeTimeout = setTimeout(() => setIsCategoryOpen(false), 300);
@@ -143,7 +148,7 @@ function Header() {
                   <h3 className="font-semibold text-gray-300 mb-3 uppercase text-sm sm:text-base">
                     {section.title}
                   </h3>
-                  <ul className="space-y-1 text-sm sm:text-base">
+                  <ul className="space-y-1 text-sm sm:text-base" onClick={handleCategorySelect}>
                     {section.items.map((item, j) => (
                       <li
                         key={j}

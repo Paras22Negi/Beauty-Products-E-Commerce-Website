@@ -1,6 +1,18 @@
 import React from "react";
+import AOS from "aos";
+import "aos/dist/aos.css";
+import { useEffect } from "react";
+
 
 const ValuesSection = () => {
+  useEffect(() => {
+    AOS.init({
+      duration: 1000, // animation duration (ms)
+      once: true, // animate only once
+      easing: "ease-in-out",
+    });
+  }, []);
+
   const values = [
     {
       icon: "https://marscosmetics.in/cdn/shop/files/Group_77_366254b4-31c0-4776-a516-73594b3f5b63.png?v=1719589135&width=600",
@@ -22,7 +34,7 @@ const ValuesSection = () => {
 
   return (
     <section className="bg-gradient-to-br from-[#e8d5c4] to-[#d4c4b0] py-20 px-5">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-10 max-w-5xl mx-auto">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-10 max-w-5xl mx-auto" data-aos="fade-up" data-aos-delay="100">
         {values.map((value, index) => (
           <div key={index} className="text-center">
             <div className="w-32 h-32 mx-auto mb-5 flex items-center justify-center">

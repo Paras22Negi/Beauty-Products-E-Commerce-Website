@@ -1,7 +1,19 @@
 import React from "react";
 import Marquee from "react-fast-marquee";
+import AOS from "aos";
+import "aos/dist/aos.css";
+import { useEffect } from "react";
+
 
 const MarqueeImages = () => {
+  useEffect(() => {
+    AOS.init({
+      duration: 1000, // animation duration (ms)
+      once: true, // animate only once
+      easing: "ease-in-out",
+    });
+  }, []);
+
   const images = [
     {
       id: 1,
@@ -48,6 +60,8 @@ const MarqueeImages = () => {
           <div
             key={image.id}
             className="flex-shrink-0 w-72 h-64 md:w-80 md:h-72 rounded-3xl overflow-hidden mx-2.5"
+            data-aos="zoom-in"
+            data-aos-delay="200"
           >
             <img
               src={image.imgSrc}

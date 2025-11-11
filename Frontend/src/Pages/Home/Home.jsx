@@ -40,7 +40,7 @@ function Home() {
       <CategorySection />
 
       {/* Hero Swiper Slider */}
-      <div data-aos="fade-up">
+      <div data-aos="fade-left" data-aos-delay="50">
         <Swiper
           slidesPerView={1}
           spaceBetween={20}
@@ -48,6 +48,7 @@ function Home() {
           autoplay={{
             delay: 4000,
             disableOnInteraction: false,
+            ease: "ease-in-out",
           }}
           pagination={{
             el: ".custom-pagination",

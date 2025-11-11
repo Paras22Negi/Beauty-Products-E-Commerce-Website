@@ -34,7 +34,7 @@ const BlogListPage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* ✅ Animate header */}
-      <div data-aos="fade-down">
+      <div data-aos="fade-down" data-aos-delay="100">
         <BlogHeader
           totalArticles={blogsData.length}
           currentRange={{ start: 1, end: blogsData.length }}

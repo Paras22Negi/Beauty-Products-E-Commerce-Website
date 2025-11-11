@@ -2,7 +2,7 @@ import React from "react";
 
 const HeroSection = () => {
   return (
-    <section className="bg-[#d4c4b0] py-16 h-40 px-5 text-center">
+    <section className="bg-[#d4c4b0] py-16 h-45 px-5 text-center">
       <h1 className="text-5xl md:text-6xl font-bold mb-3 text-black">
         MARS Cosmetics
       </h1>

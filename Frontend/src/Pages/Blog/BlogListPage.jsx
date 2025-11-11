@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import BlogHeader from "./components/BlogHeader";
+import BlogHeader from "./components/blogHeader.jsx";
 import BlogGrid from "./components/BlogGrid.jsx";
 import BlogDetailPage from "./BlogDetailPage.jsx";
 import { blogsData } from "./BlogData.js"; // keep your mock data for now

@@ -1,5 +1,5 @@
 import React from "react";
-import AddProductForm from "../Common/AddProductForm";
+import AddProductForm from "../Components/AddProductForm";
 
 const AdminAddProduct = () => {
   return (

@@ -8,7 +8,8 @@ import {
   VERIFY_OTP_FAILURE,
   SET_EMAIL,
 } from "./actionType";
-import env from "react-dotenv";
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 // Set Email
 export const setEmail = (email) => ({
@@ -20,7 +21,7 @@ export const setEmail = (email) => ({
 export const sendOtp = (email) => async (dispatch) => {
   dispatch({ type: SEND_OTP_REQUEST });
   try {
-    const res = await axios.post(`${env.BACKEND_URL}/send-otp`, {
+    const res = await axios.post(`${BACKEND_URL}/send-otp`, {
       email,
     });
     dispatch({ type: SEND_OTP_SUCCESS, payload: res.data });
@@ -30,6 +31,7 @@ export const sendOtp = (email) => async (dispatch) => {
   } catch (error) {
     const errMsg =
       error.response?.data?.message || "Failed to send OTP. Please try again.";
+      console.log(error);
     dispatch({ type: SEND_OTP_FAILURE, payload: errMsg });
 
     // ✅ Return error so frontend can read and show it
@@ -41,7 +43,7 @@ export const sendOtp = (email) => async (dispatch) => {
 export const verifyOtp = (email, otp) => async (dispatch) => {
   dispatch({ type: VERIFY_OTP_REQUEST });
   try {
-    const res = await axios.post(`${env.BACKEND_URL}/verify-otp`, {
+    const res = await axios.post(`${BACKEND_URL}/verify-otp`, {
       email,
       otp,
     });

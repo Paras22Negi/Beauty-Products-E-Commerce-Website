@@ -121,7 +121,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 p-6">
+    <div className="min-h-screen bg-[#0f1120] p-6">
       <div className="max-w-[1600px] mx-auto">
         {/* Top Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">

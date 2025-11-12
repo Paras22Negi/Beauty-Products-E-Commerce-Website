@@ -1,6 +1,8 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const NewCustomers = ({ customers }) => {
+  const navigate = useNavigate();
   return (
     <div className="bg-slate-800/50 backdrop-blur-sm rounded-lg border border-slate-700/50 p-6">
       <div className="flex items-center justify-between mb-6">
@@ -8,6 +10,7 @@ const NewCustomers = ({ customers }) => {
         <a
           href="#"
           className="text-blue-500 hover:text-blue-400 text-sm font-medium"
+          onClick={() => { navigate("/customers"); }}
         >
           View All
         </a>
@@ -20,7 +23,7 @@ const NewCustomers = ({ customers }) => {
       </div>
 
       {/* Customer List */}
-      <div className="space-y-3 max-h-64 overflow-y-auto">
+      <div className="space-y-3 overflow-y-auto">
         {customers.map((customer, index) => (
           <div
             key={index}

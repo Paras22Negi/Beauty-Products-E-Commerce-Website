@@ -21,7 +21,7 @@ function Login() {
       const formData = { email, password };
       const data = await dispatch(login(formData)); // wait for login action
       if (data?.token) {
-        Navigate("/account"); // only navigate if login succeeded
+        Navigate("/profile"); // only navigate if login succeeded
       }
     } catch (err) {
       console.error(err);

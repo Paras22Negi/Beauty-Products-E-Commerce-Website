@@ -5,7 +5,7 @@ import Blog from './Pages/Blog/BlogListPage.jsx'
 import AboutUs from './Pages/AboutUs/aboutUs'
 import Support from './Pages/Support/support'
 import StoreLocator from './Pages/StoreLocator/storeLocator'
-import Account from './Pages/account/account'
+import Profile from './Pages/account/Profile.jsx'
 import Login from './Pages/account/login'
 import Signup from './Pages/account/signup'
 import ProtectedRoute from "./Components/ProtectedRoute";
@@ -26,10 +26,10 @@ function App() {
         <Route path="/blog/:id" element={<BlogDetailPage />} />
         <Route path="/storeLocator" element={<StoreLocator />} />
         <Route
-          path="/account"
+          path="/profile"
           element={
             <ProtectedRoute>
-              <Account />
+              <Profile />
             </ProtectedRoute>
           }
         />

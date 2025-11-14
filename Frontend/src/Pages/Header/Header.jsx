@@ -5,8 +5,9 @@ import { MdAccountCircle } from "react-icons/md";
 import { IoSearchSharp, IoCartOutline } from "react-icons/io5";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { HeaderCategoryData } from "../Data/HeaderCategoryData";
-import SearchBar from "./SearchBar";
-import CartSidebar from "../../Components/CartSidebar"; // ADD THIS
+import SearchBar from "../../Components/SearchBar";
+import CartSidebar from "../../Components/CartSidebar"; 
+import AccountDropdown from "../../Components/AcountDropdown";
 
 function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -113,11 +114,8 @@ function Header() {
               >
                 <IoSearchSharp />
               </li>
-              <li
-                onClick={() => navigate("/account")}
-                className="cursor-pointer hover:text-gray-300"
-              >
-                <MdAccountCircle />
+              <li className="cursor-pointer hover:text-gray-300 relative top-[2px]">
+                <AccountDropdown />
               </li>
               <li
                 className="cursor-pointer hover:text-gray-300 relative"
@@ -148,7 +146,10 @@ function Header() {
                   <h3 className="font-semibold text-gray-300 mb-3 uppercase text-sm sm:text-base">
                     {section.title}
                   </h3>
-                  <ul className="space-y-1 text-sm sm:text-base" onClick={handleCategorySelect}>
+                  <ul
+                    className="space-y-1 text-sm sm:text-base"
+                    onClick={handleCategorySelect}
+                  >
                     {section.items.map((item, j) => (
                       <li
                         key={j}

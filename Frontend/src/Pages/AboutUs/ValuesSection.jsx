@@ -33,7 +33,7 @@ const ValuesSection = () => {
   ];
 
   return (
-    <section className="bg-gradient-to-br from-[#e8d5c4] to-[#d4c4b0] py-20 px-5">
+    <section className="bg-gradient-to-br w-screen from-[#e8d5c4] to-[#d4c4b0] py-20 px-5">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-10 max-w-5xl mx-auto" data-aos="fade-up" data-aos-delay="100">
         {values.map((value, index) => (
           <div key={index} className="text-center">

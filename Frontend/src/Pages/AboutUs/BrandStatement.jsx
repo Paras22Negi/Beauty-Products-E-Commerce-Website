@@ -13,7 +13,7 @@ const BrandStatement = () => {
   }, []);
 
   return (
-    <div>
+    <div className="bg-[#d4c4b0] w-screen">
       <div data-aos="fade-right" data-aos-delay="100">
         <img
           src="https://marscosmetics.in/cdn/shop/files/Artboard_2_20c741df-bd2b-4b0f-93bf-4d86a20cb51e.jpg?v=1721453929&width=1800"

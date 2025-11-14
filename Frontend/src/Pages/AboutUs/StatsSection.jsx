@@ -20,7 +20,7 @@ const StatsSection = () => {
   ];
 
   return (
-    <section className="bg-gradient-to-br from-[#c84557] to-[#b83d4e] py-20 px-5 relative overflow-hidden">
+    <section className="bg-gradient-to-br w-screen from-[#c84557] to-[#b83d4e] py-20 px-5 relative overflow-hidden">
       <div data-aos="fade-up" data-aos-delay="100">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white opacity-10 text-[12rem] md:text-[15rem] font-bold whitespace-nowrap pointer-events-none select-none">
           makeup

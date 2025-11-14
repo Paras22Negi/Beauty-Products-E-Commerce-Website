@@ -23,7 +23,7 @@ function AddAddressModal({ onClose }) {
       "Punjab",
       "Gujarat",
     ],
-    "United States": [
+    United_States: [
       "California",
       "Texas",
       "Florida",
@@ -31,7 +31,7 @@ function AddAddressModal({ onClose }) {
       "Washington",
     ],
     Canada: ["Ontario", "Quebec", "British Columbia"],
-    "United Kingdom": ["England", "Scotland", "Wales", "Northern Ireland"],
+    United_Kingdom: ["England", "Scotland", "Wales", "Northern Ireland"],
     Australia: ["New South Wales", "Victoria", "Queensland"],
   };
 

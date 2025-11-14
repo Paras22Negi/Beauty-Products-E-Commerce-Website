@@ -35,7 +35,7 @@ function Home() {
   };
 
   return (
-    <div className="w-full relative">
+    <div className="w-screen relative">
       {/* Category Section */}
       <CategorySection />
 

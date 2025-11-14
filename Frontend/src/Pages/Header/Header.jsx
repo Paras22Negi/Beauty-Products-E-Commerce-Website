@@ -44,7 +44,7 @@ function Header() {
       <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
 
       {/* Header */}
-      <div className="fixed top-[40px] sm:top-[44px] left-0 w-full bg-black text-white z-[110] shadow-md">
+      <div className="fixed top-[40px] sm:top-[44px] left-0 w-screen bg-black text-white z-[110] shadow-md">
         <div className="flex items-center justify-between px-3 sm:px-6 md:px-10 py-4 sm:py-5 md:py-4">
           {/* Logo & Category */}
           <div className="flex items-center space-x-5 sm:space-x-8">

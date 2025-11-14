@@ -54,7 +54,7 @@ const MarqueeImages = () => {
   ];
 
   return (
-    <div className="bg-[#d4c4b0] py-8">
+    <div className="bg-[#d4c4b0] py-8 w-screen">
       <Marquee speed={50} gradient={false} pauseOnHover={false}>
         {images.map((image) => (
           <div

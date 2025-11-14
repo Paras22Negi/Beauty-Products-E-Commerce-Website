@@ -14,7 +14,7 @@ const AboutText = () => {
   }, []);
 
   return (
-    <div className="bg-[#d4c4b0] w-full mx-auto py-10 px-5 text-center">
+    <div className="bg-[#d4c4b0] w-screen mx-auto py-10 px-5 text-center">
       <p className="max-w-4xl mx-auto text-lg md:text-xl leading-relaxed" data-aos="fade-up" data-aos-delay="100">
         At MARS Cosmetics, we believe beauty is for everyone. From our humble
         beginnings to becoming India's most loved makeup brand, our journey has

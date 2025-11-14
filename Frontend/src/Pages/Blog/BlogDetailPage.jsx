@@ -25,7 +25,7 @@ const BlogDetailPage = ({ blog, onBack }) => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen w-screen bg-gray-50">
       {/* ✅ Animate the top header */}
       <div data-aos="fade-down">
         <BlogDetailHeader onBack={onBack} />

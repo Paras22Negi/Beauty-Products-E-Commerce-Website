@@ -14,7 +14,7 @@ const addClicked = () => {
 
 function AddsBar() {
   return (
-    <div className="fixed top-0 left-0 w-full bg-gradient-to-r from-red-700 to-red-900 text-white text-sm sm:text-base font-medium py-3 sm:py-2.5 z-[120]">
+    <div className="fixed top-0 left-0 w-screen bg-gradient-to-r from-red-700 to-red-900 text-white text-sm sm:text-base font-medium py-3 sm:py-2.5 z-[120]">
       <Marquee gradient={false} speed={80}>
         {ads.map((ad, index) => (
           <span

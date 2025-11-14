@@ -13,7 +13,7 @@ function Profile() {
   const [openAddressModal, setOpenAddressModal] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gray-200 p-6">
+    <div className="min-h-screen w-screen bg-gray-200 p-6">
       {/* Edit Profile Modal */}
       {openEditModal && (
         <EditProfileModal

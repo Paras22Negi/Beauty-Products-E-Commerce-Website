@@ -36,7 +36,7 @@ const OutlookSection = () => {
   ];
 
   return (
-    <section className="bg-gradient-to-br from-[#c84557] to-[#b83d4e] py-20 px-5 text-white text-center">
+    <section className="bg-gradient-to-br w-screen from-[#c84557] to-[#b83d4e] py-20 px-5 text-white text-center">
       <div data-aos="fade-up" data-aos-delay="100">
         <h2 className="text-xl md:text-2xl mb-3 opacity-90">
           This Is Our Outlook

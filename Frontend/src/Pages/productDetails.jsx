@@ -78,7 +78,7 @@ function ProductDetails() {
   };
 
   return (
-    <div className="w-full bg-[#f9fafb] py-10 px-4 sm:px-6">
+    <div className="w-screen bg-[#f9fafb] py-10 px-4 sm:px-6">
       <div className="w-[95%] mx-auto bg-white rounded-2xl shadow-lg overflow-hidden">
         {/* === TOP SECTION === */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 p-8">

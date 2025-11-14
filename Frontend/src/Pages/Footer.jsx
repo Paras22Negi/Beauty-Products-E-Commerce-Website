@@ -75,7 +75,7 @@ function Footer() {
   const [openSection, setOpenSection] = useState(null);
 
   return (
-    <footer className="bg-black text-white py-10 px-6 md:px-10 relative w-full">
+    <footer className="bg-black text-white py-10 px-6 md:px-10 relative w-screen">
       {/* Top Section */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 max-w-7xl mx-auto">
         {/* Left Column */}

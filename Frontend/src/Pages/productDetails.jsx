@@ -10,25 +10,78 @@ import {
   FaChevronDown,
   FaChevronUp,
 } from "react-icons/fa";
-import { fetchProductDetail } from "../redux/Product/action";
-import { addToCart } from "../redux/cart/action"; // ADD THIS
+import { fetchProductDetail, fetchProduct } from "../redux/Product/action";
+import { addToCart } from "../redux/cart/action";
+import RecommendedProducts from "../Components/RecommendedProducts";
+import ShowcaseStyle from "../Components/ShowcaseStyle";
+import ProductReviews from "../Components/ProductReviews";
+
 
 function ProductDetails() {
   const [selectedImage, setSelectedImage] = useState("");
   const [imgLoading, setImgLoading] = useState(false);
   const [openSection, setOpenSection] = useState(null);
-  const [selectedShade, setSelectedShade] = useState(0); // ADD THIS
-  const [quantity, setQuantity] = useState(1); // ADD THIS
+  const [selectedShade, setSelectedShade] = useState(0);
+  const [quantity, setQuantity] = useState(1);
+
+  const myVideos = [
+    {
+      id: 1,
+      videoUrl:
+        "https://cevoidcontent.com/videos/YEnSF69oYv8yRDdPjQuAK/original.mp4",
+      thumbnail:
+        "https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=400&h=600&fit=crop",
+      username: "reachedmars",
+    },
+    {
+      id: 2,
+      videoUrl:
+        "https://cevoidcontent.com/videos/ktAH7qJxouXb0qQsh62Ft/original.mp4",
+      thumbnail:
+        "https://cevoidcontent.com/videos/ktAH7qJxouXb0qQsh62Ft/thumbnail.jpeg?class=480",
+      username: "reachedmars",
+    },
+    {
+      id: 3,
+      videoUrl:
+        "https://cevoidcontent.com/videos/JB4tYaHU-qhZJFK8LF6BL/original.mp4",
+      thumbnail:
+        "https://cevoidcontent.com/videos/JB4tYaHU-qhZJFK8LF6BL/thumbnail.jpeg?class=480",
+      username: "reachedmars",
+    },
+    {
+      id: 4,
+      videoUrl:
+        "https://cevoidcontent.com/videos/yWtrDpvWi8isXLCJ1gUQA/original.mp4",
+      thumbnail:
+        "https://cevoidcontent.com/videos/yWtrDpvWi8isXLCJ1gUQA/thumbnail.jpeg?class=480",
+      username: "reachedmars",
+    },
+    {
+      id: 5,
+      videoUrl:
+        "https://cevoidcontent.com/videos/HY3TR8QpN9xsYDP91nlV4/original.mp4",
+      thumbnail:
+        "https://cevoidcontent.com/videos/HY3TR8QpN9xsYDP91nlV4/thumbnail.jpeg?class=480",
+      username: "reachedmars",
+    },
+  ];
 
   const { id } = useParams();
   const dispatch = useDispatch();
 
-  const { loading, error, productDetail } = useSelector(
+  const { loading, error, productDetail, product } = useSelector(
     (state) => state.product
   );
+  console.log(product);
+
+  const recommended = product
+    .filter((p) => p.id !== productDetail.id)
+    .slice(0, 6);
 
   useEffect(() => {
     dispatch(fetchProductDetail(id));
+    dispatch(fetchProduct());
   }, [dispatch, id]);
 
   if (loading)
@@ -43,30 +96,27 @@ function ProductDetails() {
       <p className="text-center text-red-500 font-semibold mt-10">{error}</p>
     );
 
-    const handleAddToCart = () => {
-      const shades = [
-        "01 Leading Lady",
-        "02 Berry Bliss",
-        "03 Coral Dreams",
-        "04 Nude Elegance",
-      ];
-      dispatch(addToCart(productDetail, quantity, shades[selectedShade]));
-
-      // Optional: Show success message
-      alert("Product added to cart!");
-    };
-
-    const shadeColors = [
-      "#b56a63",
-      "#813b3b",
-      "#a46346",
-      "#d68574",
-      "#e07d85",
-      "#c44534",
-      "#7a2f3b",
-      "#a34760",
+  const handleAddToCart = () => {
+    const shades = [
+      "01 Leading Lady",
+      "02 Berry Bliss",
+      "03 Coral Dreams",
+      "04 Nude Elegance",
     ];
+    dispatch(addToCart(productDetail, quantity, shades[selectedShade]));
+    alert("Product added to cart!");
+  };
 
+  const shadeColors = [
+    "#b56a63",
+    "#813b3b",
+    "#a46346",
+    "#d68574",
+    "#e07d85",
+    "#c44534",
+    "#7a2f3b",
+    "#a34760",
+  ];
 
   const handleImgChange = (img) => {
     setImgLoading(true);
@@ -80,13 +130,13 @@ function ProductDetails() {
   return (
     <div className="w-screen bg-[#f9fafb] py-10 px-4 sm:px-6">
       <div className="w-[95%] mx-auto bg-white rounded-2xl shadow-lg overflow-hidden">
-        {/* === TOP SECTION === */}
+        {/* === MAIN SECTION === */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 p-8">
-          {/* LEFT - IMAGES */}
-          <div className="flex flex-col items-center">
-            <div className="relative w-full flex justify-center">
+          {/* LEFT - STICKY IMAGES */}
+          <div className="flex flex-col items-center justify-center lg:sticky lg:top-10 lg:h-screen">
+            <div className="relative w-full flex justify-center items-center">
               {imgLoading && (
-                <div className="absolute flex justify-center items-center w-[420px] h-[420px] bg-white/60 rounded-xl">
+                <div className="absolute flex justify-center items-center w-[420px] h-[420px] bg-white/60 rounded-xl z-10">
                   <ClipLoader color="#e11d48" size={40} />
                 </div>
               )}
@@ -115,8 +165,9 @@ function ProductDetails() {
             </div>
           </div>
 
-          {/* RIGHT - DETAILS */}
-          <div className="flex flex-col justify-between">
+          {/* RIGHT - SCROLLABLE DETAILS */}
+          <div className="flex flex-col lg:h-screen lg:overflow-y-auto lg:pr-4">
+            {/* Product Info */}
             <div>
               <div className="flex justify-between items-start">
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 leading-tight">
@@ -227,61 +278,69 @@ function ProductDetails() {
                 </p>
               </div>
             </div>
+
+            {/* Accordion Sections - Now inside right column */}
+            <div className="mt-8 border-t border-gray-200 pt-6">
+              {[
+                {
+                  title: "Product Description",
+                  content:
+                    "The Mars Matte Lipstick delivers a bold, long-lasting matte finish with a creamy, comfortable texture. Infused with nourishing ingredients, it keeps your lips soft and hydrated while offering intense pigmentation.",
+                },
+                {
+                  title: "Ingredients",
+                  content:
+                    "Contains Vitamin E, Shea Butter, and natural waxes that help moisturize and protect your lips while maintaining the matte effect.",
+                },
+                {
+                  title: "How to Use",
+                  content:
+                    "Apply directly on the lips starting from the center and moving outward. For a bold look, apply two layers. Use a lip liner for precise edges.",
+                },
+                {
+                  title: "Offers & Promotions",
+                  content:
+                    "Get a free beauty pouch on purchases above ₹799. Flat 10% off on your first order with code MARS10.",
+                },
+              ].map((section, index) => (
+                <div key={index} className="border-b border-gray-200 py-4">
+                  <button
+                    onClick={() => toggleSection(section.title)}
+                    className="w-full flex justify-between items-center text-left"
+                  >
+                    <h2 className="text-lg font-semibold text-gray-800">
+                      {section.title}
+                    </h2>
+                    {openSection === section.title ? (
+                      <FaChevronUp className="text-gray-600" />
+                    ) : (
+                      <FaChevronDown className="text-gray-600" />
+                    )}
+                  </button>
+
+                  <div
+                    className={`transition-all overflow-hidden duration-500 ${
+                      openSection === section.title
+                        ? "max-h-96 mt-2"
+                        : "max-h-0"
+                    }`}
+                  >
+                    <p className="text-gray-700 text-sm leading-relaxed">
+                      {section.content}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-
-        {/* === BOTTOM SECTION === */}
-        <div className="border-t border-gray-200 px-6 sm:px-10 py-6 bg-white">
-          {[
-            {
-              title: "Product Description",
-              content:
-                "The Mars Matte Lipstick delivers a bold, long-lasting matte finish with a creamy, comfortable texture. Infused with nourishing ingredients, it keeps your lips soft and hydrated while offering intense pigmentation.",
-            },
-            {
-              title: "Ingredients",
-              content:
-                "Contains Vitamin E, Shea Butter, and natural waxes that help moisturize and protect your lips while maintaining the matte effect.",
-            },
-            {
-              title: "How to Use",
-              content:
-                "Apply directly on the lips starting from the center and moving outward. For a bold look, apply two layers. Use a lip liner for precise edges.",
-            },
-            {
-              title: "Offers & Promotions",
-              content:
-                "Get a free beauty pouch on purchases above ₹799. Flat 10% off on your first order with code MARS10.",
-            },
-          ].map((section, index) => (
-            <div key={index} className="border-b border-gray-200 py-4">
-              <button
-                onClick={() => toggleSection(section.title)}
-                className="w-full flex justify-between items-center text-left"
-              >
-                <h2 className="text-lg font-semibold text-gray-800">
-                  {section.title}
-                </h2>
-                {openSection === section.title ? (
-                  <FaChevronUp className="text-gray-600" />
-                ) : (
-                  <FaChevronDown className="text-gray-600" />
-                )}
-              </button>
-
-              <div
-                className={`transition-all overflow-hidden duration-500 ${
-                  openSection === section.title ? "max-h-96 mt-2" : "max-h-0"
-                }`}
-              >
-                <p className="text-gray-700 text-sm leading-relaxed">
-                  {section.content}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
       </div>
+      <RecommendedProducts products={recommended} />\
+      <ShowcaseStyle videos={myVideos} />
+      <ProductReviews
+        reviews={productDetail.reviews}
+        rating={productDetail.rating}
+      />
     </div>
   );
 }

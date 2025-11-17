@@ -93,6 +93,7 @@ const accountReducer = (state = initialState, action) => {
                 token: null, 
                 user: null 
             };
+            
         default:
             return state;
     }

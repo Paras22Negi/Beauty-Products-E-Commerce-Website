@@ -33,8 +33,17 @@ export default function AccountDropdown() {
             navigate("/profile");
           }}
         >
-          Profile<br /> 
+          Profile
+          <br />
           <p className="text-[8px]">({email})</p>
+        </DropdownMenu.Item>
+        <DropdownMenu.Item
+          className="px-3 py-2 hover:text-gray-200 rounded cursor-pointer"
+          onClick={() => {
+            navigate("/orders");
+          }}
+        >
+          Orders
         </DropdownMenu.Item>
         <DropdownMenu.Item className="px-3 py-2 hover:text-gray-200 rounded cursor-pointer">
           Settings

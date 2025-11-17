@@ -12,6 +12,10 @@ import ProtectedRoute from "./Components/ProtectedRoute";
 import ProductDetails from './Pages/productDetails.jsx'
 import ProductsPage from './Pages/ProductsPage.jsx'
 import BlogDetailPage from './Pages/Blog/BlogDetailPage.jsx'
+import CheckoutPage from './Pages/Checkout.jsx'
+import OrderSuccessPage from './Pages/Order/OrderSuccessPage.jsx'
+import OrderDetailsPage from './Pages/Order/OrderDetailsPage.jsx'
+import OrderListPage from './Pages/Order/OrderListPage.jsx'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -39,6 +43,10 @@ function App() {
         <Route path="/productDetails/:id" element={<ProductDetails />} />
         <Route path="/products" element={<ProductsPage />} />
         <Route path="/products/:category" element={<ProductsPage />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/OrderSuccessPage" element={<OrderSuccessPage />} />
+        <Route path="/order/:orderId" element={<OrderDetailsPage />} />
+        <Route path="/orders" element={<OrderListPage />} />
       </Routes>
     </>
   );

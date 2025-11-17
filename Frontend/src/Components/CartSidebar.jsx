@@ -3,6 +3,152 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { IoClose } from "react-icons/io5";
 import { removeFromCart, updateCartQuantity } from "../redux/cart/action";
+import { IoChevronBackOutline, IoChevronForwardOutline } from "react-icons/io5";
+
+
+// mock data for recommended products
+const recommendedProducts = [
+  {
+    id: 1,
+    title: "Pout Perfect",
+    image: "https://via.placeholder.com/150",
+    price: 499,
+    originalPrice: 597,
+    discount: 16,
+    hasShades: true,
+  },
+  {
+    id: 2,
+    title: "Aayushi's Favourite",
+    image: "https://via.placeholder.com/150",
+    price: 299,
+    originalPrice: 318,
+    discount: 6,
+    hasShades: false,
+  },
+  {
+    id: 3,
+    title: "Bold Matte Lipstick",
+    image: "https://via.placeholder.com/150",
+    price: 349,
+    originalPrice: 499,
+    discount: 30,
+    hasShades: true,
+  },
+  {
+    id: 4,
+    title: "Everyday Kajal Pack",
+    image: "https://via.placeholder.com/150",
+    price: 199,
+    originalPrice: 249,
+    discount: 20,
+    hasShades: false,
+  },
+  {
+    id: 5,
+    title: "Glow Highlighter",
+    image: "https://via.placeholder.com/150",
+    price: 399,
+    originalPrice: 450,
+    discount: 11,
+    hasShades: true,
+  },
+  {
+    id: 6,
+    title: "Soft Glam Eyeshadow",
+    image: "https://via.placeholder.com/150",
+    price: 599,
+    originalPrice: 749,
+    discount: 20,
+    hasShades: true,
+  },
+  {
+    id: 7,
+    title: "Long Wear Foundation",
+    image: "https://via.placeholder.com/150",
+    price: 799,
+    originalPrice: 999,
+    discount: 20,
+    hasShades: true,
+  },
+  {
+    id: 8,
+    title: "Hydra Moist Face Cream",
+    image: "https://via.placeholder.com/150",
+    price: 249,
+    originalPrice: 320,
+    discount: 22,
+    hasShades: false,
+  },
+  {
+    id: 9,
+    title: "Ultra Black Eyeliner",
+    image: "https://via.placeholder.com/150",
+    price: 179,
+    originalPrice: 220,
+    discount: 19,
+    hasShades: false,
+  },
+  {
+    id: 10,
+    title: "Peach Blush",
+    image: "https://via.placeholder.com/150",
+    price: 349,
+    originalPrice: 429,
+    discount: 18,
+    hasShades: true,
+  },
+  {
+    id: 11,
+    title: "Nail Paint Duo",
+    image: "https://via.placeholder.com/150",
+    price: 249,
+    originalPrice: 280,
+    discount: 11,
+    hasShades: false,
+  },
+  {
+    id: 12,
+    title: "Soft Touch Compact",
+    image: "https://via.placeholder.com/150",
+    price: 299,
+    originalPrice: 399,
+    discount: 25,
+    hasShades: true,
+  },
+];
+
+const orderData = {
+  id: 625,
+  customerName: "James",
+  email: "test@iconicwp.com",
+  paymentMethod: "Check payments",
+  address: "7513 N Bray Rd, Mount Morris, MI 48458",
+
+  items: [
+    {
+      id: 1,
+      title: "Hoodie",
+      color: "Red",
+      logo: "Yes",
+      qty: 1,
+      price: 49.52,
+      image: "https://via.placeholder.com/80",
+    },
+    {
+      id: 2,
+      title: "T-Shirt",
+      qty: 1,
+      price: 17.14,
+      image: "https://via.placeholder.com/80",
+    },
+  ],
+
+  subtotal: 66.67,
+  shipping: "Flat rate US",
+  tax: 3.33,
+  total: 70.0,
+};
 
 const CartSidebar = ({ isOpen, onClose }) => {
   const dispatch = useDispatch();
@@ -33,8 +179,13 @@ const CartSidebar = ({ isOpen, onClose }) => {
 
   const handleCheckout = () => {
     onClose();
-    navigate("/checkout");
+    navigate("/checkout", {
+      state: {
+        order: orderData,
+      },
+    });
   };
+
 
   return (
     <>
@@ -181,6 +332,96 @@ const CartSidebar = ({ isOpen, onClose }) => {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* Recommended Products */}
+            {items.length > 0 && (
+              <div className="px-6 py-4 border-t border-gray-200">
+                <h3 className="text-lg font-bold text-gray-800 mb-4">
+                  You may also like
+                </h3>
+
+                {/* Carousel Container */}
+                <div className="relative">
+                  {/* Left Arrow */}
+                  <button
+                    onClick={() => {
+                      document.getElementById("rec-carousel").scrollBy({
+                        left: -200,
+                        behavior: "smooth",
+                      });
+                    }}
+                    className="absolute left-0 top-1/2 -translate-y-1/2 bg-white shadow-md p-2 rounded-full z-10 hover:bg-gray-100"
+                  >
+                    <IoChevronBackOutline className="text-xl" />
+                  </button>
+
+                  {/* Right Arrow */}
+                  <button
+                    onClick={() => {
+                      document.getElementById("rec-carousel").scrollBy({
+                        left: 200,
+                        behavior: "smooth",
+                      });
+                    }}
+                    className="absolute right-0 top-1/2 -translate-y-1/2 bg-white shadow-md p-2 rounded-full z-10 hover:bg-gray-100"
+                  >
+                    <IoChevronForwardOutline className="text-xl" />
+                  </button>
+
+                  {/* Scrollable Row */}
+                  <div
+                    id="rec-carousel"
+                    className="flex gap-4 overflow-x-auto scroll-smooth no-scrollbar py-1"
+                  >
+                    {recommendedProducts.map((product) => (
+                      <div
+                        key={product.id}
+                        className="min-w-[150px] bg-gray-50 p-3 rounded-lg flex flex-col items-center shadow-sm h-[220px]"
+                      >
+                        <img
+                          src={product.image}
+                          alt={product.title}
+                          className="w-24 h-24 object-cover mb-2 rounded-lg"
+                        />
+
+                        <h4 className="text-sm font-medium text-gray-800 text-center line-clamp-2">
+                          {product.title}
+                        </h4>
+
+                        <div className="flex items-center gap-2 text-xs mt-1">
+                          {product.discount > 0 && (
+                            <span className="line-through text-gray-400">
+                              Rs. {product.originalPrice}
+                            </span>
+                          )}
+                          <span className="font-bold text-gray-800">
+                            Rs. {product.price}
+                          </span>
+                          {product.discount > 0 && (
+                            <span className="text-green-600">
+                              {product.discount}% OFF
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Push button to bottom */}
+                        <div className="mt-auto w-full">
+                          <button
+                            className={`w-full py-1 text-sm rounded ${
+                              product.hasShades
+                                ? "bg-black text-white hover:bg-gray-800"
+                                : "bg-rose-600 text-white hover:bg-rose-700"
+                            } transition`}
+                          >
+                            {product.hasShades ? "Select Shades" : "Add to bag"}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
           </div>

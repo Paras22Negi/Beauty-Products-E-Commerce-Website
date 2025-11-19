@@ -5,8 +5,13 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { bestSellersData } from "../Data/bestSellersData";
+import { useNavigate } from "react-router-dom";
 
 function BestSellers() {
+  const Navigate = useNavigate();
+  const handleProducts = () => {
+    Navigate("/products");
+  };
   const [activeCategory, setActiveCategory] = useState("Lips");
   const products = bestSellersData[activeCategory];
 
@@ -118,7 +123,7 @@ function BestSellers() {
                 </div>
 
                 {/* Show More Button */}
-                <button className="mt-4 w-full bg-black text-white text-xs sm:text-sm py-2 rounded-md transition-all duration-300 hover:bg-gray-800">
+                <button className="mt-4 w-full bg-black text-white text-xs sm:text-sm py-2 rounded-md transition-all duration-300 hover:bg-gray-800" onClick={handleProducts}>
                   Show More
                 </button>
               </div>

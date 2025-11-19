@@ -37,7 +37,7 @@ function MarsHelpSection() {
                 {item.titleMain}
               </h3>
               <a
-                href="#"
+                href="/products"
                 className="inline-block mt-1 sm:mt-2 text-white border-b border-white hover:text-gray-300 transition"
               >
                 {item.linkText}

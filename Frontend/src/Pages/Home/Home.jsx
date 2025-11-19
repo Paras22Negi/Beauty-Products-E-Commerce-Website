@@ -31,7 +31,7 @@ function Home() {
   const handleProductDetails = () => {
     // Logic to navigate to product details page
     // This can be implemented using useNavigate from react-router-dom
-    Navigate('/productDetails/1'); // Example navigation to product with id 1
+    Navigate('/products'); // Example navigation to product with id 1
   };
 
   return (

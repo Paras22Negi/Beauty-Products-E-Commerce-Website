@@ -1,7 +1,12 @@
 import React from "react";
 import { giftCombos } from "../Data/GiftComboData";
+import { useNavigate } from "react-router-dom";
 
 function GiftComboSection() {
+  const Navigate = useNavigate();
+    const handleProducts =() => {
+    Navigate('/products');
+  }
   return (
     <div className="bg-gray-100 py-12 sm:py-14 flex flex-col items-center px-4 sm:px-6 lg:px-10">
       {/* Section Heading */}
@@ -26,7 +31,7 @@ function GiftComboSection() {
             </div>
 
             {/* Title Bar */}
-            <div className="bg-black text-white text-center py-3 sm:py-4 font-semibold text-base sm:text-lg md:text-xl cursor-pointer hover:bg-red-950 transition-colors duration-300">
+            <div className="bg-black text-white text-center py-3 sm:py-4 font-semibold text-base sm:text-lg md:text-xl cursor-pointer hover:bg-red-950 transition-colors duration-300" onClick={handleProducts}>
               {combo.title}
             </div>
           </div>

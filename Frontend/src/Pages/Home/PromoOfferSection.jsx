@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 function PromoOfferSection({
   title = "Who doesn’t love a free gift?",
@@ -8,6 +9,11 @@ function PromoOfferSection({
   image = "https://marscosmetics.in/cdn/shop/files/Untitled-2_7b56e80e-03e2-4e66-99ac-9b7954d423f7.png?v=1728106133&width=1000",
   bgColor = "#f3f3f3",
 }) {
+  
+  const Navigate = useNavigate();
+    const handleProducts =() => {
+    Navigate('/products');
+  }
   return (
     <section
       className="rounded-3xl mx-4 sm:mx-6 my-10 px-5 sm:px-8 py-10 sm:py-14 flex flex-col md:flex-row items-center justify-between gap-10 md:gap-20"
@@ -27,7 +33,7 @@ function PromoOfferSection({
           Use Code: <span className="font-bold">{code}</span>
         </p>
 
-        <button className="bg-black text-white font-semibold text-sm sm:text-base px-6 py-3 rounded-md w-full sm:w-fit hover:bg-gray-800 transition">
+        <button className="bg-black text-white font-semibold text-sm sm:text-base px-6 py-3 rounded-md w-full sm:w-fit hover:bg-gray-800 transition" onClick={handleProducts}>
           {buttonText}
         </button>
       </div>

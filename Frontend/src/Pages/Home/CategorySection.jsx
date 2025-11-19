@@ -1,7 +1,14 @@
 import React from "react";
 import { categories } from "../Data/CategorySectionData";
+import { useNavigate } from "react-router-dom";
 
 function CategorySection() {
+
+    const Navigate = useNavigate();
+    const handleProducts = () => {
+      Navigate("/products");
+    };
+
   return (
     <div className="bg-black text-white py-6 px-3 sm:px-6 lg:px-10 overflow-hidden">
       <div
@@ -20,7 +27,7 @@ function CategorySection() {
             "
           >
             {/* Category Image */}
-            <div className="relative">
+            <div className="relative" onClick={handleProducts}>
               <img
                 src={cat.img}
                 alt={cat.name}

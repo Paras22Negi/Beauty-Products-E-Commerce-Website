@@ -1,7 +1,6 @@
-const express = require("express");
-const mongoose = require("mongoose");
-require("dotenv").config();
-
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+dotenv.config();
 
 const OtpSchema = new mongoose.Schema({
   // Add any configuration fields if needed
@@ -10,4 +9,6 @@ const OtpSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now, expires: 300 }, // OTP expires in 5 minutes
 });
 
-module.exports = mongoose.model("Otp", OtpSchema);
+const Otp = mongoose.model("Otp", OtpSchema);
+
+export default Otp;

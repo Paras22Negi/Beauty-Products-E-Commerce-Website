@@ -335,7 +335,7 @@ function ProductDetails() {
           </div>
         </div>
       </div>
-      <RecommendedProducts products={recommended} />\
+      <RecommendedProducts products={recommended} />
       <ShowcaseStyle videos={myVideos} />
       <ProductReviews
         reviews={productDetail.reviews}

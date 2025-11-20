@@ -1,6 +1,6 @@
-const express = require('express');
-const mongoose = require('mongoose');
-require("dotenv").config();
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+dotenv.config();
 
 const supportUserSchema = new mongoose.Schema({
   name: {
@@ -21,4 +21,6 @@ const supportUserSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('SupportUser', supportUserSchema);
+const SupportUser = mongoose.model('SupportUser', supportUserSchema);
+
+export default SupportUser;

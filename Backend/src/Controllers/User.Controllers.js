@@ -1,14 +1,13 @@
-const express = require('express');
-const nodemailer = require('nodemailer');
-require("dotenv").config();
-const bcrypt = require('bcrypt');
-const saltrounds = 10;
-const OtpModel = require('../Models/otp');
-const userModel = require('../Models/userModel');
-const jwt = require('jsonwebtoken');
+import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
+dotenv.config();
+import bcrypt from 'bcrypt';
+import OtpModel from '../Models/otp.Model.js';
+import userModel from '../Models/user.Model.js';
+import jwt from 'jsonwebtoken';
+import supportUserModel from '../Models/Support.Model.js';
 const JWT_SECRET = process.env.JWT_SECRET;
-const supportUserModel = require('../Models/SupportRequest');
-
+const saltrounds = 10;
 
 const SendOtp = async (req, res) => {
     const { email } = req.body;
@@ -196,5 +195,14 @@ const supportUser = async (req, res) => {
     }
 };
 
-module.exports = { SendOtp, verifyOtp, registerUser, loginUser, getUserDetails, updateUserDetails, deleteUser, updateUserPassword, supportUser };
-
+export {
+    SendOtp,
+    verifyOtp,
+    registerUser,
+    loginUser,
+    getUserDetails,
+    updateUserDetails,
+    deleteUser,
+    updateUserPassword,
+    supportUser
+};

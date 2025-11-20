@@ -1,8 +1,7 @@
-const express = require('express');
-require("dotenv").config();
-const mongoose = require('mongoose');
-const dbConnect = require('../dbConfig');
-dbConnect();
+import dotenv from "dotenv";
+dotenv.config();
+import mongoose from "mongoose";
+
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -24,4 +23,6 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
+
+export default User;

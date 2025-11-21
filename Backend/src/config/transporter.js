@@ -1,0 +1,29 @@
+// config/transporter.js
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+dotenv.config();
+
+const port = Number(process.env.SMTP_PORT || 587);
+const secure = port === 465; // true for 465, false for other ports
+
+const transporter = nodemailer.createTransport({
+  service: "Gmail",
+  port,
+  secure,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+// optional: verify transporter at startup (will throw if config invalid)
+transporter
+  .verify()
+  .then(() => {
+    console.log("✅ Mail transporter verified");
+  })
+  .catch((err) => {
+    console.warn("⚠️ Mail transporter verification failed:", err.message);
+  });
+
+export default transporter;

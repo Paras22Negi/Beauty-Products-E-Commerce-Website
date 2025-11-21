@@ -11,6 +11,18 @@ const userSchema = new mongoose.Schema({
     maximum: 20,
     unique: false,
   },
+  FirstName: {
+    type: String,
+    required: false,
+  },
+  LastName: {
+    type: String,
+    required: false,
+  },
+  mobile: {
+    type: String,
+    required: false,
+  },
   email: {
     type: String,
     required: [true, "Email is required"],
@@ -20,6 +32,36 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
+  },
+  role: {
+    type: String,
+    enum: ["user", "admin"],
+    required: true,
+    default: "user",
+  },
+  addresses:[{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Addresses",
+  }],
+  orders:[{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Orders",
+  }],
+  wishlist:[{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Product",
+  }],
+  raitings: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Raitings",
+  }],
+  reviews:[{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Reviews",
+  }],
+  createdAt: {
+    type: Date,
+    default: Date.now,
   },
 });
 

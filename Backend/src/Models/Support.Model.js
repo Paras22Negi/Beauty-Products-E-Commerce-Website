@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import User from "./user.Model";
 dotenv.config();
 
 const supportUserSchema = new mongoose.Schema({
@@ -19,6 +20,14 @@ const supportUserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  User: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  }
 });
 
 const SupportUser = mongoose.model('SupportUser', supportUserSchema);

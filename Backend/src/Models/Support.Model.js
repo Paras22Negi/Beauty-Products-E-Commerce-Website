@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import User from "./user.Model";
+import User from "./user.Model.js";
 dotenv.config();
 
 const supportUserSchema = new mongoose.Schema({

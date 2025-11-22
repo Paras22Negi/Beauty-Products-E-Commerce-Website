@@ -1,6 +1,7 @@
 import bycrypt from 'bcrypt';
 import user from "../Models/user.Model.js"
 import Otp from "../Models/otp.Model.js"
+import * as jwtProvider from '../config/jwtProvider.js';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -106,7 +107,7 @@ const verifyEmailServices = async (email) => {
   } catch (error) {
     throw new Error(error.message);
   }
-}
+};
 
 const verifyOtpServices = async (email, otp) => {
   try {
@@ -140,6 +141,65 @@ const verifyOtpServices = async (email, otp) => {
   } catch (error) {
     throw new Error(error.message);
   }
-}
+};
 
-export { verifyEmailServices, verifyOtpServices };
+const registerUserServices = async (userData) => {
+  try {
+    const { username, email, password, role } = userData;
+
+    if (!email || !password) {
+      throw new Error("Email and password re required");
+    }
+
+    const normalizedEmail = String(email).toLowerCase();
+    const existingUser = await user.findOne({ email: normalizedEmail });
+    if (existingUser) {
+      throw new Error("User exists with this email");
+    }
+
+    const hashedPassword = await bycrypt.hash(password, SALT_ROUNDS);
+    const User = new user.create({
+      username,
+      email: normalizedEmail,
+      password: hashedPassword,
+      role,
+    });
+
+    const Token = jwtProvider.generateToken({ id: User._id });
+    const userToReturn = user.toObject();
+    delete userToReturn.password;
+
+    return { user: userToReturn, Token };
+  } catch (err) {
+    throw new Error(err.message);
+  }
+};
+
+const loginUserServices = async (email, password) => {
+  try {
+    if (!email || !password) {
+      throw new Error("Email and password required");
+    }
+
+    const normalizedEmail = String(email).toLowerCase();
+    const User = await user.findOne({ email: normalizedEmail });
+    if (!User) {
+      throw new Error("User not found with this email");
+    }
+
+    const isPasswordValid = await bycrypt.compare(password, User.password);
+    if (!isPasswordValid) {
+      throw new Error("Invalid password");
+    }
+
+    const Token = jwtProvider.generateToken({ id: User._id });
+    const userToReturn = User.toObject();
+    delete userToReturn.password;
+
+    return { user: userToReturn, Token };
+  } catch (err) {
+    throw new Error(err.message);
+  }
+};
+
+export { verifyEmailServices, verifyOtpServices, registerUserServices, loginUserServices };

@@ -42,45 +42,23 @@ const verifyOtp = async (req, res) => {
 
 //signup user
 const registerUser = async (req, res) => {
-    const { username, email, password } = req.body;
-    if (!username || !email || !password) {
-        return res.status(400).json({ message: "All fields are required" });
-    }
     try {
-        const hashPassword = await bcrypt.hash(password, saltrounds);
-        const newUser = new userModel({ username, email, password: hashPassword });
-        await newUser.save();
-        console.log("signup success")
-        return res.status(201).json({ message: "User registered successfully" });
+        const userData = req.body;
+        const { user, Token} = await UserServices.registerUserServices(userData);
+        return res.status(201).json({ message: "User registered successfully", user, Token});
     }catch (error) {
-        console.error('Error in registerUser:', error);
-        return res.status(500).json({ message: "Server error", error });
+        return res.status(400).json({ error });
     }
 };
 
 // login user
 const loginUser = async (req, res) => {
-    const { email, password } = req.body;
-    if (!email || !password) {
-        return res.status(400).json({ message: "Email and password are required" });
-    }
     try {
-        const user = await userModel.findOne({ email });
-        if (!user) {
-            return res.status(400).json({ message: "Email not found" });
-        }
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) {
-            return res.status(400).json({ message: "Invalid password" });
-        }
-        // Generate JWT token
-        const token = jwt.sign({ userId: user._id, username: user.username, email: user.email}, JWT_SECRET, { expiresIn: '1h' });
-        return res
-          .status(200)
-          .json({ message: "Login successful", token });
+        const { email, password } = req.body;
+        const { user, Token } = await UserServices.loginUserServices(email, password);
+        return res.status(200).json({ message: "Login successful", user, Token });
     } catch (error) {
-        console.error('Error in loginUser:', error);
-        return res.status(500).json({ message: "Server error", error });
+        return res.status(401).json({ error });
     }
 };
 

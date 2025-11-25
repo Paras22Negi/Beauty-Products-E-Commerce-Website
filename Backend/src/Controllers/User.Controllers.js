@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt';
 import OtpModel from '../Models/otp.Model.js';
 import userModel from '../Models/user.Model.js';
 import jwt from 'jsonwebtoken';
-import supportUserModel from '../Models/Support.Model.js';
+import supportUserModel from '../Models/support.Model-temp.js';
 import * as UserServices from '../services/User.Services.js';
 import e from 'cors';
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -55,18 +55,21 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
-        const { user, Token } = await UserServices.loginUserServices(email, password);
-        return res.status(200).json({ message: "Login successful", user, Token });
+        const { user, token } = await UserServices.loginUserServices(email, password);
+        return res.status(200).json({ message: "Login successful", user, token });
     } catch (error) {
-        return res.status(401).json({ error });
+        return res.status(401).json({ message: error.message });
     }
 };
 
 // get user details
 const getUserDetails = async (req, res) => {
-    const userId = req.params;
     try {
-        const user = await userModel.findById(userId).select('-password');
+         const jwt = req.headers.authorization?.split(" ")[1];
+         if (!jwt) {
+           return res.status(404).send({ error: "token not found" });
+         }
+         const user = await UserServices.getUserProfileByToken(jwt);
         res.status(200).json(user);
     } catch (error) {
         console.error('Error in getUserDetails:', error);
@@ -136,6 +139,51 @@ const supportUser = async (req, res) => {
     }
 };
 
+const getAllUsers = async (req, res) => {
+  try {
+    const { pageNumber, pageSize } = req.query;
+
+    const result = await UserServices.getAllUsers({ pageNumber, pageSize });
+
+    return res.status(200).send(result);
+  } catch (error) {
+    return res.status(500).send({ error: error.message });
+  }
+};
+
+const requestResetOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: "Email is required" });
+
+    const result = await UserServices.sendResetOtpService(email);
+    return res
+      .status(200)
+      .json({ message: result.message, email: result.email });
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+    if (!email || !otp || !newPassword)
+      return res
+        .status(400)
+        .json({ error: "email, otp and newPassword are required" });
+
+    // confirm OTP first
+    await UserServices.verifyOtpServices(email, otp);
+
+    // reset password
+    const result = await UserServices.resetPasswordService(email, newPassword);
+    return res.status(200).json({ message: result.message });
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
+  }
+};
+
 export {
     SendOtp,
     verifyOtp,
@@ -145,5 +193,8 @@ export {
     updateUserDetails,
     deleteUser,
     updateUserPassword,
-    supportUser
+    supportUser,
+    getAllUsers,
+    requestResetOtp,
+    resetPassword,
 };

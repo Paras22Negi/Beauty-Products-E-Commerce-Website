@@ -1,20 +1,36 @@
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { MdAccountCircle } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
+import {jwtDecode} from "jwt-decode";
+import { useEffect, useState } from "react";
 
 export default function AccountDropdown() {
-    const Token = localStorage.getItem("token");
-    const email = Token ? JSON.parse(atob(Token.split(".")[1])).email : "Please Login";
+    const token = localStorage.getItem("token");
+    const [email, setEmail] = useState("Please Login");
+
+    useEffect(() => {
+      if (token && typeof token === "string" && token.split(".").length === 3) {
+        try {
+          const decoded = jwtDecode(token);
+          console.log(decoded);
+          setEmail(decoded?.username?.email || "Please Login");
+        } catch (error) {
+          console.error("Invalid token:", error);
+        }
+      }
+    }, [token]);
+
+
     const navigate = useNavigate();
 
-    const handleAcount = () => {
-        if (Token) {
-          localStorage.removeItem("token");
-          window.location.reload();
-        } else {
-          window.location.href = "/login";
-        }
-      };
+    const handleAccount = () => {
+      if (token) {
+        localStorage.removeItem("token");
+        navigate("/"); // or reload if you prefer
+      } else {
+        navigate("/login");
+      }
+    };
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
@@ -29,14 +45,16 @@ export default function AccountDropdown() {
       >
         <DropdownMenu.Item
           className="px-3 py-2 hover:text-gray-200 rounded cursor-pointer"
-          onClick={() => {
-            navigate("/profile");
-          }}
+          onClick={() => navigate("/profile")}
         >
           Profile
-          <br />
-          <p className="text-[8px]">({email})</p>
+          {token && (
+            <p className="text-[10px] opacity-60 leading-tight whitespace-normal break-words mt-1">
+              {email}
+            </p>
+          )}
         </DropdownMenu.Item>
+
         <DropdownMenu.Item
           className="px-3 py-2 hover:text-gray-200 rounded cursor-pointer"
           onClick={() => {
@@ -50,9 +68,9 @@ export default function AccountDropdown() {
         </DropdownMenu.Item>
         <DropdownMenu.Item
           className="px-3 py-2 hover:text-gray-200 rounded cursor-pointer"
-          onClick={handleAcount}
+          onClick={handleAccount}
         >
-          {Token ? "Logout" : "Login"}
+          {token ? "Logout" : "Login"}
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu.Root>

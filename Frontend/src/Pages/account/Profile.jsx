@@ -2,23 +2,37 @@ import React, { useState } from "react";
 import { MdModeEdit, MdInfoOutline } from "react-icons/md";
 import EditProfileModal from "../../Components/EditProfileModal";
 import AddAddressModal from "../../Components/AddAddressModal";
+import {jwtDecode} from "jwt-decode";
+import { useEffect } from "react";
+import Loader from "../../Components/Loader";
 
 function Profile() {
   const token = localStorage.getItem("token");
-  const base = JSON.parse(atob(token.split(".")[1]));
-  const username = base.username;
-  const email = base.email;
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    if (!token) return;
+    try {
+      const decoded = jwtDecode(token);
+      setUser(decoded);
+    } catch (err) {
+      console.error(err);
+    }
+  }, [token]);
 
   const [openEditModal, setOpenEditModal] = useState(false);
   const [openAddressModal, setOpenAddressModal] = useState(false);
+
+  if (!user) return <Loader />;
+
 
   return (
     <div className="min-h-screen w-screen bg-gray-200 p-6">
       {/* Edit Profile Modal */}
       {openEditModal && (
         <EditProfileModal
-          username={username}
-          email={email}
+          username={user?.username?.username}
+          email={user?.username?.email}
           onClose={() => setOpenEditModal(false)}
         />
       )}
@@ -39,13 +53,13 @@ function Profile() {
               className="flex items-center gap-1 text-pink-600 cursor-pointer"
               onClick={() => setOpenEditModal(true)}
             >
-              {username} <MdModeEdit />
+              {user?.username?.username} <MdModeEdit />
             </div>
           </div>
 
           <div className="flex items-center justify-between">
             <span className="text-gray-500">Email</span>
-            <span>{email}</span>
+            <span>{user?.username?.email}</span>
           </div>
         </div>
       </div>

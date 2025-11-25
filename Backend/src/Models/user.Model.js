@@ -39,26 +39,46 @@ const userSchema = new mongoose.Schema({
     required: true,
     default: "user",
   },
-  addresses:[{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Addresses",
-  }],
-  orders:[{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Orders",
-  }],
-  wishlist:[{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Product",
-  }],
-  raitings: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Raitings",
-  }],
-  reviews:[{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Reviews",
-  }],
+  addresses: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "addresses",
+    },
+  ],
+  paymentInformation: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "payment_information",
+    },
+  ],
+  superCoins: {
+    type: Number,
+    default: 0,
+  },
+  orders: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "orders",
+    },
+  ],
+  wishlist: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "products",
+    },
+  ],
+  ratings: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ratings",
+    },
+  ],
+  reviews: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "reviews",
+    },
+  ],
   createdAt: {
     type: Date,
     default: Date.now,

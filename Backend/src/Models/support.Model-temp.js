@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import User from "./user.Model.js";
 dotenv.config();
 
 const supportUserSchema = new mongoose.Schema({
@@ -26,10 +25,10 @@ const supportUserSchema = new mongoose.Schema({
   },
   User: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'user',
   }
 });
 
-const SupportUser = mongoose.model('SupportUser', supportUserSchema);
+const SupportUser = mongoose.model('supportUser', supportUserSchema);
 
 export default SupportUser;

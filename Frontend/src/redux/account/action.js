@@ -35,7 +35,7 @@ export const login = (credentials) => async (dispatch) => {
   try {
     const res = await axios.post(`${API_URL}/login`, credentials);
     dispatch({ type: LOGIN_SUCCESS, payload: res.data });
-
+    console.log(res.data)
     // Store token in localStorage (if not already in reducer)
     localStorage.setItem("token", res.data.token);
 

@@ -41,7 +41,6 @@ const getOtpHtmlTemplate = (otp, purpose = "verification") => {
   `;
 };
 
-
 const sendOtpEmail = async (toEmail, otp, purpose = "verification") => {
   const from = process.env.EMAIL_USER || process.env.SMTP_USER;
   const subject =
@@ -192,14 +191,84 @@ const loginUserServices = async (email, password) => {
       throw new Error("Invalid password");
     }
 
-    const Token = jwtProvider.generateToken({ id: User._id });
+    const Token = jwtProvider.generateToken({ id: User._id, email: User.email, username: User.username });
     const userToReturn = User.toObject();
     delete userToReturn.password;
 
-    return { user: userToReturn, Token };
+    return { user: userToReturn, token: Token };
   } catch (err) {
     throw new Error(err.message);
   }
 };
 
-export { verifyEmailServices, verifyOtpServices, registerUserServices, loginUserServices };
+const getUserProfileByToken = async (token) => {
+  try {
+    const userId = jwtProvider.getUserIdFromToken(token);
+
+    console.log("user id ", userId);
+
+    const user = (await findUserById(userId)).populate("addresses");
+    user.password = null;
+
+    if (!user) {
+      throw new Error(`User does not exist with id: ${userId}`);
+    }
+    return user;
+  } catch (error) {
+    console.log("error ----- ", error.message);
+    throw new Error(error.message);
+  }
+};
+
+const getAllUsers = async ({ pageNumber = 1, pageSize = 10 }) => {
+  pageNumber = parseInt(pageNumber);
+  pageSize = parseInt(pageSize);
+
+  const totalUsers = await user.countDocuments();
+
+  const users = await user.find()
+    .skip((pageNumber - 1) * pageSize)
+    .limit(pageSize);
+
+  const totalPages = Math.ceil(totalUsers / pageSize);
+
+  return {
+    users,
+    currentPage: pageNumber,
+    totalPages,
+  };
+};
+
+const sendResetOtpService = async (email) => {
+  const user = await user.findOne({ email });
+  if (!user) {
+    throw new Error("No user registered with this email");
+  }
+
+  const otp = generateOtp();
+  const otpStr = otp.toString();
+
+  await Otp.findOneAndUpdate(
+    { email },
+    { otp: otpStr, createdAt: new Date(), attempts: 0, blockedUntil: null },
+    { upsert: true }
+  );
+
+  // ✅ Reuse same email helper for reset OTP
+  await sendOtpEmail(email, otpStr);
+
+  return { message: "Reset OTP sent successfully", email };
+};
+
+const resetPasswordService = async (email, newPassword) => {
+  const user = await User.findOne({ email });
+  if (!user) throw new Error("No user found with this email");
+
+  const hashed = await bcrypt.hash(newPassword, 8);
+  user.password = hashed;
+  await user.save();
+
+  return { success: true, message: "Password reset successfully" };
+};
+
+export { verifyEmailServices, verifyOtpServices, registerUserServices, loginUserServices, getUserProfileByToken, getAllUsers, sendResetOtpService, resetPasswordService };

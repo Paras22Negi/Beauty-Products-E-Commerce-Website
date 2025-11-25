@@ -29,4 +29,10 @@ Router.put('/user/:id/password', UserControllers.updateUserPassword);
 // Support User Route
 Router.post('/support', UserControllers.supportUser);
 
+// Request Reset OTP Route
+Router.post("/request-reset-otp", UserControllers.requestResetOtp);
+
+// Reset Password Route
+Router.post("/reset-password", UserControllers.resetPassword);
+
 export default Router;

@@ -1,81 +1,81 @@
-import Product from "../Models/Product.Model.js";
+import Product from "../Models/product.Model.js";
 import Category from "../Models/category.Model.js";
 import cloudinary from "cloudinary";
 
 const createProduct = async (req) => {
-    try {
-      const reqData = req.body;
-      const sizes = reqData.sizes;
-      if (typeof sizes === "string") {
-        reqData.sizes = JSON.parse(sizes);
-      }
-      if (!req.files || req.files.length === 0) {
-        throw new Error("No images uploaded");
-      }
-      const uploadResult = await Promise.all(
-        req.files.map((file) => {
-          const base64Image = `data:${
-            file.mimetype
-          };base64,${file.data.toString("base64")}`;
-          return cloudinary.uploader.upload(base64Image);
-        })
-      );
-      const imageUrls = uploadResult.map((result) => result.secure_url);
-      console.log("imageUrls:", imageUrls);
-
-      // Handle category creation
-      const topLevel =
-        (await Category.findOne({ name: reqData.topLevelCategory })) ||
-        (await new Category({
-          name: reqData.topLevelCategory,
-          level: 1,
-        }).save());
-
-      const secondLevel =
-        (await Category.findOne({
-          name: reqData.secondLevelCategory,
-          parentCategory: topLevel._id,
-        })) ||
-        (await new Category({
-          name: reqData.secondLevelCategory,
-          parentCategory: topLevel._id,
-          level: 2,
-        }).save());
-
-      const thirdLevel =
-        (await Category.findOne({
-          name: reqData.thirdLevelCategory,
-          parentCategory: secondLevel._id,
-        })) ||
-        (await new Category({
-          name: reqData.thirdLevelCategory,
-          parentCategory: secondLevel._id,
-          level: 3,
-        }).save());
-
-      // Create and save product
-      const product = new Product({
-        title: reqData.title,
-        description: reqData.description,
-        discountedPrice: reqData.discountedPrice,
-        discountPersent: reqData.discountPersent,
-        imageUrl: imageUrls,
-        brand: reqData.brand,
-        price: reqData.price,
-        sizes: sizes,
-        quantity: reqData.quantity,
-        color: reqData.color,
-        category: thirdLevel._id,
-      });
-
-      return await product.save();
-    } catch (error) {
-      console.error("Create Product Error:", error);
-      throw new Error(error.message || "Something went wrong");
+  try {
+    const reqData = req.body;
+    const sizes = reqData.sizes;
+    if (typeof sizes === "string") {
+      reqData.sizes = JSON.parse(sizes);
     }
-}
+    if (!req.files || req.files.length === 0) {
+      throw new Error("No images uploaded");
+    }
+    const uploadResult = await Promise.all(
+      req.files.map((file) => {
+        const base64Image = `data:${file.mimetype};base64,${file.data.toString(
+          "base64"
+        )}`;
+        return cloudinary.uploader.upload(base64Image);
+      })
+    );
+    const imageUrls = uploadResult.map((result) => result.secure_url);
+    console.log("imageUrls:", imageUrls);
 
-// Delete product by id 
+    // Handle category creation
+    const topLevel =
+      (await Category.findOne({ name: reqData.topLevelCategory })) ||
+      (await new Category({
+        name: reqData.topLevelCategory,
+        level: 1,
+      }).save());
+
+    const secondLevel =
+      (await Category.findOne({
+        name: reqData.secondLevelCategory,
+        parentCategory: topLevel._id,
+      })) ||
+      (await new Category({
+        name: reqData.secondLevelCategory,
+        parentCategory: topLevel._id,
+        level: 2,
+      }).save());
+
+    const thirdLevel =
+      (await Category.findOne({
+        name: reqData.thirdLevelCategory,
+        parentCategory: secondLevel._id,
+      })) ||
+      (await new Category({
+        name: reqData.thirdLevelCategory,
+        parentCategory: secondLevel._id,
+        level: 3,
+      }).save());
+
+    // Create and save product
+    const product = new Product({
+      title: reqData.title,
+      description: reqData.description,
+      discountedPrice: reqData.discountedPrice,
+      discountPersent: reqData.discountPersent,
+      imageUrl: imageUrls,
+      brand: reqData.brand,
+      price: reqData.price,
+      sizes: sizes,
+      quantity: reqData.quantity,
+      color: reqData.color,
+      category: thirdLevel._id,
+    });
+
+    return await product.save();
+  } catch (error) {
+    console.error("Create Product Error:", error);
+    throw new Error(error.message || "Something went wrong");
+  }
+};
+
+// Delete product by id
 const deleteProduct = async (productId) => {
   const product = await findProductById(productId);
 
@@ -86,15 +86,15 @@ const deleteProduct = async (productId) => {
   await Product.findByIdAndDelete(productId);
 
   return "Product deleted Successfully";
-}
+};
 
-// Update product by id 
+// Update product by id
 const updateProduct = async (productId, reqData) => {
   const updatedProduct = await Product.findByIdAndUpdate(productId, reqData);
   return updatedProduct;
-}
+};
 
-// Find product by id 
+// Find product by id
 const findProductById = async (productId) => {
   const product = await Product.findById(id).populate("category").exec();
 
@@ -102,9 +102,9 @@ const findProductById = async (productId) => {
     throw new Error("Product not found with id " + id);
   }
   return product;
-}
+};
 
-// Get all products 
+// Get all products
 const getAllProducts = async (reqQuery) => {
   const {
     category,
@@ -177,17 +177,17 @@ const getAllProducts = async (reqQuery) => {
   const totalPages = Math.ceil(totalProducts / pageSize);
 
   return { content: products, currentPage: pageNumber, totalPages: totalPages };
-}
+};
 
 const createMultipleProduct = async (products) => {
   for (let product of products) {
     await createProduct(product);
   }
-}
+};
 
 const normalizeText = (text) => {
   return text.trim().toLowerCase().replace(/s$/, ""); // removes plural 's' (basic plural support)
-}
+};
 
 const searchProducts = async (reqQuery) => {
   const normalizedQuery = query.trim().toLowerCase();
@@ -232,6 +232,14 @@ const searchProducts = async (reqQuery) => {
   });
 
   return products;
-}
+};
 
-export { createProduct, getAllProducts, findProductById, deleteProduct, updateProduct, createMultipleProduct, searchProducts };
+export {
+  createProduct,
+  getAllProducts,
+  findProductById,
+  deleteProduct,
+  updateProduct,
+  createMultipleProduct,
+  searchProducts,
+};

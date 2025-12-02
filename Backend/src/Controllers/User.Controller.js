@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt';
 import OtpModel from '../Models/otp.Model.js';
 import userModel from '../Models/user.Model.js';
 import jwt from 'jsonwebtoken';
-import supportUserModel from '../Models/support.Model-temp.js';
+import supportUserModel from '../Models/support.Model.js';
 import * as UserServices from '../services/User.Services.js';
 import e from 'cors';
 const JWT_SECRET = process.env.JWT_SECRET;

@@ -1,14 +1,30 @@
 import mongoose from "mongoose";
-import dotenv from "dotenv";
-dotenv.config();
 
-const OtpSchema = new mongoose.Schema({
-  // Add any configuration fields if needed
-  email: { type: String, required: true },
-  otp: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now, expires: 300 }, // OTP expires in 5 minutes
+const otpSchema = new mongoose.Schema({
+  email: {
+    type: String,
+    required: true,
+    unique: true, // ✅ keep this — it already creates an index
+  },
+  otp: {
+    type: String,
+    required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+    expires: 600, // auto-delete after 10 minutes
+  },
+  attempts: {
+    type: Number,
+    default: 0,
+  },
+  blockedUntil: {
+    type: Date,
+    default: null,
+  },
 });
 
-const Otp = mongoose.model("otp", OtpSchema);
+const Otp = mongoose.model("otp", otpSchema);
 
 export default Otp;

@@ -1,6 +1,6 @@
 import express from 'express';
 const Router = express.Router();
-import * as UserControllers from '../Controllers/User.Controllers.js';
+import * as UserControllers from '../Controllers/User.Controller.js';
 
 // Send OTP Route
 Router.post('/send-otp', UserControllers.SendOtp);

@@ -1,0 +1,110 @@
+import Cart from "../Models/cart.model.js";
+import CartItem from "../Models/cartItem.Model.js";
+import Product from "../Models/Product.Model.js";
+import user from "../Models/user.Model.js";
+import Coupon from "../Models/coupon.Model.js";
+
+// create new cart for user
+const createCart = async (user) => {
+    const cart = new Cart({ user });
+    const createdCart = await cart.save();
+    return createdCart;
+}
+
+const findUserCart = async (userId) => {
+    const cart = await Cart.findOne({ user: userId })
+    if (!cart) {
+        cart = await createCart(userId);
+    }
+    const cartItems = await CartItem.find({ cart: cart._id }).populate("product");
+    cart.cartItems = cartItems;
+    let totalPrice = totalDiscountedPrice = totalItem = 0;
+    
+    for (const cartItem of cart.cartItems) {
+        totalPrice += cartItem.product.price * cartItem.quantity;
+        totalDiscountedPrice += cartItem.product.discountedPrice
+        totalItem += cartItem.quantity;
+    }
+
+    cart.totalPrice = totalPrice;
+    cart.totalItem = totalItem;
+    cart.totalDiscountedPrice = totalDiscountedPrice;
+    cart.totalPriceAfterDiscount = totalPrice - totalDiscountedPrice;
+    cart.couponCode = cart.couponCode;
+    cart.couponDiscount = cart.couponDiscount;
+    return cart;
+}
+
+const addCartItem = async (userId, req) => {
+    const cart = await Cart.findOne({ user: userId });
+    const product = await Product.findById(req.productId);
+    const isPresent = await CartItem.findOne({ cart: cart._id, product: product._id, userId });
+
+    if (isPresent) {
+        const cartItem = new CartItem({
+          product: product._id,
+          cart: cart._id,
+          quantity: 1,
+          userId,
+          price: product.discountedPrice,
+          size: req.size,
+          discountedPrice: product.discountedPrice,
+        });
+
+        const createdCartItem = await cartItem.save();
+        cart.cartItems.push(createdCartItem);
+        await cart.save();
+    }
+    return 'items added to cart';
+}
+
+// update applyCoupon() without orderId dependecy
+const applyCoupon = async (code, userId, cartId, cartTotal) => {
+  const coupon = await Coupon.findOne({ code, isActive: true });
+  if (!coupon) {
+    throw new Error("Coupon not found");
+  }
+  if (coupon.minOrderAmount && cartTotal < coupon.minOrderAmount){
+    throw new Error(`Minimum order amount of ₹${coupon.minOrderAmount} required`);
+  }
+  let discountAmount = 0;
+  if (coupon.discountType === 'flat'){
+    discountAmount = coupon.discountValue;
+  }else if (coupon.discountType === 'percentage'){
+    discountAmount = (coupon.discountValue / 100) * cartTotal;
+    if (coupon.maxDiscountAmount && discountAmount > coupon.maxDiscountAmount){
+        discountAmount = coupon.maxDiscountAmount;
+    }
+  }
+
+  const finalPayableAmount = Math.floor(cartTotal - discountAmount);
+
+  // Save Coupon to cart
+  const cart = await Cart.findById(cartId);
+  cart.couponCode = coupon.code;
+  cart.couponDiscount = Math.floor(discountAmount);
+  await cart.save();
+
+  return {
+    success: true,
+    code: coupon.code,
+    discountAmount: Math.floor(discountAmount),
+    originalTotal: cartTotal,
+    finalPayableAmount,
+    difference: Math.floor(discountAmount),
+    message: `Coupon "${code}" applied successfully`,
+  };
+};
+
+const allCoupon = async () => {
+    const coupon = await Coupon.find().sort({ createdAt: -1 });
+    return coupon;
+}
+
+export default {
+    createCart,
+    findUserCart,
+    addCartItem,
+    applyCoupon,
+    allCoupon,
+}

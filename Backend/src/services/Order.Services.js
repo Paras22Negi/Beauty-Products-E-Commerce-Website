@@ -9,82 +9,82 @@ import User from "../Models/user.Model.js";
 import Product from "../Models/Product.Model.js";
 
 
-const createOrder = async (userId, req) => {
-    let address;
+const createOrder = async (user, shippAddress, usedSuperCoins = 0) => {
+  let address;
 
-    // Address setup
-    if (shippAddress._id){
-        address = await Address.findById(shippAddress._id);
-    } else{
-        address = new Address(shippAddress);
-        address.user = user;
-        await address.save();
-        user.addresses.push(address);
-        await user.save();
-    }
+  // Address setup
+  if (shippAddress._id) {
+    address = await Address.findById(shippAddress._id);
+  } else {
+    address = new Address(shippAddress);
+    address.user = user;
+    await address.save();
+    user.addresses.push(address);
+    await user.save();
+  }
 
-    // Get cart & items
-    const cart = await cartService.findUserCart(user._id);
-    const orderItems = [];
+  // Get cart & items
+  const cart = await cartService.findUserCart(user._id);
+  const orderItems = [];
 
-    for (const item of cart.cartItems) {
-        const orderItem = new OrderItem({
-            price: item.price,
-            product: item.product,
-            quantity: item.quantity,
-            size: item.size,
-            userId: item.userId,
-            discountedPrice: item.discountedPrice,
-        });
-        const createOrderItem = await orderItem.save();
-        orderItems.push(createOrderItem);
-    }
-
-    // Super Coin Handling
-    const dbUser = await User.findById(userId);
-    if (!dbUser){
-        throw new Error("User not found");
-    }
-    if (usedSuperCoins > 0) {
-      if (dbUser.superCoins < usedSuperCoins) {
-        throw new Error("Insufficient Super Coins");
-      }
-      dbUser.superCoins -= usedSuperCoins;
-      await dbUser.save();
-    }
-
-    const discountFromCoins = usedSuperCoins * 1;
-
-    // coupon handling
-    const couponCode = cart?.couponCode || null;
-    const couponDiscount = cart?.couponDiscount || 0;
-
-    // Final price after all discounts
-    const finalPriceAfterCoinsAndCoupon = Math.max(
-      cart.totalDiscountedPrice - discountFromCoins - couponDiscount,
-      0
-    );
-
-    // Create Order
-    const createdOrder = new Order({
-      user,
-      orderItems,
-      totalPrice: cart.totalPrice,
-      totalDiscountedPrice: finalPriceAfterCoinsAndCoupon,
-      discounte: cart.discounte,
-      totalItem: cart.totalItem,
-      shippingAddress: address,
-      usedSuperCoins,
-      couponCode,
-      couponDiscount,
-      orderDate: new Date(),
-      orderStatus: "PENDING",
-      paymentDetails: { paymentStatus: "PENDING" },
-      createdAt: new Date(),
+  for (const item of cart.cartItems) {
+    const orderItem = new OrderItem({
+      price: item.price,
+      product: item.product,
+      quantity: item.quantity,
+      size: item.size,
+      userId: item.userId,
+      discountedPrice: item.discountedPrice,
     });
+    const createOrderItem = await orderItem.save();
+    orderItems.push(createOrderItem);
+  }
 
-    return await createdOrder.save();
-}
+  // Super Coin Handling
+  const dbUser = await User.findById(userId);
+  if (!dbUser) {
+    throw new Error("User not found");
+  }
+  if (usedSuperCoins > 0) {
+    if (dbUser.superCoins < usedSuperCoins) {
+      throw new Error("Insufficient Super Coins");
+    }
+    dbUser.superCoins -= usedSuperCoins;
+    await dbUser.save();
+  }
+
+  const discountFromCoins = usedSuperCoins * 1;
+
+  // coupon handling
+  const couponCode = cart?.couponCode || null;
+  const couponDiscount = cart?.couponDiscount || 0;
+
+  // Final price after all discounts
+  const finalPriceAfterCoinsAndCoupon = Math.max(
+    cart.totalDiscountedPrice - discountFromCoins - couponDiscount,
+    0
+  );
+
+  // Create Order
+  const createdOrder = new Order({
+    user,
+    orderItems,
+    totalPrice: cart.totalPrice,
+    totalDiscountedPrice: finalPriceAfterCoinsAndCoupon,
+    discounte: cart.discounte,
+    totalItem: cart.totalItem,
+    shippingAddress: address,
+    usedSuperCoins,
+    couponCode,
+    couponDiscount,
+    orderDate: new Date(),
+    orderStatus: "PENDING",
+    paymentDetails: { paymentStatus: "PENDING" },
+    createdAt: new Date(),
+  });
+
+  return await createdOrder.save();
+};
 
 const placedOrder = async(orderId, paymentMeta = {}) => {
     const order = await findOrderById(orderId);
@@ -315,7 +315,140 @@ const deleteOrder = async (orderId) => {
     await Order.findByIdAndDelete(orderId);
 }
 
+const getAdminDashboardOverview = async () => {
+  const customerCount = await User.countDocuments();
+  const productCount = await Product.countDocuments();
+  const recentUsers = await User.find({}).sort({createdAt:-1}).limit(5).select("name email image createdAt");
+  const recentOrders = await Order.find({}).sort({createdAt:-1}).limit(10).populate("orderItems.product", "title imageURL brand").select("totalDiscountedPrice orderStatus orderId orderItems createdAt");
+  const totalRevenueAgg = await Order.aggregate([
+    {
+      $match: { "paymentDetails.paymentStatus": "COMPLETED" }
+    },
+    {
+      $group: {
+        _id: null,
+        totalRevenue: { $sum: "$totalDiscountedPrice" },
+        totalOrders: { $sum: 1 },
+        totalProfit: { $sum: {$subtract:["$totalDiscountedPrice", "$discounte"]} },
+      }
+    }
+  ]);
 
+  const revenueData = totalRevenueAgg[0] || { totalRevenue: 0, totalOrders: 0, totalProfit: 0 };
+  const refundCount = await Order.countDocuments({ orderStatus: "CANCELLED" });
+  const recentWeekOrders = await Order.find({ createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }, "paymentDetails.paymentStatus": "COMPLETED" })
+  
+  // ------Weekly Sales------
+  const weeklySalesRaw = await Order.aggregate([
+    {
+      $match: { createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }, "paymentDetails.paymentStatus": "COMPLETED" }
+    },
+    {
+      $group: {
+        _id: { $dayOfWeek: "$createdAt" },
+        total: {$sum: "$totalDiscountedPrice"}
+      }
+    },
+    {
+      $sort: { _id: 1 }
+    }
+  ]);
+
+  const weeklySales = Array(7).fill(0);
+  weeklySalesRaw.forEach(day => {
+    const index = day._id - 1;
+    weeklySales[index] = day.total;
+  });
+
+  //======Monthly Sales(Last 30 days split by week)======
+  const monthlySalesRaw = await Order.aggregate([
+    {
+      $match: { createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }, "paymentDetails.paymentStatus": "COMPLETED" }
+    },
+    {
+      $group: {
+        _id: { $week: "$createdAt" },
+        total: {$sum: "$totalDiscountedPrice"}
+      }
+    },
+    {
+      $sort: { _id: 1 }
+    }
+  ]);
+
+  const monthlySales = monthlySalesRaw.map(entry => entry.total);
+
+  //======Yearly Sales(by month)======
+  const yearlySalesRaw = await Order.aggregate([
+    {
+      $match: {createdAt: {$gte: new Date(new Date().getFullYear(), 0, 1)}, "paymentDetails.paymentStatus": "COMPLETED",}
+    },
+    {
+      $group: {
+        _id: { $month: "$createdAt" },
+        total: {$sum: "$totalDiscountedPrice"}
+      }
+    },
+    {
+      $sort: { _id: 1 }
+    }
+  ]);
+
+  const yearlySales = Array(12).fill(0);
+  yearlySalesRaw.forEach(month => {
+    const index = month._id - 1;
+    yearlySales[index] = month.total;
+  });
+
+  return {
+    totalRevenue: revenueData.totalRevenue,
+    totalProfit: revenueData.totalProfit,
+    totalOrders: revenueData.totalOrders,
+    refundCount,
+    productCount,
+    customerCount,
+    newOrdersLast7Days: recentWeekOrders.length,
+    weeklySales,
+    monthlySales,
+    yearlySales,
+    recentUsers,
+    recentOrders,
+  };
+}
+
+const rewardSuperCoins = async (userId, orderId) => {
+  console.log("🎯 rewardeSuperCoins called for", userId, "with order", orderId);
+  
+  const order = await Order.findById(orderId);
+  if (!order || order.orderStatus !== 'DELIVERED'){
+    console.log("Order not found or order is not delivered");
+    throw new Error("Coins can only be rewarded after delivery");
+  }
+  const coins = Math.floor(order.totalDiscountedPrice / 100);
+  console.log("Coins to be rewarded:", coins);
+
+  const updatedUser = await User.findByIdAndUpdate(userId, {$inc: {superCoins: coins},}, {new: true});
+
+  if (!updatedUser){
+    console.log("User not found for rewarding coins");
+  } else {
+    console.log("Super coins added. New Balance:", updatedUser.superCoins);
+  }
+
+  order.earnedSuperCoins = coins;
+  await order.save();
+  return updatedUser;
+}
+
+const applySuperCoins = async (userId, coinCount, orderAmount) => {
+  const user = await User.findById(userId);
+  if (coinCount > user.superCoins) throw new Error("Not enough coins");
+
+  const discount = coinCount * 1; // ₹1 per coin
+  const finalAmount = Math.max(orderAmount - discount, 0);
+
+  return {finalAmount, discount};
+}
 
 export {
     createOrder,
@@ -331,4 +464,7 @@ export {
     returnOrder,
     approveReturnByAdmin,
     deleteOrder,
-}
+    getAdminDashboardOverview,
+    rewardSuperCoins,
+    applySuperCoins,
+  }

@@ -342,7 +342,7 @@ const getAdminDashboardOverview = async () => {
   const totalRevenueAgg = await Order.aggregate([
     {
       $match: { "paymentDetails.paymentStatus": "COMPLETED" },
-    },
+    },  
     {
       $group: {
         _id: null,

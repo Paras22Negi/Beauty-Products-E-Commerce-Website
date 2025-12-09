@@ -11,11 +11,11 @@ const userSchema = new mongoose.Schema({
     maximum: 20,
     unique: false,
   },
-  FirstName: {
+  firstName: {
     type: String,
     required: false,
   },
-  LastName: {
+  lastName: {
     type: String,
     required: false,
   },

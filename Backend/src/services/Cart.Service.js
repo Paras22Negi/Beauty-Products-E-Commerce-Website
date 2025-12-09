@@ -1,7 +1,6 @@
 import Cart from "../Models/cart.model.js";
 import CartItem from "../Models/cartItem.Model.js";
 import Product from "../Models/product.Model.js";
-import user from "../Models/user.Model.js";
 import Coupon from "../Models/coupon.Model.js";
 
 // create new cart for user

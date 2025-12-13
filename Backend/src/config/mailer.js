@@ -204,3 +204,5 @@ const sendOrderConfirmationEmail = async (to, order) => {
     console.error("❌ Failed to send email:", err && err.message ? err.message : err);
   }
 }
+
+export default sendOrderConfirmationEmail;

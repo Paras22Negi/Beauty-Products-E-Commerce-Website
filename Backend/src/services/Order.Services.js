@@ -1,7 +1,7 @@
-import Address from "../Models/Address.Model.js";
-import Order from "../Models/Order.Model.js";
-import OrderItem from "../Models/OrderItem.Model.js";
-import cartService from "./Cart.Services.js";
+import Address from "../Models/addresses.Model.js";
+import Order from "../Models/order.Model.js";
+import OrderItem from "../Models/orderItems.js";
+import cartService from "./Cart.Service.js";
 import CartItem from "../Models/cartItem.Model.js";
 import mongoose from "mongoose";
 import sendOrderConfirmationEmail from "../config/mailer.js";
@@ -342,7 +342,7 @@ const getAdminDashboardOverview = async () => {
   const totalRevenueAgg = await Order.aggregate([
     {
       $match: { "paymentDetails.paymentStatus": "COMPLETED" },
-    },  
+    },
     {
       $group: {
         _id: null,

@@ -1,5 +1,5 @@
 import transporter from "../config/transporter.js";
-import sendUserQueryConfirmationEmail from "../config/sendUserQueryConfirmationEmail.js";
+import { sendUserQueryConfirmationEmail } from "../config/sendUserQueryConfirmationEmail.js";
 import userQueryModel from "../Models/userQuery.Model.js";
 import dotenv from "dotenv";
 dotenv.config();

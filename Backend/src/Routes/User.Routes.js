@@ -1,38 +1,24 @@
-import express from 'express';
-const Router = express.Router();
-import * as UserControllers from '../Controllers/User.Controller.js';
+// routes/auth.routes.js
 
-// Send OTP Route
-Router.post('/send-otp', UserControllers.SendOtp);
+import express from "express";
+import * as authController from "../Controllers/auth.Controller.js";
+import * as userController from "../Controllers/User.Controller.js";
 
-// Verify OTP Route
-Router.post('/verify-otp', UserControllers.verifyOtp);
+const router = express.Router();
 
-// Register User Route
-Router.post('/signup', UserControllers.registerUser);
+// Auth routes
+router.post("/register", authController.registerUser);
+router.post("/login", authController.login);
 
-// Login User Route
-Router.post('/login', UserControllers.loginUser);
+// OTP verification routes
+router.post("/request-verify-otp", authController.sendOtp);
+router.post("/confirm-verify-otp", authController.verifyOtp);
 
-// Get User Details Route
-Router.get('/user/:id', UserControllers.getUserDetails);
+// Password reset via OTP
+router.post("/request-reset-otp", authController.sendResetOtp);
+router.post("/reset-password", authController.resetPassword);
 
-// Update User Details Route
-Router.put('/updateUser/:id', UserControllers.updateUserDetails);
+router.get("/", userController.getAllUsers);
+router.get("/profile", userController.getUserProfile);
 
-// Delete User Route
-Router.delete('/deleteUser/:id', UserControllers.deleteUser);
-
-// Update User Password Route
-Router.put('/user/:id/password', UserControllers.updateUserPassword);
-
-// Support User Route
-Router.post('/support', UserControllers.supportUser);
-
-// Request Reset OTP Route
-Router.post("/request-reset-otp", UserControllers.requestResetOtp);
-
-// Reset Password Route
-Router.post("/reset-password", UserControllers.resetPassword);
-
-export default Router;
+export default router;

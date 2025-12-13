@@ -1,5 +1,5 @@
-import Blog from "../Models/blog.Model";
-import cloudinary from "../config/cloudinary";
+import Blog from "../Models/blog.Model.js";
+import cloudinary from "../config/cloudinary.js";
 import streamifier from "streamifier";
 
 // Helper function to upload image to Cloudinary
@@ -181,10 +181,4 @@ const deleteBlog = async (blogId) => {
   return { message: "Blog deleted successfully" };
 };
 
-export {
-  createBlog,
-  getAllBlogs,
-  getBlogById,
-  updateBlog,
-  deleteBlog,
-};
+export { createBlog, getAllBlogs, getBlogById, updateBlog, deleteBlog };

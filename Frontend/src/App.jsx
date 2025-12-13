@@ -1,27 +1,38 @@
-import { useState } from 'react'
-import { Route, Routes } from 'react-router-dom'
-import Home from './Pages/Home/Home'
-import Blog from './Pages/Blog/BlogListPage.jsx'
-import AboutUs from './Pages/AboutUs/aboutUs'
-import Support from './Pages/Support/support'
-import StoreLocator from './Pages/StoreLocator/storeLocator'
-import Profile from './Pages/account/Profile.jsx'
-import Login from './Pages/account/login'
-import Signup from './Pages/account/signup'
+import { useState, Suspense, lazy } from "react";
+import { Route, Routes } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
+import Loader from "./Components/Loader";
 import ProtectedRoute from "./Components/ProtectedRoute";
-import ProductDetails from './Pages/productDetails.jsx'
-import ProductsPage from './Pages/ProductsPage.jsx'
-import BlogDetailPage from './Pages/Blog/BlogDetailPage.jsx'
-import CheckoutPage from './Pages/Checkout.jsx'
-import OrderSuccessPage from './Pages/Order/OrderSuccessPage.jsx'
-import OrderDetailsPage from './Pages/Order/OrderDetailsPage.jsx'
-import OrderListPage from './Pages/Order/OrderListPage.jsx'
+
+// Lazy load all page components
+const Home = lazy(() => import("./Pages/Home/Home"));
+const Blog = lazy(() => import("./Pages/Blog/BlogListPage.jsx"));
+const AboutUs = lazy(() => import("./Pages/AboutUs/aboutUs"));
+const Support = lazy(() => import("./Pages/Support/support"));
+const StoreLocator = lazy(() => import("./Pages/StoreLocator/storeLocator"));
+const Profile = lazy(() => import("./Pages/account/Profile.jsx"));
+const Login = lazy(() => import("./Pages/account/login"));
+const Signup = lazy(() => import("./Pages/account/signup"));
+const ProductDetails = lazy(() => import("./Pages/productDetails.jsx"));
+const ProductsPage = lazy(() => import("./Pages/ProductsPage.jsx"));
+const BlogDetailPage = lazy(() => import("./Pages/Blog/BlogDetailPage.jsx"));
+const CheckoutPage = lazy(() => import("./Pages/Checkout.jsx"));
+const OrderSuccessPage = lazy(() =>
+  import("./Pages/Order/OrderSuccessPage.jsx")
+);
+const OrderDetailsPage = lazy(() =>
+  import("./Pages/Order/OrderDetailsPage.jsx")
+);
+const OrderListPage = lazy(() => import("./Pages/Order/OrderListPage.jsx"));
+const PaymentCallback = lazy(() =>
+  import("./Pages/Payment/PaymentCallback.jsx")
+);
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
 
   return (
-    <>
+    <Suspense fallback={<Loader />}>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/aboutUs" element={<AboutUs />} />
@@ -44,12 +55,14 @@ function App() {
         <Route path="/products" element={<ProductsPage />} />
         <Route path="/products/:category" element={<ProductsPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/payment/:orderId" element={<PaymentCallback />} />
         <Route path="/OrderSuccessPage" element={<OrderSuccessPage />} />
         <Route path="/order/:orderId" element={<OrderDetailsPage />} />
         <Route path="/orders" element={<OrderListPage />} />
       </Routes>
-    </>
+      <Toaster position="top-center" reverseOrder={false} />
+    </Suspense>
   );
 }
 
-export default App
+export default App;

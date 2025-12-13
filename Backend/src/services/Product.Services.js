@@ -1,24 +1,17 @@
-import Category from "../models/category.model.js";
+import Category from "../Models/category.Model.js";
 import Product from "../Models/product.Model.js";
 import streamifier from "streamifier";
 import cloudinaryLib from "../config/cloudinary.js";
 import stringSimilarity from "string-similarity";
-import productService from "./Product.Services.js";
 
-// helper used here
-function normalizeText(str = "") {
-  return String(str || "")
-    .trim()
-    .toLowerCase();
-}
 // ---------- Helper: resolve product from query or session ----------
-async function resolveProductFromQuery(session, rawQuery) {
+const resolveProductFromQuery = async (session, rawQuery) => {
   // Try to use existing session-known products first (improves follow-ups)
   const q = (rawQuery || "").trim();
   // 1) If user provided a non-empty query, try DB first
   if (q) {
     // try DB best product
-    const dbMatch = await productService.findBestProduct(q);
+    const dbMatch = await findBestProduct(q);
     if (dbMatch) return dbMatch;
   }
 
@@ -32,19 +25,17 @@ async function resolveProductFromQuery(session, rawQuery) {
       // try exact title match first
       const exactIndex = titles.findIndex((t) => t === qLower);
       if (exactIndex !== -1) {
-        return await productService.findProductById(
-          lastProducts[exactIndex]._id
-        );
+        return await findProductById(lastProducts[exactIndex]._id);
       }
       // fuzzy match using stringSimilarity
       const match = stringSimilarity.findBestMatch(qLower, titles);
       if (match && match.bestMatch && match.bestMatch.rating > 0.5) {
         const idx = match.bestMatchIndex;
-        return await productService.findProductById(lastProducts[idx]._id);
+        return await findProductById(lastProducts[idx]._id);
       }
       // if no query provided (user just said "describe" after category), pick first
       if (!q && lastProducts.length) {
-        return await productService.findProductById(lastProducts[0]._id);
+        return await findProductById(lastProducts[0]._id);
       }
     }
   } catch (e) {
@@ -57,7 +48,7 @@ async function resolveProductFromQuery(session, rawQuery) {
   // 3) fallback: lastProductId in session
   try {
     if (session && session.lastProductId) {
-      return await productService.findProductById(session.lastProductId);
+      return await findProductById(session.lastProductId);
     }
   } catch (e) {
     /* ignore */
@@ -65,24 +56,24 @@ async function resolveProductFromQuery(session, rawQuery) {
 
   // 4) final fallback: try findBestProduct again (with query)
   if (q) {
-    return await productService.findBestProduct(q);
+    return await findBestProduct(q);
   }
   return null;
-}
+};
 
 // helpers at top of file
-function escapeRegex(str = "") {
+const escapeRegex = (str = "") => {
   return String(str).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // escape regex chars
-}
-function normalizeForCompare(s = "") {
+};
+const normalizeForCompare = (s = "") => {
   return String(s || "")
     .toLowerCase()
     .replace(/[^\w\s]/g, "") // remove punctuation
     .replace(/\s+/g, " ") // collapse spaces
     .trim();
-}
+};
 
-async function findBestProduct(query) {
+const findBestProduct = async (query) => {
   if (!query || !String(query).trim()) return null;
   const raw = String(query).trim();
 
@@ -204,14 +195,14 @@ async function findBestProduct(query) {
     .exec();
 
   return list.length ? list[0] : null;
-}
+};
 
-function formatCurrencyINR(n) {
+const formatCurrencyINR = (n) => {
   if (n === undefined || n === null) return "N/A";
   return `₹${Number(n).toLocaleString("en-IN")}`;
-}
+};
 
-async function getProductInfo(queryOrProduct) {
+const getProductInfo = async (queryOrProduct) => {
   let product = null;
   if (!queryOrProduct) return null;
 
@@ -274,8 +265,8 @@ async function getProductInfo(queryOrProduct) {
 
   // return structured result with id too (so assistant can save for follow-ups)
   return { text: lines.join("\n"), productId: String(product._id) };
-}
-async function getProductsByCategoryName(name, limit = 10) {
+};
+const getProductsByCategoryName = async (name, limit = 10) => {
   if (!name) return [];
 
   const regex = new RegExp(name.trim(), "i");
@@ -298,7 +289,7 @@ async function getProductsByCategoryName(name, limit = 10) {
     });
 
   return products;
-}
+};
 
 // async function createProduct(req) {
 //   try {
@@ -370,7 +361,7 @@ async function getProductsByCategoryName(name, limit = 10) {
 
 // Delete a product by ID
 
-async function createProduct(req) {
+const createProduct = async (req) => {
   try {
     console.log("== createProduct called ==");
     // Log headers briefly (don't log Authorization or cookies in production)
@@ -575,9 +566,9 @@ async function createProduct(req) {
       error.message || "Something went wrong while creating product"
     );
   }
-}
+};
 
-async function deleteProduct(productId) {
+const deleteProduct = async (productId) => {
   const product = await findProductById(productId);
 
   if (!product) {
@@ -587,26 +578,26 @@ async function deleteProduct(productId) {
   await Product.findByIdAndDelete(productId);
 
   return "Product deleted Successfully";
-}
+};
 
 // Update a product by ID
-async function updateProduct(productId, reqData) {
+const updateProduct = async (productId, reqData) => {
   const updatedProduct = await Product.findByIdAndUpdate(productId, reqData);
   return updatedProduct;
-}
+};
 
 // Find a product by ID
-async function findProductById(id) {
+const findProductById = async (id) => {
   const product = await Product.findById(id).populate("category").exec();
 
   if (!product) {
     throw new Error("Product not found with id " + id);
   }
   return product;
-}
+};
 
 // Get all products with filtering and pagination
-async function getAllProducts(reqQuery) {
+const getAllProducts = async (reqQuery) => {
   let {
     category,
     color,
@@ -678,19 +669,15 @@ async function getAllProducts(reqQuery) {
   const totalPages = Math.ceil(totalProducts / pageSize);
 
   return { content: products, currentPage: pageNumber, totalPages: totalPages };
-}
+};
 
-async function createMultipleProduct(products) {
+const createMultipleProduct = async (products) => {
   for (let product of products) {
     await createProduct(product);
   }
-}
+};
 
-function normalizeText(text) {
-  return text.trim().toLowerCase().replace(/s$/, ""); // removes plural 's' (basic plural support)
-}
-
-async function searchProducts(query) {
+const searchProducts = async (query) => {
   const normalizedQuery = query.trim().toLowerCase();
 
   // Find matching categories (case-insensitive)
@@ -733,9 +720,9 @@ async function searchProducts(query) {
   });
 
   return products;
-}
+};
 
-module.exports = {
+export {
   createProduct,
   deleteProduct,
   updateProduct,

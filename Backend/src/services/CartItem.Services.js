@@ -1,5 +1,5 @@
 import CartItem from "../Models/cartItem.Model.js";
-import userService from "./User.Services.js";
+import * as userService from "./User.Services.js";
 
 // Create a new cart item
 const createCartItem = async (cartItemData) => {

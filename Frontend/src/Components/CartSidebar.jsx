@@ -5,7 +5,6 @@ import { IoClose } from "react-icons/io5";
 import { removeFromCart, updateCartQuantity } from "../redux/cart/action";
 import { IoChevronBackOutline, IoChevronForwardOutline } from "react-icons/io5";
 
-
 // mock data for recommended products
 const recommendedProducts = [
   {
@@ -153,7 +152,9 @@ const orderData = {
 const CartSidebar = ({ isOpen, onClose }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { items, totalPrice } = useSelector((state) => state.cart);
+  const { cartItems: items = [], totalPrice = 0 } = useSelector(
+    (state) => state.cart
+  );
 
   // ✅ Helper: format price for INR
   const formatPrice = (price) => {
@@ -185,7 +186,6 @@ const CartSidebar = ({ isOpen, onClose }) => {
       },
     });
   };
-
 
   return (
     <>

@@ -4,6 +4,18 @@ import UserRoutes from './Routes/User.Routes.js';
 import ProductRoutes from './Routes/Product.Routes.js';
 import connectDB from './config/db.Config.js';
 import dotenv from 'dotenv';
+import CartRoutes from "./Routes/Cart.Routes.js";
+import CartItemsRoutes from "./Routes/CartItems.Routes.js";
+import OrderRoutes from "./Routes/Order.Routes.js";
+import PaymentRoutes from "./Routes/Payment.Routes.js";
+import BlogRoutes from "./Routes/Blog.Routes.js";
+import CouponRoutes from "./Routes/Coupon.Routes.js";
+import RatingRoutes from "./Routes/Ratings.Routes.js";
+import ReviewRoutes from "./Routes/Review.Routes.js";
+import UserQueryRoutes from "./Routes/UserQuery.Routes.js";
+import AdminOrderRoutes from "./Routes/AdminOrder.Routes.js";
+import ProductAdminRoutes from "./Routes/Product.Admin.Routes.js";
+
 dotenv.config();
 const Port = process.env.PORT;
 
@@ -22,6 +34,17 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/api', UserRoutes)
 app.use('/api', ProductRoutes)
+app.use("/api/cart", CartRoutes);
+app.use("/api/cart-items", CartItemsRoutes);
+app.use("/api/orders", OrderRoutes);
+app.use("/api/payments", PaymentRoutes);
+app.use("/api/blogs", BlogRoutes);
+app.use("/api/coupons", CouponRoutes);
+app.use("/api/ratings", RatingRoutes);
+app.use("/api/reviews", ReviewRoutes);
+app.use("/api/user-query", UserQueryRoutes);
+app.use("/api/admin/orders", AdminOrderRoutes);
+app.use("/api/admin/products", ProductAdminRoutes);
 
 app.listen(Port, async()=>{
   await connectDB();

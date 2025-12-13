@@ -1,14 +1,10 @@
 import express from "express";
 const router = express.Router();
 import * as ProductControllers from "../Controllers/Product.Controller.js";
-import * as Upload from "../middleware/upload.js";
+import upload from "../middleware/upload.js";
 import SizeChart from "../Models/sizechart.model.js";
 
-router.post(
-  "/",
-  Upload.upload.array("images", 4),
-  ProductControllers.createProduct
-);
+router.post("/", upload.array("images", 4), ProductControllers.createProduct);
 router.post("/creates", ProductControllers.createMultipleProduct);
 router.delete("/:id", ProductControllers.deleteProduct);
 router.put("/:id", ProductControllers.updateProduct);

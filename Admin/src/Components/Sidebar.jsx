@@ -1,5 +1,13 @@
 import React from "react";
-import { LayoutDashboard, Package, Users, Plus } from "lucide-react";
+import {
+  LayoutDashboard,
+  Package,
+  Users,
+  Plus,
+  FileText,
+  ShoppingBag,
+  Ticket,
+} from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 const Sidebar = () => {
@@ -7,23 +15,30 @@ const Sidebar = () => {
     {
       label: "Dashboard",
       icon: <LayoutDashboard size={20} />,
-      path: "/dashboard",
+      path: "/",
     },
     { label: "Products", icon: <Package size={20} />, path: "/products" },
     { label: "Customers", icon: <Users size={20} />, path: "/customers" },
+    { label: "Blogs", icon: <FileText size={20} />, path: "/blogs" },
     { label: "Add Product", icon: <Plus size={20} />, path: "/add-product" },
-    { label: "Orders", icon: <Package size={20}/>, path: "/orders"}
+    { label: "Orders", icon: <ShoppingBag size={20} />, path: "/orders" },
+    {label:"Upload Video", path:"/upload-video"},
+    {
+      label: "Create Coupon",
+      icon: <Ticket size={20} />,
+      path: "/create-coupon",
+    },
   ];
 
   return (
-    <aside className="w-[230px] h-full bg-black border-r border-gray-700 flex flex-col">
+    <aside className="w-[230px] h-full bg-white border-r border-gray-700 flex flex-col">
       <nav className="flex-1 py-4">
         {navItems.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
             className={({ isActive }) =>
-              `flex items-center gap-4 px-6 py-3 text-gray-300 transition hover:bg-[#1a2542] ${
+              `flex items-center gap-4 px-6 py-3 text-black transition hover:bg-[#1a2542] hover:text-white ${
                 isActive
                   ? "bg-[#1a2542] border-l-4 border-purple-500 text-white"
                   : ""

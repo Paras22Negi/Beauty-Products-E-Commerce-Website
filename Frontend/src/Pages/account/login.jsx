@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaEyeSlash } from "react-icons/fa";
 import { FaEye } from "react-icons/fa";
 import { login } from "../../redux/account/action";
+import toast from "react-hot-toast";
 
 function Login() {
   const Navigate = useNavigate();
@@ -21,11 +22,18 @@ function Login() {
       const formData = { email, password };
       const data = await dispatch(login(formData)); // wait for login action
       if (data?.token) {
+        toast.success("Login successful!");
         Navigate("/profile"); // only navigate if login succeeded
+      } else {
+        toast.error(
+          data?.message || "Login failed. Please check your credentials."
+        );
       }
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || "Login failed");
+      toast.error(
+        err.response?.data?.message || "Login failed. Please try again."
+      );
     } finally {
       setLoading(false);
     }

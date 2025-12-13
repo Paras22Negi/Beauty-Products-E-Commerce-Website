@@ -1,8 +1,8 @@
 import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import User from "../Models/user.Model.js";
-import jwtProvider from "../config/jwtProvider.js";
-import Otp from "../models/otpSchema.js";
+import * as jwtProvider from "../config/jwtProvider.js";
+import Otp from "../Models/otp.Model.js";
 import transporter from "../config/transporter.js";
 import dotenv from "dotenv";
 dotenv.config();

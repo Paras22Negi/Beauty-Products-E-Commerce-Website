@@ -21,7 +21,7 @@ export const setEmail = (email) => ({
 export const sendOtp = (email) => async (dispatch) => {
   dispatch({ type: SEND_OTP_REQUEST });
   try {
-    const res = await axios.post(`${BACKEND_URL}/send-otp`, {
+    const res = await axios.post(`${BACKEND_URL}/api/request-verify-otp`, {
       email,
     });
     dispatch({ type: SEND_OTP_SUCCESS, payload: res.data });
@@ -43,7 +43,7 @@ export const sendOtp = (email) => async (dispatch) => {
 export const verifyOtp = (email, otp) => async (dispatch) => {
   dispatch({ type: VERIFY_OTP_REQUEST });
   try {
-    const res = await axios.post(`${BACKEND_URL}/verify-otp`, {
+    const res = await axios.post(`${BACKEND_URL}/api/confirm-verify-otp`, {
       email,
       otp,
     });

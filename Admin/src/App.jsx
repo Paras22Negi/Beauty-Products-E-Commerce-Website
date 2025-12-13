@@ -4,24 +4,30 @@ import AdminLayout from "./Layout/AdminLayout";
 import Dashboard from "./Pages/Dashboard";
 import Products from "./Pages/Products";
 import Customers from "./Pages/Customers";
+import Blogs from "./Pages/Blogs";
 import AdminAddProduct from "./Pages/AdminAddProduct";
 import UpdateProduct from "./Pages/UpdateProduct";
-import Orders from "./Pages/Orders"
+import OrdersTable from "./Orders/OrdersTable";
+import Coupan from "./Coupan/Coupan";
+import VideoUpload from "./Components/Video/VideoUpload";
 
 const App = () => {
   return (
     <Routes>
       {/* Redirect root to dashboard */}
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      {/* <Route path="/" element={<Navigate to="/dashboard" replace />} /> */}
 
       {/* Admin layout wrapper */}
       <Route element={<AdminLayout />}>
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/" element={<Dashboard />} />
         <Route path="/products" element={<Products />} />
         <Route path="/customers" element={<Customers />} />
+        <Route path="/blogs" element={<Blogs />} />
         <Route path="/add-product" element={<AdminAddProduct />} />
         <Route path="/admin/update-product" element={<UpdateProduct />} />
-        <Route path="/orders" element={<Orders />}/>
+        <Route path="orders" element={<OrdersTable />} />
+        <Route path="create-coupon" element={<Coupan />} />
+        <Route path = "/upload-video" element={<VideoUpload />} />
       </Route>
     </Routes>
   );

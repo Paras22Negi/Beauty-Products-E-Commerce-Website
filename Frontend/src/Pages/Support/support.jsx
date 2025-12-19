@@ -1,35 +1,60 @@
-import React from "react";
-import { useDispatch } from "react-redux";
-import { addSupportRequest } from "../../redux/Support/action";
+import React, { useState } from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
+
+const API_URL = import.meta.env.VITE_BACKEND_URL;
 
 function Support() {
-  const dispatch = useDispatch();
-  const [FormData, setFormData] = React.useState({
+  const [formData, setFormData] = useState({
     name: "",
     email: "",
     subject: "",
     message: "",
   });
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = () => {
-    try {
-      dispatch(addSupportRequest(FormData));
-      setFormData({
-        name: "",
-        email: "",
-        subject: "",
-        message: "",
-      });
-    } catch (error) {
-      console.error("Error submitting support request:", error);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validate
+    if (
+      !formData.name ||
+      !formData.email ||
+      !formData.subject ||
+      !formData.message
+    ) {
+      toast.error("Please fill all fields");
+      return;
     }
-    alert("Thank you! Your message has been submitted successfully.");
+
+    setLoading(true);
+    try {
+      const res = await axios.post(`${API_URL}/api/user-query`, formData);
+
+      if (res.data.success) {
+        toast.success(
+          "Thank you! Your message has been submitted successfully."
+        );
+        setFormData({
+          name: "",
+          email: "",
+          subject: "",
+          message: "",
+        });
+      }
+    } catch (error) {
+      console.error("Error submitting contact form:", error);
+      toast.error(
+        error.response?.data?.message || "Failed to submit. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (event) => {
-    // Handle input changes if needed
     const { name, value } = event.target;
-    setFormData({ ...FormData, [name]: value });
+    setFormData({ ...formData, [name]: value });
   };
 
   return (
@@ -40,7 +65,7 @@ function Support() {
           Contact Us
         </h1>
         <p className="text-gray-600 text-center mb-10 max-w-2xl mx-auto">
-          We’d love to hear from you! Please fill out the form below and our
+          We'd love to hear from you! Please fill out the form below and our
           support team will reach out to you as soon as possible.
         </p>
 
@@ -57,6 +82,7 @@ function Support() {
             <input
               type="text"
               name="name"
+              value={formData.name}
               required
               placeholder="Enter your name"
               className="border border-gray-300 rounded-lg px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
@@ -72,6 +98,7 @@ function Support() {
             <input
               type="email"
               name="email"
+              value={formData.email}
               required
               placeholder="you@example.com"
               className="border border-gray-300 rounded-lg px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
@@ -85,6 +112,8 @@ function Support() {
             <input
               type="text"
               name="subject"
+              value={formData.subject}
+              required
               placeholder="What's this about?"
               className="border border-gray-300 rounded-lg px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
               onChange={handleChange}
@@ -96,6 +125,7 @@ function Support() {
             <label className="text-gray-700 font-semibold mb-2">Message</label>
             <textarea
               name="message"
+              value={formData.message}
               rows="6"
               required
               placeholder="Type your message here..."
@@ -108,9 +138,10 @@ function Support() {
           <div className="md:col-span-2 flex justify-center">
             <button
               type="submit"
-              className="bg-pink-600 text-white font-semibold text-lg py-3 px-10 rounded-lg hover:bg-pink-700 transition duration-300"
+              disabled={loading}
+              className="bg-pink-600 text-white font-semibold text-lg py-3 px-10 rounded-lg hover:bg-pink-700 transition duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              Send Message
+              {loading ? "Sending..." : "Send Message"}
             </button>
           </div>
         </form>
@@ -119,10 +150,10 @@ function Support() {
         <div className="mt-8 text-center text-gray-500 text-sm">
           Or email us directly at{" "}
           <a
-            href="mailto:support@example.com"
+            href="mailto:venusgarments@gmail.com"
             className="text-pink-600 font-medium hover:underline"
           >
-            support@example.com
+            venusgarments@gmail.com
           </a>
         </div>
       </div>

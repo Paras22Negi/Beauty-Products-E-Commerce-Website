@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import User from "../Models/user.Model.js";
+import Address from "../Models/addresses.Model.js";
 import * as jwtProvider from "../config/jwtProvider.js";
 import Otp from "../Models/otp.Model.js";
 import transporter from "../config/transporter.js";
@@ -40,7 +41,7 @@ const sendEmail = async (email, otp) => {
 
 const createUser = async (userData) => {
   try {
-    let { firstName, lastName, email, password, role } = userData;
+    let { username, firstName, lastName, email, password, role } = userData;
 
     const isUserExist = await User.findOne({ email });
 
@@ -48,17 +49,22 @@ const createUser = async (userData) => {
       throw new Error(`User already exists with email: ${email}`);
     }
 
+    // Check if this is the first user in the system - make them admin
+    const userCount = await User.countDocuments();
+    const assignedRole = userCount === 0 ? "admin" : "user";
+
     password = await bcrypt.hash(password, 8);
 
     const user = await User.create({
+      username,
       firstName,
       lastName,
       email,
       password,
-      role,
+      role: assignedRole, // First user becomes admin, rest are users
     });
 
-    console.log("user ", user);
+    console.log("user created:", user.email, "role:", user.role);
 
     return user;
   } catch (error) {
@@ -101,7 +107,7 @@ const getUserProfileByToken = async (token) => {
 
     console.log("user id ", userId);
 
-    const user = (await findUserById(userId)).populate("addresses");
+    const user = await User.findById(userId).populate("addresses");
     user.password = null;
 
     if (!user) {
@@ -133,6 +139,73 @@ const getAllUsers = async ({ pageNumber = 1, pageSize = 10 }) => {
   };
 };
 
+// Update user profile (firstName, lastName, mobile)
+const updateUserProfile = async (userId, updateData) => {
+  try {
+    const { firstName, lastName, mobile } = updateData;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    // Update fields if provided
+    if (firstName !== undefined) user.firstName = firstName;
+    if (lastName !== undefined) user.lastName = lastName;
+    if (mobile !== undefined) user.mobile = mobile;
+
+    // Update username to match firstName + lastName
+    if (firstName || lastName) {
+      user.username = `${firstName || user.firstName || ""} ${
+        lastName || user.lastName || ""
+      }`.trim();
+    }
+
+    await user.save();
+    user.password = null;
+    return user;
+  } catch (error) {
+    console.log("error updating profile:", error.message);
+    throw new Error(error.message);
+  }
+};
+
+// Add address for user
+const addUserAddress = async (userId, addressData) => {
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const address = new Address({
+      ...addressData,
+      user: userId,
+    });
+    await address.save();
+
+    // Add to user's addresses array
+    user.addresses.push(address._id);
+    await user.save();
+
+    return address;
+  } catch (error) {
+    console.log("error adding address:", error.message);
+    throw new Error(error.message);
+  }
+};
+
+// Get user addresses
+const getUserAddresses = async (userId) => {
+  try {
+    const addresses = await Address.find({ user: userId });
+    return addresses;
+  } catch (error) {
+    console.log("error getting addresses:", error.message);
+    throw new Error(error.message);
+  }
+};
+
 const generateOtp = () => {
   const firstDigit = Math.floor(Math.random() * 9) + 1;
   const remaining = Math.floor(Math.random() * 10000)
@@ -150,7 +223,6 @@ const verifyEmailService = async (email) => {
   const existingOtp = await Otp.findOne({ email });
   const now = new Date();
 
-  // 1. Block sending if blockedUntil is in future
   if (
     existingOtp &&
     existingOtp.blockedUntil &&
@@ -159,11 +231,10 @@ const verifyEmailService = async (email) => {
     throw new Error("Too many attempts. Try again after 1 hour.");
   }
 
-  // 2. Restrict max 3 attempts in short window
   if (existingOtp && existingOtp.createdAt) {
     const minutesSinceLast = (now - existingOtp.createdAt) / 1000 / 60;
     if (existingOtp.attempts >= 3 && minutesSinceLast < 1) {
-      existingOtp.blockedUntil = new Date(now.getTime() + 1 * 60 * 1000); // 1 hour block
+      existingOtp.blockedUntil = new Date(now.getTime() + 1 * 60 * 1000);
       await existingOtp.save();
       throw new Error("Too many OTP requests. Try again after 1 hour.");
     }
@@ -183,7 +254,6 @@ const verifyEmailService = async (email) => {
     { upsert: true }
   );
 
-  // ✅ Send OTP using Nodemailer transporter
   await sendEmail(email, otpStr);
 
   return { message: "OTP sent successfully", email };
@@ -195,7 +265,7 @@ const confirmOtpService = async (email, userOtp) => {
   if (!otpEntry) throw new Error("No OTP request found for this email");
 
   const now = new Date();
-  const expiryTime = new Date(otpEntry.createdAt.getTime() + 10 * 60 * 1000); // 10 minutes
+  const expiryTime = new Date(otpEntry.createdAt.getTime() + 10 * 60 * 1000);
 
   if (now > expiryTime) {
     await Otp.deleteOne({ email });
@@ -205,7 +275,7 @@ const confirmOtpService = async (email, userOtp) => {
   if (otpEntry.otp !== userOtp) {
     otpEntry.attempts += 1;
     if (otpEntry.attempts >= 3) {
-      otpEntry.blockedUntil = new Date(Date.now() + 60 * 60 * 1000); // block 1 hour
+      otpEntry.blockedUntil = new Date(Date.now() + 60 * 60 * 1000);
     }
     await otpEntry.save();
     throw new Error("Invalid OTP. Please try again.");
@@ -230,7 +300,6 @@ const sendResetOtpService = async (email) => {
     { upsert: true }
   );
 
-  // ✅ Reuse same email helper for reset OTP
   await sendEmail(email, otpStr);
 
   return { message: "Reset OTP sent successfully", email };
@@ -253,6 +322,9 @@ export {
   getUserProfileByToken,
   getUserByEmail,
   getAllUsers,
+  updateUserProfile,
+  addUserAddress,
+  getUserAddresses,
   verifyEmailService,
   confirmOtpService,
   sendResetOtpService,

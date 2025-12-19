@@ -1,12 +1,12 @@
 import * as userServices from "../services/User.Services.js";
 import * as jwtProvider from "../config/jwtProvider.js";
 import bcrypt from "bcrypt";
-import * as CartServices from "../services/Cart.Service.js";
+import CartServices from "../services/Cart.Service.js";
 
 const registerUser = async (req, res) => {
   try {
     const user = await userServices.createUser(req.body);
-    const jwt = jwtProvider.generateToken(user._id);
+    const jwt = jwtProvider.generateToken(user.username, user._id, user.email);
     await CartServices.createCart(user);
     return res.status(201).json({ jwt, message: "register success" });
   } catch (error) {
@@ -25,7 +25,7 @@ const login = async (req, res) => {
     if (!isPasswordMatched) {
       return res.status(401).json({ message: "Invalid password" });
     }
-    const jwt = jwtProvider.generateToken(user._id);
+    const jwt = jwtProvider.generateToken(user.username, user._id, user.email);
     return res.status(200).json({ jwt, message: "login success" });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -34,7 +34,7 @@ const login = async (req, res) => {
 
 const sendOtp = async (req, res) => {
   try {
-    const response = await userServices.sendResetOtpService(req.body.email);
+    const response = await userServices.verifyEmailService(req.body.email);
     res.json(response);
   } catch (e) {
     res.status(400).json({ message: e.message });

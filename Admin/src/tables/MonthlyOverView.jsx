@@ -1,4 +1,4 @@
-// src/tables/MonthlyOverView.jsx (Tailwind version)
+// src/tables/MonthlyOverView.jsx (Dark Theme)
 import React from "react";
 import Icon from "@mdi/react";
 import {
@@ -6,7 +6,7 @@ import {
   mdiCurrencyUsd,
   mdiDotsVertical,
   mdiCellphoneLink,
-  mdiAccountOutline
+  mdiAccountOutline,
 } from "@mdi/js";
 
 const MonthlyOverview = ({ overview = {} }) => {
@@ -15,53 +15,53 @@ const MonthlyOverview = ({ overview = {} }) => {
       stats: overview?.totalOrders ?? 0,
       title: "Sales",
       color: "bg-blue-600",
-      icon: mdiTrendingUp
+      icon: mdiTrendingUp,
     },
     {
       stats: overview?.customerCount ?? 0,
       title: "Customers",
       color: "bg-green-600",
-      icon: mdiAccountOutline
+      icon: mdiAccountOutline,
     },
     {
       stats: overview?.productCount ?? 0,
       title: "Products",
       color: "bg-yellow-500",
-      icon: mdiCellphoneLink
+      icon: mdiCellphoneLink,
     },
     {
       stats: overview?.totalRevenue ? `$${overview.totalRevenue}` : "$0",
       title: "Revenue",
       color: "bg-cyan-600",
-      icon: mdiCurrencyUsd
-    }
+      icon: mdiCurrencyUsd,
+    },
   ];
 
   return (
     <div
       className="
-        bg-white rounded-xl shadow-lg py-8  px-3
+        bg-zinc-900 rounded-xl shadow-lg py-8 px-6 border border-white/5
       "
     >
       {/* Header */}
-      <div className="flex justify-between items-start mb-4">
+      <div className="flex justify-between items-start mb-6">
         <div>
-          <h2 className="text-lg font-bold text-gray-900">Monthly Overview</h2>
-          <p className="text-sm text-gray-700 mt-1">
-            <span className="font-semibold text-gray-900">Total 48.5% growth</span> 😎 this month
+          <h2 className="text-xl font-bold text-white">Monthly Overview</h2>
+          <p className="text-sm text-gray-400 mt-1">
+            <span className="font-semibold text-white">Total 48.5% growth</span>{" "}
+            😎 this month
           </p>
         </div>
 
-        <button className="text-gray-500 hover:text-gray-700">
+        <button className="text-gray-400 hover:text-white transition">
           <Icon path={mdiDotsVertical} size={0.9} />
         </button>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
         {statsData.map((item, index) => (
-          <div key={index} className="flex items-center space-x-3">
-            
+          <div key={index} className="flex items-center space-x-4">
             {/* Icon Box */}
             <div
               className={`
@@ -74,10 +74,9 @@ const MonthlyOverview = ({ overview = {} }) => {
 
             {/* Text */}
             <div>
-              <p className="text-xs font-medium text-gray-600">{item.title}</p>
-              <p className="text-lg font-bold text-gray-900">{item.stats}</p>
+              <p className="text-xs font-medium text-gray-400">{item.title}</p>
+              <p className="text-lg font-bold text-white">{item.stats}</p>
             </div>
-
           </div>
         ))}
       </div>

@@ -581,8 +581,129 @@ const deleteProduct = async (productId) => {
 };
 
 // Update a product by ID
-const updateProduct = async (productId, reqData) => {
-  const updatedProduct = await Product.findByIdAndUpdate(productId, reqData);
+// Update a product by ID
+const updateProduct = async (productId, req) => {
+  const reqData = req.body;
+  const files = req.files;
+
+  // 1. Process Sizes
+  let sizes = reqData.size;
+  if (typeof sizes === "string") {
+    try {
+      sizes = JSON.parse(sizes);
+    } catch (e) {
+      /* ignore */
+    }
+  }
+
+  // 2. Process Images
+  let imageUrls = [];
+  // Existing images
+  if (reqData.existingImageUrls) {
+    try {
+      const existing = JSON.parse(reqData.existingImageUrls);
+      if (Array.isArray(existing)) imageUrls = [...existing];
+    } catch (e) {
+      imageUrls.push(reqData.existingImageUrls);
+    }
+  }
+
+  // New uploads
+  if (files && files.length > 0) {
+    const uploadToCloudinary = (file, options = {}) => {
+      return new Promise((resolve, reject) => {
+        if (file.buffer && file.buffer.length) {
+          const uploadStream = (
+            cloudinaryLib.uploader || cloudinaryLib
+          ).upload_stream(options, (err, result) => {
+            if (err) return reject(err);
+            resolve(result);
+          });
+          streamifier.createReadStream(file.buffer).pipe(uploadStream);
+        } else if (file.path) {
+          (cloudinaryLib.uploader || cloudinaryLib)
+            .upload(file.path, options)
+            .then(resolve)
+            .catch(reject);
+        } else {
+          return reject(new Error("File has neither buffer nor path"));
+        }
+      });
+    };
+
+    const uploads = files.map((file) =>
+      uploadToCloudinary(file, { folder: "ecommerce/products" })
+        .then((r) => ({ ok: true, r }))
+        .catch((err) => ({ ok: false, err }))
+    );
+    const uploadResults = await Promise.all(uploads);
+    const newUrls = uploadResults
+      .filter((u) => u.ok)
+      .map((u) => u.r.secure_url || u.r.url);
+    imageUrls = [...imageUrls, ...newUrls];
+  }
+
+  // 3. Resolve Category if provided
+  let categoryId;
+  if (
+    reqData.topLevelCategory ||
+    reqData.secondLevelCategory ||
+    reqData.thirdLevelCategory
+  ) {
+    const topLevel =
+      (await Category.findOne({ name: reqData.topLevelCategory })) ||
+      (await new Category({ name: reqData.topLevelCategory, level: 1 }).save());
+
+    const secondLevel =
+      (await Category.findOne({
+        name: reqData.secondLevelCategory,
+        parentCategory: topLevel._id,
+      })) ||
+      (await new Category({
+        name: reqData.secondLevelCategory,
+        parentCategory: topLevel._id,
+        level: 2,
+      }).save());
+
+    const thirdLevel =
+      (await Category.findOne({
+        name: reqData.thirdLevelCategory,
+        parentCategory: secondLevel._id,
+      })) ||
+      (await new Category({
+        name: reqData.thirdLevelCategory,
+        parentCategory: secondLevel._id,
+        level: 3,
+      }).save());
+
+    categoryId = thirdLevel._id;
+  }
+
+  // 4. Construct Update Data
+  const updateData = {
+    title: reqData.title,
+    description: reqData.description,
+    price: reqData.price,
+    discountedPrice: reqData.discountedPrice,
+    discountPersent: reqData.discountPercentage || reqData.discountPersent,
+    quantity: reqData.quantity,
+    brand: reqData.brand,
+    color: reqData.color,
+    sizes: sizes,
+    imageUrl: imageUrls,
+  };
+
+  if (categoryId) {
+    updateData.category = categoryId;
+  }
+
+  const updatedProduct = await Product.findByIdAndUpdate(
+    productId,
+    updateData,
+    {
+      new: true,
+    }
+  );
   return updatedProduct;
 };
 
@@ -597,7 +718,7 @@ const findProductById = async (id) => {
 };
 
 // Get all products with filtering and pagination
-const getAllProducts = async (reqQuery) => {
+const getAllProducts = async (reqQuery = {}) => {
   let {
     category,
     color,
@@ -610,14 +731,20 @@ const getAllProducts = async (reqQuery) => {
     pageNumber,
     pageSize,
   } = reqQuery;
-  (pageSize = pageSize || 10), (pageNumber = pageNumber || 1);
-  let query = Product.find().populate("category");
+
+  pageSize = pageSize || 10;
+  pageNumber = pageNumber || 1;
+
+  // Build filter object
+  let filter = {};
 
   if (category) {
     const existCategory = await Category.findOne({ name: category });
-    if (existCategory)
-      query = query.where("category").equals(existCategory._id);
-    else return { content: [], currentPage: 1, totalPages: 1 };
+    if (existCategory) {
+      filter.category = existCategory._id;
+    } else {
+      return { content: [], currentPage: 1, totalPages: 0 };
+    }
   }
 
   if (color) {
@@ -626,31 +753,35 @@ const getAllProducts = async (reqQuery) => {
     );
     const colorRegex =
       colorSet.size > 0 ? new RegExp([...colorSet].join("|"), "i") : null;
-    query = query.where("color").regex(colorRegex);
-    // query = query.where("color").in([...colorSet]);
+    if (colorRegex) filter.color = { $regex: colorRegex };
   }
 
   if (sizes) {
     const sizesSet = new Set(sizes);
-
-    query = query.where("sizes.name").in([...sizesSet]);
+    filter["sizes.name"] = { $in: [...sizesSet] };
   }
 
   if (minPrice && maxPrice) {
-    query = query.where("discountedPrice").gte(minPrice).lte(maxPrice);
+    filter.discountedPrice = { $gte: minPrice, $lte: maxPrice };
   }
 
   if (minDiscount) {
-    query = query.where("discountPersent").gt(minDiscount);
+    filter.discountPersent = { $gt: minDiscount };
   }
 
   if (stock) {
     if (stock === "in_stock") {
-      query = query.where("quantity").gt(0);
+      filter.quantity = { $gt: 0 };
     } else if (stock === "out_of_stock") {
-      query = query.where("quantity").lte(0);
+      filter.quantity = { $lte: 0 };
     }
   }
+
+  // Count total documents with filter
+  const totalProducts = await Product.countDocuments(filter);
+
+  // Build query with filter and populate
+  let query = Product.find(filter).populate("category");
 
   if (sort) {
     const sortDirection = sort === "price_high" ? -1 : 1;
@@ -658,10 +789,7 @@ const getAllProducts = async (reqQuery) => {
   }
 
   // Apply pagination
-  const totalProducts = await Product.countDocuments(query);
-
   const skip = (pageNumber - 1) * pageSize;
-
   query = query.skip(skip).limit(pageSize);
 
   const products = await query.exec();

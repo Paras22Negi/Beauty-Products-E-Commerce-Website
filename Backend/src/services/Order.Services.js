@@ -338,7 +338,15 @@ const getAdminDashboardOverview = async () => {
     .sort({ createdAt: -1 })
     .limit(10)
     .populate("orderItems.product", "title imageURL brand")
+    .limit(10)
+    .populate("orderItems.product", "title imageURL brand")
     .select("totalDiscountedPrice orderStatus orderId orderItems createdAt");
+
+  const recentProducts = await Product.find({})
+    .sort({ createdAt: -1 })
+    .limit(5)
+    .select("title imageUrl category price quantity brand");
+
   const totalRevenueAgg = await Order.aggregate([
     {
       $match: { "paymentDetails.paymentStatus": "COMPLETED" },
@@ -449,7 +457,9 @@ const getAdminDashboardOverview = async () => {
     monthlySales,
     yearlySales,
     recentUsers,
+    recentUsers,
     recentOrders,
+    recentProducts,
   };
 };
 

@@ -1,33 +1,42 @@
 import React from "react";
-import { Search, Bell, Mail, User } from "lucide-react";
+import { Search, Bell, Mail, User, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Topbar = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("jwt");
+    navigate("/login");
+  };
   return (
-    <header className="h-[65px] bg-white border-b border-gray-700 px-6 flex items-center justify-between">
+    <header className="h-[65px] bg-zinc-900 border-b border-white/5 px-6 flex items-center justify-between">
       {/* Left Side - Logo */}
       <div className="flex items-center gap-4">
         <div
-          className="w-10 h-10 bg-linear-to-br from-yellow-600 to-yellow-800 flex items-center justify-center"
+          className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-indigo-800 flex items-center justify-center shadow-lg shadow-indigo-500/20"
           style={{
             clipPath:
               "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
           }}
         >
-          <span className="text-xl font-bold">✦</span>
+          <span className="text-xl font-bold text-white">VN</span>
         </div>
-        <h1 className="text-lg font-semibold">Admin Panel</h1>
+        <h1 className="text-lg font-bold text-white tracking-wide">
+          NOVA NECTAR
+        </h1>
       </div>
 
       {/* Middle - Search */}
       <div className="relative w-96">
         <Search
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
           size={18}
         />
         <input
           type="text"
           placeholder="Search..."
-          className="w-full bg-[#1a2542] border-0 rounded-md pl-10 pr-4 py-2 text-sm text-white placeholder-gray-500 focus:outline-none"
+          className="w-full bg-black/40 border border-white/5 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-indigo-500/50"
         />
       </div>
 
@@ -52,6 +61,14 @@ const Topbar = () => {
             size={20}
             className="text-gray-400 hover:text-white cursor-pointer"
           />
+
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-md text-sm transition-colors"
+          >
+            <LogOut size={16} />
+            Logout
+          </button>
         </div>
       </div>
     </header>

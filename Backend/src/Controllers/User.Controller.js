@@ -115,6 +115,65 @@ const getAllUsers = async (req, res) => {
   }
 };
 
+// Update user profile
+const updateProfile = async (req, res) => {
+  try {
+    const user = req.user; // from auth middleware
+    const { firstName, lastName, mobile } = req.body;
+
+    const updatedUser = await userServices.updateUserProfile(user._id, {
+      firstName,
+      lastName,
+      mobile,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.log("error updating profile:", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+// Add address for user
+const addAddress = async (req, res) => {
+  try {
+    const user = req.user; // from auth middleware
+    const addressData = req.body;
+
+    const address = await userServices.addUserAddress(user._id, addressData);
+
+    return res.status(201).json({
+      success: true,
+      message: "Address added successfully",
+      address,
+    });
+  } catch (error) {
+    console.log("error adding address:", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+// Get user addresses
+const getAddresses = async (req, res) => {
+  try {
+    const user = req.user; // from auth middleware
+
+    const addresses = await userServices.getUserAddresses(user._id);
+
+    return res.status(200).json({
+      success: true,
+      addresses,
+    });
+  } catch (error) {
+    console.log("error getting addresses:", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+};
+
 export {
   getUserProfile,
   getAllUsers,
@@ -124,4 +183,7 @@ export {
   confirmVerifyOtp,
   requestResetOtp,
   resetPassword,
+  updateProfile,
+  addAddress,
+  getAddresses,
 };

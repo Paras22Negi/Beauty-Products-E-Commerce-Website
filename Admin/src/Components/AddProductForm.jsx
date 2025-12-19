@@ -2,17 +2,19 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { createProduct, updateProduct } from "../Redux/Customers/Product/Action"; 
+import {
+  createProduct,
+  updateProduct,
+} from "../Redux/Customers/Product/Action";
 
-import axios from 'axios'
 import categoryHierarchy from "../data/categoryHierarchi";
+
 const AddProductForm = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   // If coming from update page, product is passed through location.state.product
   const productToUpdate = location?.state?.product || null;
-  console.log("product to updarte.....", productToUpdate)
 
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [images, setImages] = useState([]); // File objects to send
@@ -20,9 +22,10 @@ const AddProductForm = () => {
   const [sizeChart, setSizeChart] = useState(null);
   const [success, setSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
-    _id: null, // used to indicate editing
+    _id: null,
     images: "",
     brand: "",
     title: "",
@@ -35,33 +38,29 @@ const AddProductForm = () => {
     thirdLevelCategory: "",
     description: "",
     quantity: "",
-    size: [], // array for sizes/quantities
+    size: [],
     freeSize: "",
   });
-
-
 
   // Populate form if editing
   useEffect(() => {
     if (!productToUpdate) return;
-    // map product fields to our form naming
     const {
       brand,
       title,
       color,
       price,
       discountedPrice,
-      discountPersent, // if your API uses this typo, map it; otherwise use discountPercentage
+      discountPersent,
       quantity,
       description,
       sizes,
-      thirdLevelCategory, // prefer this
-      thirdLavelCategory, // fallback for older data
+      thirdLevelCategory,
+      thirdLavelCategory,
       imageUrl,
     } = productToUpdate;
 
     const thirdCat = thirdLevelCategory || thirdLavelCategory || "";
-    // get category path if function exists; otherwise just set third level
     let categoryPath = { topLevelCategory: "", secondLevelCategory: "" };
     if (typeof findCategoryPath === "function") {
       categoryPath = findCategoryPath(thirdCat);
@@ -69,7 +68,7 @@ const AddProductForm = () => {
 
     setFormData((p) => ({
       ...p,
-      _id:productToUpdate._id,
+      _id: productToUpdate._id,
       brand: brand || "",
       title: title || "",
       color: Array.isArray(color) ? color[0] : color || "",
@@ -88,7 +87,7 @@ const AddProductForm = () => {
     }
   }, [productToUpdate]);
 
-    // Controlled inputs handler
+  // Controlled inputs handler
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if (name === "topLevelCategory") {
@@ -105,22 +104,24 @@ const AddProductForm = () => {
     }
   };
 
-  // file input (default "Choose Files" styling) - updates selectedFiles but does not yet upload
-const handleFileChange = (e) => {
-  const filesArr = Array.from(e.target.files || []);
-  const limited = filesArr.slice(0, 4);
-  // ensure all items are File instances
-  console.log("Picked files:", limited.map(f => ({ name: f.name, isFile: f instanceof File })));
-  setSelectedFiles(limited);
-  setImages(limited);
-  setPreviewImages(prev => {
-    prev.forEach(src => { try { URL.revokeObjectURL(src); } catch(e){} });
-    return limited.map((f) => URL.createObjectURL(f));
-  });
-};
+  // file input
+  const handleFileChange = (e) => {
+    const filesArr = Array.from(e.target.files || []);
+    const limited = filesArr.slice(0, 4);
+    setSelectedFiles(limited);
+    setImages(limited);
+    setPreviewImages((prev) => {
+      prev.forEach((src) => {
+        try {
+          URL.revokeObjectURL(src);
+        } catch (e) {}
+      });
+      return limited.map((f) => URL.createObjectURL(f));
+    });
+  };
 
   const isEditing = !!formData._id;
-console.log("is editiing id ....",formData._id)
+
   function findCategoryPath(value) {
     if (!value || typeof categoryHierarchy === "undefined") {
       return { topLevelCategory: "", secondLevelCategory: "" };
@@ -129,7 +130,6 @@ console.log("is editiing id ....",formData._id)
       for (const second in categoryHierarchy[top]) {
         const thirdOptions = categoryHierarchy[top][second];
         for (const option of thirdOptions) {
-          // option may be string or object { value, label }
           const optValue = typeof option === "string" ? option : option.value;
           if (optValue === value) {
             return {
@@ -143,155 +143,132 @@ console.log("is editiing id ....",formData._id)
     return { topLevelCategory: "", secondLevelCategory: "" };
   }
 
-
-
-
-const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  try {
-    // Build FormData exactly like your original simple version
-    const payload = new FormData();
-
-    // Append all keys from formData; stringify 'size'
-    for (let key in formData) {
-      if (key === "size") {
-        payload.append("size", JSON.stringify(formData.size || []));
-      } else {
-        // ensure undefined/null become empty string to avoid "undefined" text
-        payload.append(key, formData[key] !== undefined && formData[key] !== null ? formData[key] : "");
-      }
-    }
-
-    // Append images (files) that user selected (images state)
-    if (Array.isArray(images) && images.length > 0) {
-      images.forEach((img) => {
-        // img should be a File/Blob
-        payload.append("images", img);
-      });
-    } else if (Array.isArray(selectedFiles) && selectedFiles.length > 0) {
-      // fallback: if you used selectedFiles
-      selectedFiles.forEach((img) => payload.append("images", img));
-    } else {
-      // No new files: send existing preview URLs so backend can keep them
-      payload.append("existingImageUrls", JSON.stringify(previewImages || []));
-    }
-
-    // If editing, attach productId (backend / Redux expects this)
-    if (isEditing && formData && formData._id) {
-      payload.append("productId", formData._id);
-    }
-
-    // Dispatch update or create just like your simple code
-    if (isEditing) {
-      // update path — reducer / action expects FormData
-      await dispatch(updateProduct(payload));
-      setSuccess(true);
-      setSuccessMessage("Product updated successfully.");
-      // navigate back or keep on page as desired
-      // navigate("/admin/products");
-    } else {
-      // create path — follow your simple code calling createProduct with { data, jwt }
-      const jwt = localStorage.getItem("jwt");
-
-await dispatch(createProduct(payload, jwt));
-      // clear form after successful creation (same fields you used earlier)
-      setFormData({
-        _id: null,
-        images: "",
-        brand: "",
-        title: "",
-        color: "",
-        price: "",
-        discountedPrice: "",
-        discountPercentage: "",
-        topLevelCategory: "",
-        secondLevelCategory: "",
-        thirdLevelCategory: "",
-        description: "",
-        quantity: "",
-        size: [],
-        freeSize: "",
-      });
-      setImages([]);
-      setSelectedFiles([]);
-      setPreviewImages([]);
-      setSizeChart(null);
-      setSuccess(true);
-      setSuccessMessage("Product created successfully.");
-    }
-  } catch (err) {
-    console.error("Update/create failed:", err);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
     setSuccess(false);
-    setSuccessMessage(err?.message || "Operation failed. See console.");
-  }
-};
 
-
-
-
-
-// ... (rest of the component)
-
-
-  // When thirdLevelCategory changes, fetch size chart (only when not editing or when explicitly changed)
-useEffect(() => {
-  const third = formData.thirdLevelCategory;
-  console.log("Selected 3rd-level category ->", third);
-  if (!third) {
-    setSizeChart(null);
-    setFormData((prev) => ({ ...prev, size: [] }));
-    return;
-  }
-  (async () => {
     try {
-      const base = (typeof API_BASE_URL !== "undefined" && API_BASE_URL) || import.meta.env.VITE_React_BASE_API_URL || "";
-      const url = `${base}/api/admin/products/${encodeURIComponent(third)}`;
-      console.log("Fetching size chart from:", url);
+      const payload = new FormData();
 
-      const res = await fetch(url, { method: "GET" });
-      const ct = res.headers.get("content-type") || "";
-      if (!res.ok) {
-        const txt = await res.text();
-        console.error("Size chart fetch failed:", res.status, txt);
-        setSizeChart(null);
-        setFormData((prev) => ({ ...prev, size: [] }));
-        return;
-      }
-      if (!ct.includes("application/json")) {
-        const text = await res.text();
-        console.error("Expected JSON but got HTML/text:", text.slice(0, 400));
-        setSizeChart(null);
-        setFormData((prev) => ({ ...prev, size: [] }));
-        return;
-      }
-      const data = await res.json();
-      console.log("Size chart response:", data);
-
-      if (!data?.sizes || data.sizes.length === 0) {
-        setSizeChart(null);
-        setFormData((prev) => ({ ...prev, size: [] }));
-        return;
+      for (let key in formData) {
+        if (key === "size") {
+          payload.append("size", JSON.stringify(formData.size || []));
+        } else {
+          payload.append(
+            key,
+            formData[key] !== undefined && formData[key] !== null
+              ? formData[key]
+              : ""
+          );
+        }
       }
 
-      const existingSizesMap = new Map((formData.size || []).map(s => [s.name, s.quantity]));
-      const formattedSizes = data.sizes.map((sizeObj) => ({
-        name: sizeObj.label,
-        quantity: existingSizesMap.has(sizeObj.label) ? existingSizesMap.get(sizeObj.label) : 0,
-      }));
+      if (Array.isArray(images) && images.length > 0) {
+        images.forEach((img) => {
+          payload.append("images", img);
+        });
+      } else if (Array.isArray(selectedFiles) && selectedFiles.length > 0) {
+        selectedFiles.forEach((img) => payload.append("images", img));
+      } else {
+        payload.append(
+          "existingImageUrls",
+          JSON.stringify(previewImages || [])
+        );
+      }
 
-      setSizeChart(data);
-      setFormData((prev) => ({ ...prev, size: formattedSizes }));
+      if (isEditing && formData && formData._id) {
+        payload.append("productId", formData._id);
+      }
+
+      if (isEditing) {
+        await dispatch(updateProduct(payload));
+        setSuccess(true);
+        setSuccessMessage("Product updated successfully.");
+        navigate("/products");
+      } else {
+        const jwt = localStorage.getItem("jwt");
+        await dispatch(createProduct(payload, jwt));
+        setFormData({
+          _id: null,
+          images: "",
+          brand: "",
+          title: "",
+          color: "",
+          price: "",
+          discountedPrice: "",
+          discountPercentage: "",
+          topLevelCategory: "",
+          secondLevelCategory: "",
+          thirdLevelCategory: "",
+          description: "",
+          quantity: "",
+          size: [],
+          freeSize: "",
+        });
+        setImages([]);
+        setSelectedFiles([]);
+        setPreviewImages([]);
+        setSizeChart(null);
+        setSuccess(true);
+        setSuccessMessage("Product created successfully.");
+      }
     } catch (err) {
-      console.error("Size chart fetch error:", err);
+      console.error("Update/create failed:", err);
+      setSuccess(false);
+      setSuccessMessage(err?.message || "Operation failed. See console.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch size chart
+  useEffect(() => {
+    const third = formData.thirdLevelCategory;
+    if (!third) {
       setSizeChart(null);
       setFormData((prev) => ({ ...prev, size: [] }));
+      return;
     }
-  })();
-}, [formData.thirdLevelCategory, productToUpdate]);
+    (async () => {
+      try {
+        const base = import.meta.env.VITE_React_BASE_API_URL || "";
+        const url = `${base}/api/admin/products/${encodeURIComponent(third)}`;
 
+        const res = await fetch(url, { method: "GET" });
+        if (!res.ok) {
+          setSizeChart(null);
+          setFormData((prev) => ({ ...prev, size: [] }));
+          return;
+        }
+        const data = await res.json();
 
-  // Compute second and third level options safely
+        if (!data?.sizes || data.sizes.length === 0) {
+          setSizeChart(null);
+          setFormData((prev) => ({ ...prev, size: [] }));
+          return;
+        }
+
+        const existingSizesMap = new Map(
+          (formData.size || []).map((s) => [s.name, s.quantity])
+        );
+        const formattedSizes = data.sizes.map((sizeObj) => ({
+          name: sizeObj.label,
+          quantity: existingSizesMap.has(sizeObj.label)
+            ? existingSizesMap.get(sizeObj.label)
+            : 0,
+        }));
+
+        setSizeChart(data);
+        setFormData((prev) => ({ ...prev, size: formattedSizes }));
+      } catch (err) {
+        console.error("Size chart fetch error:", err);
+        setSizeChart(null);
+        setFormData((prev) => ({ ...prev, size: [] }));
+      }
+    })();
+  }, [formData.thirdLevelCategory, productToUpdate]);
+
   const secondLevelOptions = formData.topLevelCategory
     ? Object.keys(categoryHierarchy?.[formData.topLevelCategory] || {})
     : [];
@@ -299,41 +276,38 @@ useEffect(() => {
   const thirdLevelOptions =
     formData.topLevelCategory &&
     formData.secondLevelCategory &&
-    categoryHierarchy?.[formData.topLevelCategory]?.[formData.secondLevelCategory]
-      ? categoryHierarchy[formData.topLevelCategory][formData.secondLevelCategory]
+    categoryHierarchy?.[formData.topLevelCategory]?.[
+      formData.secondLevelCategory
+    ]
+      ? categoryHierarchy[formData.topLevelCategory][
+          formData.secondLevelCategory
+        ]
       : [];
 
-
-      // calculate percentage
-      // --- auto-calc discount percent when price or discountedPrice change ---
-useEffect(() => {
-  const p = Number(formData.price);
-  const dp = Number(formData.discountedPrice);
-
-  // Only calculate when both are valid finite numbers and price > 0
-  if (Number.isFinite(p) && Number.isFinite(dp) && p > 0) {
-    // Ensure discounted price is not greater than original price
-    const safeDp = Math.min(dp, p);
-    const percent = Math.round(((p - safeDp) / p) * 100);
-    // Only update if the value actually differs to avoid unnecessary state updates
-    if (String(formData.discountPercentage) !== String(percent)) {
-      setFormData((prev) => ({ ...prev, discountPercentage: percent }));
+  useEffect(() => {
+    const p = Number(formData.price);
+    const dp = Number(formData.discountedPrice);
+    if (Number.isFinite(p) && Number.isFinite(dp) && p > 0) {
+      const safeDp = Math.min(dp, p);
+      const percent = Math.round(((p - safeDp) / p) * 100);
+      if (String(formData.discountPercentage) !== String(percent)) {
+        setFormData((prev) => ({ ...prev, discountPercentage: percent }));
+      }
+    } else {
+      if (formData.discountPercentage !== "") {
+        setFormData((prev) => ({ ...prev, discountPercentage: "" }));
+      }
     }
-  } else {
-    // If inputs are invalid/empty, clear the discountPercentage (keep empty string)
-    if (formData.discountPercentage !== "") {
-      setFormData((prev) => ({ ...prev, discountPercentage: "" }));
-    }
-  }
-// eslint-disable-next-line react-hooks/exhaustive-deps
-}, [formData.price, formData.discountedPrice]);
-
+  }, [formData.price, formData.discountedPrice]);
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-6xl mx-auto">
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-6xl mx-auto bg-zinc-900 p-8 rounded-2xl shadow-xl border border-white/5"
+    >
       {/* File input */}
       <div className="mb-8">
-        <label className="inline-flex items-center px-6 py-2 bg-linear-to-r from-purple-500 to-purple-600 text-white rounded-md text-sm font-medium cursor-pointer hover:from-purple-600 hover:to-purple-700 transition">
+        <label className="inline-flex items-center px-6 py-2 bg-indigo-600 text-white rounded-md text-sm font-medium cursor-pointer hover:bg-indigo-500 transition shadow-lg shadow-indigo-500/20">
           <span>Choose Files</span>
           <input
             type="file"
@@ -346,8 +320,9 @@ useEffect(() => {
 
         {selectedFiles.length > 0 ? (
           <div className="mt-3 text-gray-300 text-sm space-y-1">
-            <p className="font-medium">
-              {selectedFiles.length} file{selectedFiles.length > 1 ? "s" : ""} selected:
+            <p className="font-medium text-white">
+              {selectedFiles.length} file{selectedFiles.length > 1 ? "s" : ""}{" "}
+              selected:
             </p>
             <ul className="list-disc ml-5 space-y-0.5">
               {selectedFiles.map((file, index) => (
@@ -364,7 +339,12 @@ useEffect(() => {
         {/* previews */}
         <div className="mt-4 flex gap-3">
           {previewImages.map((src, i) => (
-            <img key={i} src={src} alt={`preview-${i}`} className="w-20 h-20 object-cover rounded" />
+            <img
+              key={i}
+              src={src}
+              alt={`preview-${i}`}
+              className="w-20 h-20 object-cover rounded-lg border border-white/10"
+            />
           ))}
         </div>
       </div>
@@ -376,14 +356,14 @@ useEffect(() => {
           value={formData.brand}
           onChange={handleInputChange}
           placeholder="Brand"
-className="w-full bg-white text-gray-900 border border-gray-300 rounded px-4 py-3 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-400"
+          className="w-full bg-black/30 text-white border border-white/10 rounded-xl px-4 py-3 placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 transition-all"
         />
         <input
           name="title"
           value={formData.title}
           onChange={handleInputChange}
           placeholder="Title"
-className="w-full bg-white text-gray-900 border border-gray-300 rounded px-4 py-3 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-400"
+          className="w-full bg-black/30 text-white border border-white/10 rounded-xl px-4 py-3 placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 transition-all"
         />
       </div>
 
@@ -394,7 +374,7 @@ className="w-full bg-white text-gray-900 border border-gray-300 rounded px-4 py-
           value={formData.color}
           onChange={handleInputChange}
           placeholder="Color"
-className="w-full bg-white text-gray-900 border border-gray-300 rounded px-4 py-3 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-400"
+          className="w-full bg-black/30 text-white border border-white/10 rounded-xl px-4 py-3 placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 transition-all"
         />
         <input
           name="quantity"
@@ -402,7 +382,7 @@ className="w-full bg-white text-gray-900 border border-gray-300 rounded px-4 py-
           onChange={handleInputChange}
           placeholder="Quantity"
           type="number"
-className="w-full bg-white text-gray-900 border border-gray-300 rounded px-4 py-3 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-400"
+          className="w-full bg-black/30 text-white border border-white/10 rounded-xl px-4 py-3 placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 transition-all"
         />
       </div>
 
@@ -414,7 +394,7 @@ className="w-full bg-white text-gray-900 border border-gray-300 rounded px-4 py-
           onChange={handleInputChange}
           placeholder="Price"
           type="number"
-className="w-full bg-white text-gray-900 border border-gray-300 rounded px-4 py-3 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-400"
+          className="w-full bg-black/30 text-white border border-white/10 rounded-xl px-4 py-3 placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 transition-all"
         />
         <input
           name="discountedPrice"
@@ -422,7 +402,7 @@ className="w-full bg-white text-gray-900 border border-gray-300 rounded px-4 py-
           onChange={handleInputChange}
           placeholder="Discounted Price"
           type="number"
-className="w-full bg-white text-gray-900 border border-gray-300 rounded px-4 py-3 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-400"
+          className="w-full bg-black/30 text-white border border-white/10 rounded-xl px-4 py-3 placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 transition-all"
         />
         <input
           name="discountPercentage"
@@ -430,7 +410,7 @@ className="w-full bg-white text-gray-900 border border-gray-300 rounded px-4 py-
           onChange={handleInputChange}
           placeholder="Discount Percentage"
           type="number"
-className="w-full bg-white text-gray-900 border border-gray-300 rounded px-4 py-3 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-400"
+          className="w-full bg-black/30 text-white border border-white/10 rounded-xl px-4 py-3 placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 transition-all"
         />
       </div>
 
@@ -440,11 +420,11 @@ className="w-full bg-white text-gray-900 border border-gray-300 rounded px-4 py-
           name="topLevelCategory"
           value={formData.topLevelCategory}
           onChange={handleInputChange}
-className="w-full bg-white text-gray-900 border border-gray-300 rounded px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-400"
+          className="w-full bg-black/30 text-gray-300 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 transition-all"
         >
           <option value="">Top Level Category</option>
           {Object.keys(categoryHierarchy || {}).map((key) => (
-            <option key={key} value={key} className="text-black">
+            <option key={key} value={key} className="bg-zinc-900 text-white">
               {key}
             </option>
           ))}
@@ -455,11 +435,11 @@ className="w-full bg-white text-gray-900 border border-gray-300 rounded px-4 py-
           value={formData.secondLevelCategory}
           onChange={handleInputChange}
           disabled={!secondLevelOptions.length}
-className="w-full bg-white text-gray-900 border border-gray-300 rounded px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-400"
+          className="w-full bg-black/30 text-gray-300 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 transition-all disabled:opacity-50"
         >
           <option value="">Second Level Category</option>
           {secondLevelOptions.map((s) => (
-            <option key={s} value={s} className="text-black">
+            <option key={s} value={s} className="bg-zinc-900 text-white">
               {s}
             </option>
           ))}
@@ -470,111 +450,120 @@ className="w-full bg-white text-gray-900 border border-gray-300 rounded px-4 py-
           value={formData.thirdLevelCategory}
           onChange={handleInputChange}
           disabled={!thirdLevelOptions.length}
-className="w-full bg-white text-gray-900 border border-gray-300 rounded px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-400"
+          className="w-full bg-black/30 text-gray-300 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 transition-all disabled:opacity-50"
         >
           <option value="">Third Level Category</option>
-{thirdLevelOptions.map((t) => {
-  const val = typeof t === "string" ? t : (t.value ?? t.label ?? "");
-  const label = typeof t === "string" ? t : (t.label ?? t.value ?? "");
-  return (
-    <option key={val} value={val} className="text-black">
-      {label}
-    </option>
-  );
-})}
-
+          {thirdLevelOptions.map((t) => {
+            const val = typeof t === "string" ? t : t.value ?? t.label ?? "";
+            const label = typeof t === "string" ? t : t.label ?? t.value ?? "";
+            return (
+              <option key={val} value={val} className="bg-zinc-900 text-white">
+                {label}
+              </option>
+            );
+          })}
         </select>
       </div>
 
       {/* Description */}
-<div className="mb-6">
-  <textarea
-    name="description"
-    value={formData.description}
-    onChange={handleInputChange}
-    placeholder="Description"
-    rows="5"
-    className="
-      w-full bg-white 
-      text-black 
-      placeholder-gray-500 
-      border border-gray-300 
-      rounded px-4 py-3 
-      focus:outline-none 
-      focus:ring-2 focus:ring-purple-400
-    "
-  />
-</div>
-
+      <div className="mb-6">
+        <textarea
+          name="description"
+          value={formData.description}
+          onChange={handleInputChange}
+          placeholder="Description"
+          rows="5"
+          className="w-full bg-black/30 text-white placeholder-gray-600 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 transition-all resize-none"
+        />
+      </div>
 
       {/* Free size */}
       <div className="mb-8">
-{/* Size chart UI */}
-{sizeChart?.sizes && sizeChart.sizes.length > 0 && (
-  <div className="mb-6 bg-white shadow-md rounded-lg p-5 border border-gray-200">
-    <h3 className="mb-4 text-gray-900 font-semibold text-lg">
-      Available Sizes (Set Quantities)
-    </h3>
+        {/* Size chart UI */}
+        {sizeChart?.sizes && sizeChart.sizes.length > 0 && (
+          <div className="mb-6 bg-black/20 shadow-xl rounded-xl p-5 border border-white/10">
+            <h3 className="mb-4 text-white font-semibold text-lg">
+              Available Sizes (Set Quantities)
+            </h3>
 
-    <div className="grid grid-cols-2 gap-4">
-      {sizeChart.sizes.map((sizeObj) => {
-        const label = sizeObj.label;
+            <div className="grid grid-cols-2 gap-4">
+              {sizeChart.sizes.map((sizeObj) => {
+                const label = sizeObj.label;
 
-        const current =
-          formData.size?.find((s) => s.name === label) || {
-            name: label,
-            quantity: 0,
-          };
+                const current = formData.size?.find(
+                  (s) => s.name === label
+                ) || {
+                  name: label,
+                  quantity: 0,
+                };
 
-        return (
-          <div
-            key={label}
-            className="flex items-center justify-between bg-gray-50 border border-gray-300 rounded-md px-4 py-2"
-          >
-            <span className="text-gray-900 font-medium">{label}</span>
+                return (
+                  <div
+                    key={label}
+                    className="flex items-center justify-between bg-zinc-800 border border-white/5 rounded-lg px-4 py-2"
+                  >
+                    <span className="text-gray-300 font-medium">{label}</span>
 
-            <input
-              type="number"
-              min="0"
-              value={current.quantity}
-              onChange={(e) => {
-                const q = Number(e.target.value || 0);
-                setFormData((prev) => {
-                  const sizes = Array.isArray(prev.size) ? [...prev.size] : [];
-                  const idx = sizes.findIndex((s) => s.name === label);
+                    <input
+                      type="number"
+                      min="0"
+                      value={current.quantity}
+                      onChange={(e) => {
+                        const q = Number(e.target.value || 0);
+                        setFormData((prev) => {
+                          const sizes = Array.isArray(prev.size)
+                            ? [...prev.size]
+                            : [];
+                          const idx = sizes.findIndex((s) => s.name === label);
 
-                  if (idx >= 0) {
-                    sizes[idx] = { ...sizes[idx], quantity: q };
-                  } else {
-                    sizes.push({ name: label, quantity: q });
-                  }
+                          if (idx >= 0) {
+                            sizes[idx] = { ...sizes[idx], quantity: q };
+                          } else {
+                            sizes.push({ name: label, quantity: q });
+                          }
 
-                  return { ...prev, size: sizes };
-                });
-              }}
-              className="w-24 border border-gray-300 rounded-md px-2 py-1 text-gray-900 bg-white focus:ring-2 focus:ring-purple-400 focus:outline-none"
-            />
+                          return { ...prev, size: sizes };
+                        });
+                      }}
+                      className="w-24 border border-white/10 rounded-md px-2 py-1 text-white bg-black/50 focus:ring-1 focus:ring-indigo-500/50 focus:outline-none"
+                    />
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        );
-      })}
-    </div>
-  </div>
-)}
-
-
+        )}
       </div>
 
       {/* Submit */}
       <div>
-        <button type="submit" className="px-6 py-3 bg-[#8b5cf6] rounded text-white font-semibold">
-          {isEditing ? "UPDATE PRODUCT" : "ADD NEW PRODUCT"}
+        <button
+          type="submit"
+          disabled={loading}
+          className={`px-6 py-3 transition-all duration-300 cursor-pointer rounded-xl text-white font-semibold flex items-center justify-center gap-2 ${
+            loading
+              ? "bg-zinc-700 cursor-not-allowed"
+              : "bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-500/25"
+          }`}
+        >
+          {loading ? (
+            <>
+              <span className="w-5 h-5 border-2 border-t-transparent border-white rounded-full animate-spin"></span>
+              <span>Processing...</span>
+            </>
+          ) : isEditing ? (
+            "UPDATE PRODUCT"
+          ) : (
+            "ADD NEW PRODUCT"
+          )}
         </button>
       </div>
 
       {/* Success message */}
       {success && (
-        <div className="mt-4 text-green-400">
-          {successMessage || (isEditing ? "Updated successfully" : "Created successfully")}
+        <div className="mt-4 text-green-400 font-medium text-center">
+          {successMessage ||
+            (isEditing ? "Updated successfully" : "Created successfully")}
         </div>
       )}
     </form>

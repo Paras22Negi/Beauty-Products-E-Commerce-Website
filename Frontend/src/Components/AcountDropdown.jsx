@@ -1,36 +1,35 @@
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { MdAccountCircle } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 
 export default function AccountDropdown() {
-    const token = localStorage.getItem("token");
-    const [email, setEmail] = useState("Please Login");
+  const token = localStorage.getItem("token");
+  const [email, setEmail] = useState("Please Login");
 
-    useEffect(() => {
-      if (token && typeof token === "string" && token.split(".").length === 3) {
-        try {
-          const decoded = jwtDecode(token);
-          console.log(decoded);
-          setEmail(decoded?.username?.email || "Please Login");
-        } catch (error) {
-          console.error("Invalid token:", error);
-        }
+  useEffect(() => {
+    if (token && typeof token === "string" && token.split(".").length === 3) {
+      try {
+        const decoded = jwtDecode(token);
+        console.log(decoded);
+        setEmail(decoded?.email || "Please Login");
+      } catch (error) {
+        console.error("Invalid token:", error);
       }
-    }, [token]);
+    }
+  }, [token]);
 
+  const navigate = useNavigate();
 
-    const navigate = useNavigate();
-
-    const handleAccount = () => {
-      if (token) {
-        localStorage.removeItem("token");
-        navigate("/"); // or reload if you prefer
-      } else {
-        navigate("/login");
-      }
-    };
+  const handleAccount = () => {
+    if (token) {
+      localStorage.removeItem("token");
+      navigate("/"); // or reload if you prefer
+    } else {
+      navigate("/login");
+    }
+  };
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>

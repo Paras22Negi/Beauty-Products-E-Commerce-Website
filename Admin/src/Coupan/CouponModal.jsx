@@ -16,7 +16,9 @@ import { motion } from "framer-motion";
 const CouponModal = ({ onClose, couponData }) => {
   const dispatch = useDispatch();
   const isEditMode = !!couponData;
-  const { loading, success, error, message } = useSelector((store) => store.createCoupon);
+  const { loading, success, error, message } = useSelector(
+    (store) => store.createCoupon
+  );
 
   const [formData, setFormData] = useState({
     code: "",
@@ -69,6 +71,24 @@ const CouponModal = ({ onClose, couponData }) => {
     }
   }, [hasSubmitted, loading, success, onClose]);
 
+  // Common styling for TextFields
+  const textFieldSz = {
+    mt: 3,
+    "& .MuiOutlinedInput-root": {
+      color: "white",
+      "& fieldset": { borderColor: "#3f3f46" }, // zinc-700
+      "&:hover fieldset": { borderColor: "gray" },
+      "&.Mui-focused fieldset": { borderColor: "#818cf8" }, // indigo-400
+    },
+    "& .MuiInputLabel-root": { color: "#9ca3af" }, // gray-400
+    "& .MuiInputLabel-root.Mui-focused": { color: "#818cf8" },
+    "& .MuiSelect-icon": { color: "white" },
+    "& input[type='date']::-webkit-calendar-picker-indicator": {
+      filter: "invert(1)",
+      cursor: "pointer",
+    },
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -77,46 +97,69 @@ const CouponModal = ({ onClose, couponData }) => {
       transition={{ duration: 0.2 }}
       style={{
         position: "fixed",
-        top: "10%",
-        left: "25%",
-        transform: "translate(-50%, 0%)",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%",
         zIndex: 9999,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "rgba(0, 0, 0, 0.6)",
+        backdropFilter: "blur(4px)",
       }}
     >
       <Box
         sx={{
           width: "95vw",
-          maxWidth: "800px",
+          maxWidth: "600px",
           maxHeight: "90vh",
           overflowY: "auto",
-          p: 3,
-          borderRadius: 4,
-          backgroundColor: "rgba(255, 255, 255, 0.3)",
-          backdropFilter: "blur(10px)",
-          WebkitBackdropFilter: "blur(10px)",
-          boxShadow: 8,
+          p: 4,
+          borderRadius: 3,
+          backgroundColor: "#18181b", // Zinc-900
+          border: "1px solid #27272a", // Zinc-800
+          boxShadow: 24,
           position: "relative",
+          color: "white",
         }}
       >
         <IconButton
           onClick={onClose}
-          sx={{ position: "absolute", top: 8, right: 8, color: "#333" }}
+          sx={{
+            position: "absolute",
+            top: 12,
+            right: 12,
+            color: "gray",
+            "&:hover": { color: "white", bgcolor: "rgba(255,255,255,0.1)" },
+          }}
         >
           <Close />
         </IconButton>
 
-        <Typography variant="h5" align="center" gutterBottom>
+        <Typography
+          variant="h5"
+          align="center"
+          gutterBottom
+          sx={{ fontWeight: "bold", mb: 3 }}
+        >
           {isEditMode ? "Update Coupon" : "Create New Coupon"}
         </Typography>
 
         <form onSubmit={handleSubmit}>
           {success && hasSubmitted && (
-            <Alert severity="success">{message || "Coupon created successfully!"}</Alert>
+            <Alert severity="success" sx={{ mb: 2 }}>
+              {message || "Coupon created successfully!"}
+            </Alert>
           )}
-          {error && <Alert severity="error">{error}</Alert>}
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
 
           <TextField
-            sx={{ mt: 3 }}
+            sx={textFieldSz}
             label="Coupon Code"
             name="code"
             fullWidth
@@ -126,12 +169,30 @@ const CouponModal = ({ onClose, couponData }) => {
           />
 
           <TextField
-            sx={{ mt: 3 }}
+            sx={textFieldSz}
             label="Discount Type"
             name="discountType"
             fullWidth
             required
             select
+            SelectProps={{
+              MenuProps: {
+                PaperProps: {
+                  sx: {
+                    bgcolor: "#18181b",
+                    color: "white",
+                    border: "1px solid #3f3f46",
+                    "& .MuiMenuItem-root": {
+                      "&:hover": { bgcolor: "#27272a" },
+                      "&.Mui-selected": {
+                        bgcolor: "#3730a3",
+                        "&:hover": { bgcolor: "#312e81" },
+                      }, // indigo-900/800
+                    },
+                  },
+                },
+              },
+            }}
             value={formData.discountType}
             onChange={handleChange}
           >
@@ -140,7 +201,7 @@ const CouponModal = ({ onClose, couponData }) => {
           </TextField>
 
           <TextField
-            sx={{ mt: 3 }}
+            sx={textFieldSz}
             label="Discount Value"
             name="discountValue"
             type="number"
@@ -151,7 +212,7 @@ const CouponModal = ({ onClose, couponData }) => {
           />
 
           <TextField
-            sx={{ mt: 3 }}
+            sx={textFieldSz}
             label="Minimum Order Amount"
             name="minOrderAmount"
             type="number"
@@ -162,7 +223,7 @@ const CouponModal = ({ onClose, couponData }) => {
           />
 
           <TextField
-            sx={{ mt: 3 }}
+            sx={textFieldSz}
             label="Usage Limit"
             name="usageLimit"
             type="number"
@@ -173,25 +234,36 @@ const CouponModal = ({ onClose, couponData }) => {
           />
 
           <TextField
-            sx={{ mt: 3 }}
+            sx={textFieldSz}
             label="Expiry Date"
             name="expiresAt"
             type="date"
             fullWidth
             required
-            InputLabelProps={{ shrink: true }}
+            InputLabelProps={{ shrink: true, sx: { color: "#9ca3af" } }}
             value={formData.expiresAt}
             onChange={handleChange}
           />
 
           <Button
-            sx={{ mt: 3 }}
+            sx={{
+              mt: 4,
+              py: 1.5,
+              fontWeight: "bold",
+              bgcolor: "#4f46e5",
+              color: "white",
+              "&:hover": { bgcolor: "#4338ca" },
+            }}
             variant="contained"
             type="submit"
             fullWidth
             disabled={loading}
           >
-            {loading ? "Submitting..." : isEditMode ? "Update Coupon" : "Create Coupon"}
+            {loading
+              ? "Submitting..."
+              : isEditMode
+              ? "Update Coupon"
+              : "Create Coupon"}
           </Button>
         </form>
       </Box>

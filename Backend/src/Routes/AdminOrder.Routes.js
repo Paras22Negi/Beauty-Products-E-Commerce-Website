@@ -3,6 +3,13 @@ import authenticate from "../middleware/authenticat.js";
 const router = express.Router();
 import * as adminOrderController from "../Controllers/Admin.Order.Controller.js";
 
+// Dashboard Overview
+router.get(
+  "/overview",
+  authenticate,
+  adminOrderController.getAdminDashboardOverview
+);
+
 router.get("/", authenticate, adminOrderController.getAllOrders);
 router.put(
   "/:orderId/confirmed",

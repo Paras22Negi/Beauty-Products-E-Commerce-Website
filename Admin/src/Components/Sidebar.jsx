@@ -7,6 +7,8 @@ import {
   FileText,
   ShoppingBag,
   Ticket,
+  MessageSquare,
+  Video,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
@@ -19,10 +21,11 @@ const Sidebar = () => {
     },
     { label: "Products", icon: <Package size={20} />, path: "/products" },
     { label: "Customers", icon: <Users size={20} />, path: "/customers" },
+    { label: "Orders", icon: <ShoppingBag size={20} />, path: "/orders" },
+    { label: "Queries", icon: <MessageSquare size={20} />, path: "/queries" },
     { label: "Blogs", icon: <FileText size={20} />, path: "/blogs" },
     { label: "Add Product", icon: <Plus size={20} />, path: "/add-product" },
-    { label: "Orders", icon: <ShoppingBag size={20} />, path: "/orders" },
-    {label:"Upload Video", path:"/upload-video"},
+    { label: "Upload Video", icon: <Video size={20} />, path: "/upload-video" },
     {
       label: "Create Coupon",
       icon: <Ticket size={20} />,
@@ -31,16 +34,16 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="w-[230px] h-full bg-white border-r border-gray-700 flex flex-col">
+    <aside className="w-[230px] h-full bg-zinc-900 border-r border-white/5 flex flex-col">
       <nav className="flex-1 py-4">
         {navItems.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
             className={({ isActive }) =>
-              `flex items-center gap-4 px-6 py-3 text-black transition hover:bg-[#1a2542] hover:text-white ${
+              `flex items-center gap-4 px-6 py-3 text-gray-400 transition hover:bg-white/5 hover:text-white ${
                 isActive
-                  ? "bg-[#1a2542] border-l-4 border-purple-500 text-white"
+                  ? "bg-white/5 border-l-4 border-indigo-500 text-white"
                   : ""
               }`
             }
@@ -52,9 +55,9 @@ const Sidebar = () => {
       </nav>
 
       {/* Bottom avatar */}
-      <div className="p-4 border-t border-gray-700">
-        <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
-          <span className="text-lg font-semibold">A</span>
+      <div className="p-4 border-t border-white/5">
+        <div className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center">
+          <span className="text-lg font-semibold text-white">VN</span>
         </div>
       </div>
     </aside>

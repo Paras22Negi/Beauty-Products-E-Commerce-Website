@@ -54,26 +54,37 @@ function Signup() {
     dispatch(verifyOtp(formData.email, otp));
   };
 
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
+    setError("");
+    setSuccess("");
+
     if (!isVerified) {
       setError("Please verify your email first.");
       return;
     }
+
     try {
-      dispatch(signup(formData));
-      setSuccess("Signup successful!");
-      setFormData({
-        username: "",
-        email: "",
-        password: "",
-      });
-      setEmailLocked(false);
-      setOtp("");
-      Navigate("/login");
+      const result = await dispatch(signup(formData));
+      if (result?.jwt) {
+        setSuccess("Signup successful!");
+        setFormData({
+          username: "",
+          email: "",
+          password: "",
+        });
+        setEmailLocked(false);
+        setOtp("");
+        Navigate("/login");
+      }
     } catch (error) {
       console.error(error);
-      setError("Signup failed");
+      const errorMessage =
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        error.message ||
+        "Signup failed. Please try again.";
+      setError(errorMessage);
     }
   };
 

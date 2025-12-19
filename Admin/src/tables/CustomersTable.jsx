@@ -1,15 +1,15 @@
-import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
-import Table from '@mui/material/Table'
-import TableRow from '@mui/material/TableRow'
-import TableHead from '@mui/material/TableHead'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
-import Typography from '@mui/material/Typography'
-import TableContainer from '@mui/material/TableContainer'
-import { Avatar, CardHeader } from '@mui/material'
-import { useNavigate } from 'react-router-dom'
-import React from 'react'
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import Table from "@mui/material/Table";
+import TableRow from "@mui/material/TableRow";
+import TableHead from "@mui/material/TableHead";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import Typography from "@mui/material/Typography";
+import TableContainer from "@mui/material/TableContainer";
+import { Avatar, CardHeader } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import React from "react";
 
 const CustomersTable = ({ customers = [] }) => {
   const navigate = useNavigate();
@@ -19,38 +19,41 @@ const CustomersTable = ({ customers = [] }) => {
   return (
     <Card
       sx={{
-        backgroundColor: '#ffffff',
+        backgroundColor: "#18181b", // Zinc-900
+        color: "white",
         borderRadius: 2,
-        boxShadow: '0 4px 18px rgba(0,0,0,0.08)',
+        boxShadow: "none",
+        border: "1px solid rgba(255,255,255,0.05)",
       }}
     >
       <CardHeader
         title="New Customers"
         sx={{
           pt: 2,
-          alignItems: 'center',
-          '& .MuiCardHeader-action': { mt: 0.6 },
+          alignItems: "center",
+          "& .MuiCardHeader-action": { mt: 0.6 },
+          "& .MuiCardHeader-title": { color: "white" },
         }}
         action={
           <Typography
-            onClick={() => navigate('/customers')}
+            onClick={() => navigate("/customers")}
             variant="caption"
             sx={{
-              color: '#6A1B9A',
-              cursor: 'pointer',
-              paddingRight: '.8rem',
+              color: "#818cf8", // Indigo-400
+              cursor: "pointer",
+              paddingRight: ".8rem",
               fontWeight: 600,
+              "&:hover": { color: "#6366f1" },
             }}
           >
             View All →
           </Typography>
         }
         titleTypographyProps={{
-          variant: 'h6',
+          variant: "h6",
           sx: {
             fontWeight: 700,
-            color: '#000',
-            letterSpacing: '0.3px !important',
+            letterSpacing: "0.3px !important",
           },
         }}
       />
@@ -59,8 +62,12 @@ const CustomersTable = ({ customers = [] }) => {
         <Table sx={{ minWidth: 390 }} aria-label="new customers">
           <TableHead>
             <TableRow>
-              <TableCell sx={{ fontWeight: 600 }}>Image</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Email</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: "gray" }}>
+                Image
+              </TableCell>
+              <TableCell sx={{ fontWeight: 600, color: "gray" }}>
+                Email
+              </TableCell>
             </TableRow>
           </TableHead>
 
@@ -71,28 +78,31 @@ const CustomersTable = ({ customers = [] }) => {
                   hover
                   key={index}
                   sx={{
-                    '&:last-of-type td, &:last-of-type th': { border: 0 },
-                    cursor: 'pointer',
+                    "&:last-of-type td, &:last-of-type th": { border: 0 },
+                    cursor: "pointer",
+                    "&:hover": {
+                      backgroundColor: "rgba(255,255,255,0.05) !important",
+                    },
                   }}
-                  onClick={() => navigate('/customers')}
+                  onClick={() => navigate("/customers")}
                 >
                   <TableCell>
                     <Avatar
                       alt={item.name}
-                      src={item.image || '/default-avatar.png'}
+                      src={item.image || "/default-avatar.png"}
                       sx={{ width: 42, height: 42 }}
                     />
                   </TableCell>
 
-                  <TableCell sx={{ fontSize: '.9rem', color: '#333' }}>
+                  <TableCell sx={{ fontSize: ".9rem", color: "gray.300" }}>
                     {item.email}
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={2} sx={{ textAlign: 'center', py: 3 }}>
-                  <Typography variant="body2" color="text.secondary">
+                <TableCell colSpan={2} sx={{ textAlign: "center", py: 3 }}>
+                  <Typography variant="body2" color="gray">
                     No customers found.
                   </Typography>
                 </TableCell>

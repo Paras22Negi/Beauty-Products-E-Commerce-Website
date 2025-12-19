@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import { RxCross2 } from "react-icons/rx";
+import axios from "axios";
+import toast from "react-hot-toast";
 
-function AddAddressModal({ onClose }) {
+const API_URL = import.meta.env.VITE_BACKEND_URL;
+
+function AddAddressModal({ onClose, onAdd }) {
   // Countries
   const countryOptions = [
     "India",
@@ -11,7 +15,7 @@ function AddAddressModal({ onClose }) {
     "Australia",
   ];
 
-  // Master State List (best practice)
+  // Master State List
   const states = {
     India: [
       "Andaman and Nicobar",
@@ -23,7 +27,7 @@ function AddAddressModal({ onClose }) {
       "Punjab",
       "Gujarat",
     ],
-    United_States: [
+    "United States": [
       "California",
       "Texas",
       "Florida",
@@ -31,31 +35,85 @@ function AddAddressModal({ onClose }) {
       "Washington",
     ],
     Canada: ["Ontario", "Quebec", "British Columbia"],
-    United_Kingdom: ["England", "Scotland", "Wales", "Northern Ireland"],
+    "United Kingdom": ["England", "Scotland", "Wales", "Northern Ireland"],
     Australia: ["New South Wales", "Victoria", "Queensland"],
   };
 
-  // Selected values
+  // Form state
   const [country, setCountry] = useState("India");
-  const [stateList, setStateList] = useState(states["India"]); // default India states
-  const [state, setState] = useState(states["India"][0]); // default first state
-
-  // Default address checkbox
-  const [defaultAddress, setDefaultAddress] = useState(false);
+  const [stateList, setStateList] = useState(states["India"]);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    streetAddress: "",
+    apartment: "",
+    city: "",
+    state: states["India"][0],
+    zipCode: "",
+    mobile: "",
+  });
+  const [loading, setLoading] = useState(false);
 
   const handleCountryChange = (e) => {
     const selectedCountry = e.target.value;
     setCountry(selectedCountry);
-
-    const newStates = states[selectedCountry]; // auto pick correct states
+    const newStates = states[selectedCountry] || [];
     setStateList(newStates);
-    setState(newStates[0]); // reset state to first option
+    setFormData({ ...formData, state: newStates[0] || "" });
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSave = async () => {
+    // Validate required fields
+    if (
+      !formData.firstName ||
+      !formData.lastName ||
+      !formData.streetAddress ||
+      !formData.city ||
+      !formData.state ||
+      !formData.zipCode
+    ) {
+      toast.error("Please fill all required fields");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.post(
+        `${API_URL}/api/addresses`,
+        {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          streetAddress: formData.streetAddress,
+          city: formData.city,
+          state: formData.state,
+          zipCode: formData.zipCode,
+          mobile: formData.mobile,
+          country,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (res.data.success) {
+        toast.success("Address added successfully!");
+        if (onAdd) onAdd(res.data.address);
+        onClose();
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(error.response?.data?.error || "Failed to add address");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex justify-center items-center z-50">
-      <div className="bg-white rounded-xl p-6 w-[650px] relative">
-        
+      <div className="bg-white rounded-xl p-6 w-[650px] relative max-h-[90vh] overflow-y-auto">
         {/* Close Button */}
         <button
           className="absolute top-4 right-4 text-gray-600 cursor-pointer"
@@ -65,19 +123,6 @@ function AddAddressModal({ onClose }) {
         </button>
 
         <h2 className="text-xl font-semibold mb-4">Add address</h2>
-
-        {/* Default Address Checkbox */}
-        <label className="flex items-center gap-2 mb-4 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={defaultAddress}
-            onChange={(e) => setDefaultAddress(e.target.checked)}
-            className="w-4 h-4 accent-pink-600"
-          />
-          <span className="text-sm text-gray-700">
-            This is my default address
-          </span>
-        </label>
 
         {/* Country Selection */}
         <div className="mb-4">
@@ -97,35 +142,51 @@ function AddAddressModal({ onClose }) {
         <div className="grid grid-cols-2 gap-3 mb-4">
           <input
             className="border p-3 rounded-lg outline-pink-500"
-            placeholder="First name"
+            placeholder="First name *"
+            name="firstName"
+            value={formData.firstName}
+            onChange={handleChange}
           />
           <input
             className="border p-3 rounded-lg outline-pink-500"
-            placeholder="Last name"
+            placeholder="Last name *"
+            name="lastName"
+            value={formData.lastName}
+            onChange={handleChange}
           />
         </div>
 
         {/* Address */}
         <input
           className="border p-3 rounded-lg mb-3 w-full outline-pink-500"
-          placeholder="Address"
+          placeholder="Street Address *"
+          name="streetAddress"
+          value={formData.streetAddress}
+          onChange={handleChange}
         />
         <input
           className="border p-3 rounded-lg mb-3 w-full outline-pink-500"
           placeholder="Apartment, suite, etc (optional)"
+          name="apartment"
+          value={formData.apartment}
+          onChange={handleChange}
         />
 
         {/* City, State, PIN */}
         <div className="grid grid-cols-3 gap-3 mb-4">
           <input
             className="border p-3 rounded-lg outline-pink-500"
-            placeholder="City"
+            placeholder="City *"
+            name="city"
+            value={formData.city}
+            onChange={handleChange}
           />
 
           <select
             className="border p-3 rounded-lg outline-pink-500"
-            value={state}
-            onChange={(e) => setState(e.target.value)}
+            value={formData.state}
+            name="state"
+            onChange={handleChange}
           >
             {stateList.map((s) => (
               <option key={s}>{s}</option>
@@ -134,7 +195,10 @@ function AddAddressModal({ onClose }) {
 
           <input
             className="border p-3 rounded-lg outline-pink-500"
-            placeholder="PIN code"
+            placeholder="PIN code *"
+            name="zipCode"
+            value={formData.zipCode}
+            onChange={handleChange}
           />
         </div>
 
@@ -142,6 +206,9 @@ function AddAddressModal({ onClose }) {
         <input
           className="border p-3 rounded-lg w-full outline-pink-500"
           placeholder="Phone"
+          name="mobile"
+          value={formData.mobile}
+          onChange={handleChange}
         />
 
         {/* Buttons */}
@@ -149,8 +216,12 @@ function AddAddressModal({ onClose }) {
           <button className="text-gray-500" onClick={onClose}>
             Cancel
           </button>
-          <button className="bg-pink-600 text-white px-4 py-2 rounded-lg">
-            Save
+          <button
+            className="bg-pink-600 text-white px-4 py-2 rounded-lg disabled:bg-gray-400"
+            onClick={handleSave}
+            disabled={loading}
+          >
+            {loading ? "Saving..." : "Save"}
           </button>
         </div>
       </div>

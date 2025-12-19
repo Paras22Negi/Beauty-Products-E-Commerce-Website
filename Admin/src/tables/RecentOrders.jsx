@@ -11,7 +11,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Typography
+  Typography,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
@@ -27,34 +27,50 @@ const RecentOrders = ({ orders = [] }) => {
 
   const handleRowClick = (orderId) => {
     if (!orderId) return;
-    // navigate to order details page (adjust route if different)
     navigate(`/orders/${orderId}`);
   };
 
   return (
     <Card
       sx={{
-        backgroundColor: "#fff",
+        backgroundColor: "#18181b", // Zinc-900
+        color: "white",
         borderRadius: 2,
-        boxShadow: "0 6px 18px rgba(0,0,0,0.06)",
+        boxShadow: "none",
+        border: "1px solid rgba(255,255,255,0.05)",
       }}
       aria-label="Recent orders"
     >
       <CardHeader
         title="Recent Orders"
-        sx={{ pt: 2, alignItems: "center", "& .MuiCardHeader-action": { mt: 0.6 } }}
+        sx={{
+          pt: 2,
+          alignItems: "center",
+          "& .MuiCardHeader-action": { mt: 0.6 },
+          "& .MuiCardHeader-title": { color: "white" },
+        }}
         action={
           <Typography
             onClick={() => navigate("/orders")}
             variant="caption"
-            sx={{ color: "#6A1B9A", cursor: "pointer", paddingRight: ".8rem", fontWeight: 600 }}
+            sx={{
+              color: "#818cf8",
+              cursor: "pointer",
+              paddingRight: ".8rem",
+              fontWeight: 600,
+              "&:hover": { color: "#6366f1" },
+            }}
           >
             View All →
           </Typography>
         }
         titleTypographyProps={{
           variant: "h6",
-          sx: { lineHeight: "1.6 !important", letterSpacing: "0.15px !important", fontWeight: 700 },
+          sx: {
+            lineHeight: "1.6 !important",
+            letterSpacing: "0.15px !important",
+            fontWeight: 700,
+          },
         }}
       />
 
@@ -62,11 +78,21 @@ const RecentOrders = ({ orders = [] }) => {
         <Table sx={{ minWidth: 720 }} aria-label="recent orders table">
           <TableHead>
             <TableRow>
-              <TableCell sx={{ fontWeight: 700 }}>Image</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Title</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Price</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Order ID</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
+              <TableCell sx={{ fontWeight: 700, color: "gray" }}>
+                Image
+              </TableCell>
+              <TableCell sx={{ fontWeight: 700, color: "gray" }}>
+                Title
+              </TableCell>
+              <TableCell sx={{ fontWeight: 700, color: "gray" }}>
+                Price
+              </TableCell>
+              <TableCell sx={{ fontWeight: 700, color: "gray" }}>
+                Order ID
+              </TableCell>
+              <TableCell sx={{ fontWeight: 700, color: "gray" }}>
+                Status
+              </TableCell>
             </TableRow>
           </TableHead>
 
@@ -74,41 +100,88 @@ const RecentOrders = ({ orders = [] }) => {
             {Array.isArray(orders) && orders.length > 0 ? (
               orders.slice(0, 10).map((order, index) => {
                 const item = getFirstProduct(order);
-                const imageSrc = (item?.imageUrl && item.imageUrl[0]) || item?.image || "/default-product.png";
-                const title = item?.title || order?.orderItems?.[0]?.name || "Untitled product";
-                const price = order?.totalDiscountedPrice ?? order?.totalPrice ?? 0;
-                const orderId = order?._id || order?.orderId || `ORD-${index + 1}`;
+                const imageSrc =
+                  (item?.imageUrl && item.imageUrl[0]) ||
+                  item?.image ||
+                  "/default-product.png";
+                const title =
+                  item?.title ||
+                  order?.orderItems?.[0]?.name ||
+                  "Untitled product";
+                const price =
+                  order?.totalDiscountedPrice ?? order?.totalPrice ?? 0;
+                const orderId =
+                  order?._id || order?.orderId || `ORD-${index + 1}`;
                 const status = (order?.orderStatus || "PENDING").toUpperCase();
 
                 // choose chip color
                 const chipColor =
-                  status === "DELIVERED" ? "success" : status === "CANCELLED" ? "error" : "warning";
+                  status === "DELIVERED"
+                    ? "success"
+                    : status === "CANCELLED"
+                    ? "error"
+                    : "warning";
 
                 return (
                   <TableRow
                     hover
                     key={orderId}
-                    sx={{ cursor: orderId ? "pointer" : "default" }}
+                    sx={{
+                      cursor: orderId ? "pointer" : "default",
+                      "&:hover": {
+                        backgroundColor: "rgba(255,255,255,0.05) !important",
+                      },
+                    }}
                     onClick={() => handleRowClick(orderId)}
                   >
                     <TableCell>
-                      <Avatar alt={title} src={imageSrc} sx={{ width: 46, height: 46 }} />
+                      <Avatar
+                        alt={title}
+                        src={imageSrc}
+                        sx={{ width: 46, height: 46 }}
+                      />
                     </TableCell>
 
-                    <TableCell sx={{ py: (theme) => `${theme.spacing(0.75)} !important`, maxWidth: 280 }}>
+                    <TableCell
+                      sx={{
+                        py: (theme) => `${theme.spacing(0.75)} !important`,
+                        maxWidth: 280,
+                      }}
+                    >
                       <Box sx={{ display: "flex", flexDirection: "column" }}>
-                        <Typography sx={{ fontWeight: 600, fontSize: "0.95rem" }} noWrap>
+                        <Typography
+                          sx={{
+                            fontWeight: 600,
+                            fontSize: "0.95rem",
+                            color: "white",
+                          }}
+                          noWrap
+                        >
                           {title}
                         </Typography>
-                        <Typography variant="caption" color="text.secondary" noWrap>
+                        <Typography
+                          variant="caption"
+                          sx={{ color: "gray.400" }}
+                          noWrap
+                        >
                           {item?.brand || ""}
                         </Typography>
                       </Box>
                     </TableCell>
 
-                    <TableCell>₹{price.toLocaleString()}</TableCell>
+                    <TableCell sx={{ color: "gray.300" }}>
+                      ₹{price.toLocaleString()}
+                    </TableCell>
 
-                    <TableCell sx={{ fontFamily: "monospace", fontSize: "0.9rem" }}>{orderId}</TableCell>
+                    <TableCell
+                      sx={{
+                        fontFamily: "monospace",
+                        fontSize: "0.9rem",
+                        color: "gray.300",
+                      }}
+                    >
+                      {orderId}
+                    </TableCell>
 
                     <TableCell>
                       <Chip
@@ -124,7 +197,7 @@ const RecentOrders = ({ orders = [] }) => {
             ) : (
               <TableRow>
                 <TableCell colSpan={5} sx={{ textAlign: "center", py: 4 }}>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="body2" color="gray.500">
                     No recent orders.
                   </Typography>
                 </TableCell>

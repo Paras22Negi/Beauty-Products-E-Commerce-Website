@@ -3,10 +3,12 @@ import AddProductForm from "../Components/AddProductForm";
 
 const AdminAddProduct = () => {
   return (
-    <>
-      <h1 className="text-center text-4xl font-semibold mb-6">Add New Product</h1>
+    <div className="bg-black min-h-screen p-6">
+      <h1 className="text-center text-4xl font-bold mb-8 text-white tracking-tight">
+        Add New Product
+      </h1>
       <AddProductForm />
-    </>
+    </div>
   );
 };
 

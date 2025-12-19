@@ -1,33 +1,33 @@
 import * as productServices from "../services/Product.Services.js";
 
 const createProduct = async (req, res) => {
-    try {
-        const product = await productServices.createProduct(req);
-        res.status(201).json(product);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-}
+  try {
+    const product = await productServices.createProduct(req);
+    res.status(201).json(product);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 const deleteProduct = async (req, res) => {
-    try {
-      const productId = req.params.id;
-      const message = await productServices.deleteProduct(productId);
-      return res.json({ message });
-    } catch (err) {
-      return res.status(500).json({ error: err.message });
-    }
-}
+  try {
+    const productId = req.params.id;
+    const message = await productServices.deleteProduct(productId);
+    return res.json({ message });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+};
 
 const updateProduct = async (req, res) => {
-    try {
-      const productId = req.params.id;
-      const product = await productServices.updateProduct(productId, req.body);
-      return res.json(product);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-}
+  try {
+    const productId = req.params.id;
+    const product = await productServices.updateProduct(productId, req);
+    return res.json(product);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
 const findProductById = async (req, res) => {
   try {
@@ -50,13 +50,14 @@ const findProductByCategory = async (req, res) => {
 };
 
 const getAllProducts = async (req, res) => {
-    try {
-        const products = await productServices.getAllProducts(req);
-        res.status(200).json(products);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-}
+  try {
+    const products = await productServices.getAllProducts(req.query);
+    res.status(200).json(products);
+  } catch (error) {
+    console.log("getAllProducts error:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
 
 const createMultipleProduct = async (req, res) => {
   try {
@@ -70,12 +71,23 @@ const createMultipleProduct = async (req, res) => {
 };
 
 const searchProducts = async (req, res) => {
-    try {
-        const products = await productServices.searchProducts(req);
-        res.status(200).json(products);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-}
+  try {
+    const searchQuery = req.query.q || "";
+    const products = await productServices.searchProducts(searchQuery);
+    res.status(200).json({ content: products, products });
+  } catch (error) {
+    console.log("searchProducts error:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
 
-export { createProduct, getAllProducts, findProductById, searchProducts, createMultipleProduct, deleteProduct, updateProduct, findProductByCategory };
+export {
+  createProduct,
+  getAllProducts,
+  findProductById,
+  searchProducts,
+  createMultipleProduct,
+  deleteProduct,
+  updateProduct,
+  findProductByCategory,
+};

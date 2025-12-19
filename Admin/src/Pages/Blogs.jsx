@@ -22,21 +22,14 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  DialogContentText,
   DialogActions,
 } from "@mui/material";
-import {
-  Edit,
-  Trash2,
-  Plus,
-  X,
-  Upload,
-  ImageIcon,
-  ChevronLeft,
-  ChevronRight,
-  AlertTriangle,
-} from "lucide-react";
+import { Edit, Trash2, Plus, X, Upload, ImageIcon } from "lucide-react";
 import axios from "axios";
-import { API_BASE_URL } from "../Config/api";
+// import { API_BASE_URL } from "../Config/api";
+// Assuming API_BASE_URL is usually imported or we can use env.
+const API_BASE_URL = import.meta.env.VITE_React_BASE_API_URL;
 
 const Blogs = () => {
   const [blogs, setBlogs] = useState([]);
@@ -55,9 +48,6 @@ const Blogs = () => {
   const [selectedImages, setSelectedImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
-  const [imageViewerOpen, setImageViewerOpen] = useState(false);
-  const [viewerImages, setViewerImages] = useState([]);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [blogToDelete, setBlogToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -70,8 +60,8 @@ const Blogs = () => {
       const response = await axios.get(
         `${API_BASE_URL}/api/blogs/all?page=${page}&limit=${itemsPerPage}`
       );
-      setBlogs(response.data.items || []);
-      setTotalPages(response.data.totalPages || 1);
+      setBlogs(response.data.data || []);
+      setTotalPages(response.data.pagination?.totalPages || 1);
     } catch (error) {
       console.error("Error fetching blogs:", error);
       setBlogs([]);
@@ -248,9 +238,8 @@ const Blogs = () => {
 
     setIsDeleting(true);
     try {
-      await axios.delete(
-        `${API_BASE_URL}/api/blogs/delete/${blogToDelete._id}`
-      );
+      // Corrected delete URL structure
+      await axios.delete(`${API_BASE_URL}/api/blogs/${blogToDelete._id}`);
       console.log("Blog deleted successfully");
       fetchBlogs(); // Refresh the list
       closeDeleteDialog();
@@ -266,14 +255,17 @@ const Blogs = () => {
   const startIndex = (page - 1) * itemsPerPage;
 
   return (
-    <Box>
-      <Card>
+    <Box className="bg-black min-h-screen p-4 text-white">
+      <Card
+        sx={{ bgcolor: "#18181b", color: "white", border: "1px solid #27272a" }}
+      >
         <CardHeader
           title="All Blogs"
           sx={{
             pt: 2,
             alignItems: "center",
             "& .MuiCardHeader-action": { mt: 0.6 },
+            "& .MuiCardHeader-title": { color: "white", fontWeight: "bold" },
           }}
           action={
             <Button
@@ -281,12 +273,13 @@ const Blogs = () => {
               startIcon={<Plus size={18} />}
               onClick={handleCreateBlog}
               sx={{
-                backgroundColor: "#6A1B9A",
+                backgroundColor: "#6366f1", // Indigo 500
                 "&:hover": {
-                  backgroundColor: "#4A148C",
+                  backgroundColor: "#4f46e5", // Indigo 600
                 },
                 textTransform: "none",
                 fontWeight: 600,
+                color: "white",
               }}
             >
               Create Blog
@@ -297,28 +290,47 @@ const Blogs = () => {
           <Table sx={{ minWidth: 650 }} aria-label="blogs table">
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 600 }}>S.No</TableCell>
-                <TableCell sx={{ fontWeight: 600 }} align="center">
+                <TableCell sx={{ fontWeight: 600, color: "white" }}>
+                  S.No
+                </TableCell>
+                <TableCell
+                  sx={{ fontWeight: 600, color: "white" }}
+                  align="center"
+                >
                   Images
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Author</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Title</TableCell>
-                <TableCell sx={{ fontWeight: 600, minWidth: 200 }}>
+                <TableCell sx={{ fontWeight: 600, color: "white" }}>
+                  Author
+                </TableCell>
+                <TableCell sx={{ fontWeight: 600, color: "white" }}>
+                  Title
+                </TableCell>
+                <TableCell
+                  sx={{ fontWeight: 600, minWidth: 200, color: "white" }}
+                >
                   Summary
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600, minWidth: 200 }}>
+                <TableCell
+                  sx={{ fontWeight: 600, minWidth: 200, color: "white" }}
+                >
                   Content
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600 }} align="center">
+                <TableCell
+                  sx={{ fontWeight: 600, color: "white" }}
+                  align="center"
+                >
                   Actions
                 </TableCell>
               </TableRow>
             </TableHead>
-            <TableBody>
+            <TableBody sx={{ color: "white" }}>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={7} sx={{ textAlign: "center", py: 5 }}>
-                    <CircularProgress size={40} sx={{ color: "#6A1B9A" }} />
+                  <TableCell
+                    colSpan={7}
+                    sx={{ textAlign: "center", py: 5, color: "gray.400" }}
+                  >
+                    <CircularProgress size={40} sx={{ color: "indigo.500" }} />
                   </TableCell>
                 </TableRow>
               ) : blogs.length > 0 ? (
@@ -328,35 +340,16 @@ const Blogs = () => {
                     key={blog._id}
                     sx={{
                       "&:last-of-type td, &:last-of-type th": { border: 0 },
+                      "&:hover": { backgroundColor: "#27272a !important" },
                     }}
                   >
-                    <TableCell>{startIndex + index + 1}</TableCell>
+                    <TableCell sx={{ color: "gray.400" }}>
+                      {startIndex + index + 1}
+                    </TableCell>
                     <TableCell align="center">
                       {blog.images && blog.images.length > 0 ? (
-                        <Box
-                          onClick={() => {
-                            setViewerImages(blog.images);
-                            setCurrentImageIndex(0);
-                            setImageViewerOpen(true);
-                          }}
-                          sx={{
-                            cursor: "pointer",
-                            display: "flex",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <AvatarGroup
-                            max={3}
-                            sx={{
-                              justifyContent: "center",
-                              "& .MuiAvatar-root": {
-                                transition: "transform 0.2s",
-                              },
-                              "&:hover .MuiAvatar-root": {
-                                transform: "scale(1.1)",
-                              },
-                            }}
-                          >
+                        <Box sx={{ display: "flex", justifyContent: "center" }}>
+                          <AvatarGroup max={3}>
                             {blog.images.map((img, idx) => (
                               <Avatar
                                 key={idx}
@@ -373,7 +366,7 @@ const Blogs = () => {
                             width: 40,
                             height: 40,
                             borderRadius: 1,
-                            backgroundColor: "#f5f5f5",
+                            backgroundColor: "#333",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
@@ -384,35 +377,18 @@ const Blogs = () => {
                         </Box>
                       )}
                     </TableCell>
-                    <TableCell sx={{ maxWidth: 100 }}>
-                      <Typography
-                        sx={{
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {blog.author}
-                      </Typography>
+                    <TableCell sx={{ maxWidth: 100, color: "white" }}>
+                      <Typography noWrap>{blog.author}</Typography>
                     </TableCell>
-                    <TableCell sx={{ maxWidth: 150 }}>
-                      <Typography
-                        sx={{
-                          fontWeight: 500,
-                          color: "#333",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
+                    <TableCell sx={{ maxWidth: 150, color: "white" }}>
+                      <Typography noWrap sx={{ fontWeight: 500 }}>
                         {blog.title}
                       </Typography>
                     </TableCell>
-                    <TableCell sx={{ maxWidth: 150 }}>
+                    <TableCell sx={{ maxWidth: 150, color: "gray.400" }}>
                       <Typography
                         sx={{
                           fontSize: "0.875rem",
-                          color: "#666",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
                           display: "-webkit-box",
@@ -423,11 +399,10 @@ const Blogs = () => {
                         {blog.summary}
                       </Typography>
                     </TableCell>
-                    <TableCell sx={{ maxWidth: 180 }}>
+                    <TableCell sx={{ maxWidth: 180, color: "gray.500" }}>
                       <Typography
                         sx={{
                           fontSize: "0.875rem",
-                          color: "#888",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
                           display: "-webkit-box",
@@ -442,23 +417,13 @@ const Blogs = () => {
                     <TableCell align="center">
                       <IconButton
                         onClick={() => handleEdit(blog._id)}
-                        sx={{
-                          color: "#1976D2",
-                          "&:hover": {
-                            backgroundColor: "rgba(25, 118, 210, 0.1)",
-                          },
-                        }}
+                        sx={{ color: "#818cf8" }}
                       >
                         <Edit size={18} />
                       </IconButton>
                       <IconButton
                         onClick={() => openDeleteDialog(blog)}
-                        sx={{
-                          color: "#D32F2F",
-                          "&:hover": {
-                            backgroundColor: "rgba(211, 47, 47, 0.1)",
-                          },
-                        }}
+                        sx={{ color: "#f87171" }}
                       >
                         <Trash2 size={18} />
                       </IconButton>
@@ -467,8 +432,8 @@ const Blogs = () => {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} sx={{ textAlign: "center", py: 3 }}>
-                    <Typography variant="body2" color="text.secondary">
+                  <TableCell colSpan={7} sx={{ textAlign: "center", py: 3 }}>
+                    <Typography variant="body2" color="gray.500">
                       No blogs found.
                     </Typography>
                   </TableCell>
@@ -478,16 +443,62 @@ const Blogs = () => {
           </Table>
         </TableContainer>
       </Card>
-      <Card className="mt-2 flex justify-center items-center">
+      <Card
+        className="mt-2 text-center"
+        sx={{ bgcolor: "#18181b", color: "white", border: "1px solid #27272a" }}
+      >
         <Pagination
-          className="py-5 w-auto"
+          className="py-5 w-auto inline-block"
           size="large"
           count={totalPages}
           page={page}
           color="primary"
           onChange={handlePaginationChange}
+          sx={{
+            button: { color: "white" },
+            ".Mui-selected": {
+              bgcolor: "indigo.600 !important",
+              color: "white",
+            },
+            ".MuiPaginationItem-ellipsis": { color: "white" },
+          }}
         />
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={closeDeleteDialog}
+        PaperProps={{
+          sx: {
+            backgroundColor: "#18181b",
+            color: "white",
+            border: "1px solid rgba(255,255,255,0.1)",
+            minWidth: "300px",
+          },
+        }}
+      >
+        <DialogTitle sx={{ color: "white" }}>Confirm Delete</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ color: "gray.400" }}>
+            Are you sure you want to delete this blog? This action cannot be
+            undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeDeleteDialog} sx={{ color: "gray.400" }}>
+            Cancel
+          </Button>
+          <Button
+            onClick={confirmDelete}
+            color="error"
+            variant="contained"
+            disabled={isDeleting}
+          >
+            {isDeleting ? "Deleting..." : "Delete"}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Create/Edit Blog Modal */}
       <Modal
@@ -498,8 +509,8 @@ const Blogs = () => {
         slotProps={{
           backdrop: {
             sx: {
-              backgroundColor: "rgba(0, 0, 0, 0.5)",
-              backdropFilter: "blur(8px)",
+              backgroundColor: "rgba(0, 0, 0, 0.7)",
+              backdropFilter: "blur(5px)",
             },
           },
         }}
@@ -513,10 +524,12 @@ const Blogs = () => {
             width: { xs: "90%", sm: 600 },
             maxHeight: "90vh",
             overflow: "auto",
-            bgcolor: "background.paper",
+            bgcolor: "#18181b", // Dark modal background
+            color: "white",
             borderRadius: 3,
             boxShadow: 24,
             p: 4,
+            border: "1px solid #3f3f46",
           }}
         >
           {/* Modal Header */}
@@ -528,22 +541,10 @@ const Blogs = () => {
               mb: 3,
             }}
           >
-            <Typography
-              variant="h5"
-              component="h2"
-              sx={{ fontWeight: 600, color: "#333" }}
-            >
+            <Typography variant="h5" sx={{ fontWeight: 600, color: "white" }}>
               {editingBlog ? "Edit Blog" : "Create New Blog"}
             </Typography>
-            <IconButton
-              onClick={handleCloseModal}
-              sx={{
-                color: "#666",
-                "&:hover": {
-                  backgroundColor: "rgba(0, 0, 0, 0.05)",
-                },
-              }}
-            >
+            <IconButton onClick={handleCloseModal} sx={{ color: "gray.400" }}>
               <X size={24} />
             </IconButton>
           </Box>
@@ -551,116 +552,48 @@ const Blogs = () => {
           {/* Form */}
           <form onSubmit={handleSubmit}>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-              <TextField
-                label="Author"
-                name="author"
-                value={formData.author}
-                onChange={handleInputChange}
-                required
-                fullWidth
-                variant="outlined"
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    "&:hover fieldset": {
-                      borderColor: "#6A1B9A",
+              {["author", "title", "summary", "content"].map((field) => (
+                <TextField
+                  key={field}
+                  label={field.charAt(0).toUpperCase() + field.slice(1)}
+                  name={field}
+                  value={formData[field]}
+                  onChange={handleInputChange}
+                  required
+                  fullWidth
+                  multiline={field === "summary" || field === "content"}
+                  rows={field === "summary" ? 2 : field === "content" ? 6 : 1}
+                  variant="outlined"
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      color: "white",
+                      "& fieldset": { borderColor: "#3f3f46" },
+                      "&:hover fieldset": { borderColor: "gray.400" },
+                      "&.Mui-focused fieldset": { borderColor: "indigo.500" },
                     },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#6A1B9A",
+                    "& .MuiInputLabel-root": { color: "gray.400" },
+                    "& .MuiInputLabel-root.Mui-focused": {
+                      color: "indigo.500",
                     },
-                  },
-                  "& .MuiInputLabel-root.Mui-focused": {
-                    color: "#6A1B9A",
-                  },
-                }}
-              />
-              <TextField
-                label="Title"
-                name="title"
-                value={formData.title}
-                onChange={handleInputChange}
-                required
-                fullWidth
-                variant="outlined"
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    "&:hover fieldset": {
-                      borderColor: "#6A1B9A",
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#6A1B9A",
-                    },
-                  },
-                  "& .MuiInputLabel-root.Mui-focused": {
-                    color: "#6A1B9A",
-                  },
-                }}
-              />
-              <TextField
-                label="Summary"
-                name="summary"
-                value={formData.summary}
-                onChange={handleInputChange}
-                required
-                fullWidth
-                multiline
-                rows={2}
-                variant="outlined"
-                placeholder="A brief summary of the blog post..."
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    "&:hover fieldset": {
-                      borderColor: "#6A1B9A",
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#6A1B9A",
-                    },
-                  },
-                  "& .MuiInputLabel-root.Mui-focused": {
-                    color: "#6A1B9A",
-                  },
-                }}
-              />
-              <TextField
-                label="Content"
-                name="content"
-                value={formData.content}
-                onChange={handleInputChange}
-                required
-                fullWidth
-                multiline
-                rows={6}
-                variant="outlined"
-                placeholder="Write your full blog content here..."
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    "&:hover fieldset": {
-                      borderColor: "#6A1B9A",
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#6A1B9A",
-                    },
-                  },
-                  "& .MuiInputLabel-root.Mui-focused": {
-                    color: "#6A1B9A",
-                  },
-                }}
-              />
+                  }}
+                />
+              ))}
 
-              {/* Image Upload Section */}
+              {/* Image Upload Section - unchanged */}
               <Box>
                 <Typography
                   variant="subtitle2"
-                  sx={{ mb: 1, fontWeight: 600, color: "#333" }}
+                  sx={{ mb: 1, fontWeight: 600, color: "gray.300" }}
                 >
                   Blog Images (Max 4)
                 </Typography>
 
-                {/* Existing Images (when editing) */}
+                {/* Existing Images */}
                 {existingImages.length > 0 && (
                   <Box sx={{ mb: 2 }}>
                     <Typography
                       variant="caption"
-                      sx={{ color: "#666", mb: 1, display: "block" }}
+                      sx={{ color: "gray.500", mb: 1, display: "block" }}
                     >
                       Current Images:
                     </Typography>
@@ -674,7 +607,7 @@ const Blogs = () => {
                             height: 80,
                             borderRadius: 2,
                             overflow: "hidden",
-                            border: "1px solid #e0e0e0",
+                            border: "1px solid #333",
                           }}
                         >
                           <img
@@ -693,11 +626,11 @@ const Blogs = () => {
                               position: "absolute",
                               top: 2,
                               right: 2,
-                              backgroundColor: "rgba(0, 0, 0, 0.6)",
+                              backgroundColor: "rgba(0,0,0,0.6)",
                               color: "#fff",
                               padding: "2px",
                               "&:hover": {
-                                backgroundColor: "rgba(211, 47, 47, 0.9)",
+                                backgroundColor: "rgba(255,0,0,0.7)",
                               },
                             }}
                           >
@@ -709,7 +642,7 @@ const Blogs = () => {
                   </Box>
                 )}
 
-                {/* Upload Button */}
+                {/* Upload Area */}
                 {existingImages.length + imagePreviews.length < 4 && (
                   <Box
                     component="label"
@@ -718,14 +651,14 @@ const Blogs = () => {
                       flexDirection: "column",
                       alignItems: "center",
                       justifyContent: "center",
-                      border: "2px dashed #ccc",
+                      border: "2px dashed #3f3f46",
                       borderRadius: 2,
                       p: 3,
                       cursor: "pointer",
                       transition: "all 0.2s",
                       "&:hover": {
-                        borderColor: "#6A1B9A",
-                        backgroundColor: "rgba(106, 27, 154, 0.05)",
+                        borderColor: "indigo.500",
+                        backgroundColor: "rgba(99, 102, 241, 0.05)",
                       },
                     }}
                   >
@@ -736,18 +669,12 @@ const Blogs = () => {
                       onChange={handleImageChange}
                       style={{ display: "none" }}
                     />
-                    <Upload size={32} color="#6A1B9A" />
+                    <Upload size={32} color="#6366f1" />
                     <Typography
                       variant="body2"
-                      sx={{ mt: 1, color: "#666", textAlign: "center" }}
+                      sx={{ mt: 1, color: "gray.400", textAlign: "center" }}
                     >
                       Click to upload images
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      sx={{ color: "#999", textAlign: "center" }}
-                    >
-                      PNG, JPG, WEBP (Max 4 images)
                     </Typography>
                   </Box>
                 )}
@@ -757,17 +684,11 @@ const Blogs = () => {
                   <Box sx={{ mt: 2 }}>
                     <Typography
                       variant="caption"
-                      sx={{ color: "#666", mb: 1, display: "block" }}
+                      sx={{ color: "gray.500", mb: 1, display: "block" }}
                     >
                       New Images:
                     </Typography>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexWrap: "wrap",
-                        gap: 1.5,
-                      }}
-                    >
+                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5 }}>
                       {imagePreviews.map((preview, index) => (
                         <Box
                           key={index}
@@ -777,7 +698,7 @@ const Blogs = () => {
                             height: 80,
                             borderRadius: 2,
                             overflow: "hidden",
-                            border: "1px solid #4CAF50",
+                            border: "1px solid #333",
                           }}
                         >
                           <img
@@ -796,11 +717,11 @@ const Blogs = () => {
                               position: "absolute",
                               top: 2,
                               right: 2,
-                              backgroundColor: "rgba(0, 0, 0, 0.6)",
+                              backgroundColor: "rgba(0,0,0,0.6)",
                               color: "#fff",
                               padding: "2px",
                               "&:hover": {
-                                backgroundColor: "rgba(211, 47, 47, 0.9)",
+                                backgroundColor: "rgba(255,0,0,0.7)",
                               },
                             }}
                           >
@@ -813,320 +734,30 @@ const Blogs = () => {
                 )}
               </Box>
 
-              <Box
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={isSubmitting}
                 sx={{
-                  display: "flex",
-                  gap: 2,
-                  justifyContent: "flex-end",
-                  mt: 1,
+                  backgroundColor: "indigo.600",
+                  "&:hover": { backgroundColor: "indigo.700" },
+                  py: 1.5,
+                  textTransform: "none",
+                  fontWeight: 600,
                 }}
               >
-                <Button
-                  variant="outlined"
-                  onClick={handleCloseModal}
-                  disabled={isSubmitting}
-                  sx={{
-                    borderColor: "#666",
-                    color: "#666",
-                    textTransform: "none",
-                    "&:hover": {
-                      borderColor: "#333",
-                      backgroundColor: "rgba(0, 0, 0, 0.05)",
-                    },
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  disabled={isSubmitting}
-                  sx={{
-                    backgroundColor: "#6A1B9A",
-                    "&:hover": {
-                      backgroundColor: "#4A148C",
-                    },
-                    textTransform: "none",
-                    fontWeight: 600,
-                    px: 4,
-                  }}
-                >
-                  {isSubmitting ? (
-                    <CircularProgress size={24} sx={{ color: "#fff" }} />
-                  ) : editingBlog ? (
-                    "Update Blog"
-                  ) : (
-                    "Create Blog"
-                  )}
-                </Button>
-              </Box>
+                {isSubmitting ? (
+                  <CircularProgress size={24} color="inherit" />
+                ) : editingBlog ? (
+                  "Update Blog"
+                ) : (
+                  "Create Blog"
+                )}
+              </Button>
             </Box>
           </form>
         </Box>
       </Modal>
-
-      {/* Image Viewer Modal (Lightbox) */}
-      <Modal
-        open={imageViewerOpen}
-        onClose={() => setImageViewerOpen(false)}
-        closeAfterTransition
-        slots={{ backdrop: Backdrop }}
-        slotProps={{
-          backdrop: {
-            sx: {
-              backgroundColor: "rgba(0, 0, 0, 0.9)",
-            },
-          },
-        }}
-      >
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: { xs: "95%", sm: "80%", md: "70%" },
-            maxWidth: 900,
-            maxHeight: "90vh",
-            outline: "none",
-          }}
-        >
-          {/* Close Button */}
-          <IconButton
-            onClick={() => setImageViewerOpen(false)}
-            sx={{
-              position: "absolute",
-              top: -50,
-              right: 0,
-              color: "#fff",
-              "&:hover": {
-                backgroundColor: "rgba(255, 255, 255, 0.1)",
-              },
-            }}
-          >
-            <X size={32} />
-          </IconButton>
-
-          {/* Image Container */}
-          <Box
-            sx={{
-              position: "relative",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            {/* Previous Button */}
-            {viewerImages.length > 1 && (
-              <IconButton
-                onClick={() =>
-                  setCurrentImageIndex((prev) =>
-                    prev === 0 ? viewerImages.length - 1 : prev - 1
-                  )
-                }
-                sx={{
-                  position: "absolute",
-                  left: { xs: -20, sm: -60 },
-                  color: "#fff",
-                  backgroundColor: "rgba(0, 0, 0, 0.5)",
-                  "&:hover": {
-                    backgroundColor: "rgba(0, 0, 0, 0.7)",
-                  },
-                }}
-              >
-                <ChevronLeft size={32} />
-              </IconButton>
-            )}
-
-            {/* Main Image */}
-            <Box
-              component="img"
-              src={viewerImages[currentImageIndex]}
-              alt={`Image ${currentImageIndex + 1}`}
-              sx={{
-                maxWidth: "100%",
-                maxHeight: "80vh",
-                objectFit: "contain",
-                borderRadius: 2,
-              }}
-            />
-
-            {/* Next Button */}
-            {viewerImages.length > 1 && (
-              <IconButton
-                onClick={() =>
-                  setCurrentImageIndex((prev) =>
-                    prev === viewerImages.length - 1 ? 0 : prev + 1
-                  )
-                }
-                sx={{
-                  position: "absolute",
-                  right: { xs: -20, sm: -60 },
-                  color: "#fff",
-                  backgroundColor: "rgba(0, 0, 0, 0.5)",
-                  "&:hover": {
-                    backgroundColor: "rgba(0, 0, 0, 0.7)",
-                  },
-                }}
-              >
-                <ChevronRight size={32} />
-              </IconButton>
-            )}
-          </Box>
-
-          {/* Image Counter */}
-          {viewerImages.length > 1 && (
-            <Typography
-              sx={{
-                textAlign: "center",
-                color: "#fff",
-                mt: 2,
-                fontSize: "0.9rem",
-              }}
-            >
-              {currentImageIndex + 1} / {viewerImages.length}
-            </Typography>
-          )}
-
-          {/* Thumbnail Navigation */}
-          {viewerImages.length > 1 && (
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                gap: 1,
-                mt: 2,
-              }}
-            >
-              {viewerImages.map((img, idx) => (
-                <Box
-                  key={idx}
-                  component="img"
-                  src={img}
-                  alt={`Thumbnail ${idx + 1}`}
-                  onClick={() => setCurrentImageIndex(idx)}
-                  sx={{
-                    width: 60,
-                    height: 60,
-                    objectFit: "cover",
-                    borderRadius: 1,
-                    cursor: "pointer",
-                    border:
-                      idx === currentImageIndex
-                        ? "2px solid #6A1B9A"
-                        : "2px solid transparent",
-                    opacity: idx === currentImageIndex ? 1 : 0.6,
-                    transition: "all 0.2s",
-                    "&:hover": {
-                      opacity: 1,
-                    },
-                  }}
-                />
-              ))}
-            </Box>
-          )}
-        </Box>
-      </Modal>
-
-      {/* Delete Confirmation Dialog */}
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={closeDeleteDialog}
-        PaperProps={{
-          sx: {
-            borderRadius: 3,
-            minWidth: 400,
-            p: 1,
-          },
-        }}
-      >
-        <DialogTitle
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 2,
-            pb: 1,
-          }}
-        >
-          <Box
-            sx={{
-              width: 48,
-              height: 48,
-              borderRadius: "50%",
-              backgroundColor: "rgba(211, 47, 47, 0.1)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <AlertTriangle size={24} color="#D32F2F" />
-          </Box>
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            Delete Blog
-          </Typography>
-        </DialogTitle>
-        <DialogContent>
-          <Typography sx={{ color: "#666", mb: 2 }}>
-            Are you sure you want to delete this blog? This action cannot be
-            undone.
-          </Typography>
-          {blogToDelete && (
-            <Box
-              sx={{
-                backgroundColor: "#f5f5f5",
-                borderRadius: 2,
-                p: 2,
-                border: "1px solid #e0e0e0",
-              }}
-            >
-              <Typography
-                variant="subtitle2"
-                sx={{ fontWeight: 600, color: "#333" }}
-              >
-                {blogToDelete.title}
-              </Typography>
-              <Typography variant="body2" sx={{ color: "#666", mt: 0.5 }}>
-                by {blogToDelete.author}
-              </Typography>
-            </Box>
-          )}
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 3, gap: 1 }}>
-          <Button
-            onClick={closeDeleteDialog}
-            disabled={isDeleting}
-            sx={{
-              color: "#666",
-              textTransform: "none",
-              "&:hover": {
-                backgroundColor: "rgba(0, 0, 0, 0.05)",
-              },
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={confirmDelete}
-            disabled={isDeleting}
-            variant="contained"
-            sx={{
-              backgroundColor: "#D32F2F",
-              "&:hover": {
-                backgroundColor: "#B71C1C",
-              },
-              textTransform: "none",
-              fontWeight: 600,
-              px: 3,
-            }}
-          >
-            {isDeleting ? (
-              <CircularProgress size={20} sx={{ color: "#fff" }} />
-            ) : (
-              "Delete Blog"
-            )}
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 };

@@ -21,7 +21,7 @@ function Login() {
     try {
       const formData = { email, password };
       const data = await dispatch(login(formData)); // wait for login action
-      if (data?.token) {
+      if (data?.jwt) {
         toast.success("Login successful!");
         Navigate("/profile"); // only navigate if login succeeded
       } else {
@@ -31,9 +31,13 @@ function Login() {
       }
     } catch (err) {
       console.error(err);
-      toast.error(
-        err.response?.data?.message || "Login failed. Please try again."
-      );
+      // Extract the specific error message from backend
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        err.message ||
+        "Login failed. Please try again.";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useNavigate, Link } from "react-router-dom";
-import { fetchProduct, searchProduct } from "../redux/Product/action";
+import { useLocation, useNavigate, Link, useParams } from "react-router-dom";
+import {
+  fetchProduct,
+  searchProduct,
+  fetchProductsByCategory,
+} from "../redux/Product/action";
 import { ClipLoader } from "react-spinners";
 import { FaStar } from "react-icons/fa";
 import Slider from "rc-slider";
@@ -11,6 +15,7 @@ function ProductsPage() {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
+  const { category } = useParams(); // Get category from URL params
   const { loading, error, product } = useSelector((state) => state.product);
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 8;
@@ -51,10 +56,12 @@ function ProductsPage() {
   useEffect(() => {
     if (query) {
       dispatch(searchProduct(query));
+    } else if (category) {
+      dispatch(fetchProductsByCategory(category));
     } else {
       dispatch(fetchProduct());
     }
-  }, [dispatch, query]);
+  }, [dispatch, query, category]);
 
   const productsArray = Array.isArray(product)
     ? product
@@ -198,14 +205,38 @@ function ProductsPage() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <ClipLoader color="#3B82F6" size={50} />
+      <div className="flex justify-center items-center h-screen bg-[#f8f8f8]">
+        <ClipLoader color="#ec4899" size={50} />
       </div>
     );
   }
 
   if (error) {
-    return <p className="text-center text-red-500">{error}</p>;
+    return (
+      <div className="min-h-screen bg-[#f8f8f8] flex items-center justify-center px-4">
+        <div className="bg-white rounded-2xl shadow-sm p-8 max-w-md text-center">
+          <div className="text-6xl mb-4">😕</div>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">
+            Oops! Something went wrong
+          </h2>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <div className="flex gap-3 justify-center">
+            <button
+              onClick={() => window.location.reload()}
+              className="bg-pink-600 text-white px-6 py-2 rounded-lg hover:bg-pink-700 transition"
+            >
+              Try Again
+            </button>
+            <button
+              onClick={() => navigate("/")}
+              className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition"
+            >
+              Go Home
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -225,9 +256,25 @@ function ProductsPage() {
               ← Back to All Products
             </button>
           </div>
+        ) : category ? (
+          <div className="text-center">
+            <h1 className="text-3xl sm:text-4xl font-semibold text-gray-800 mb-4 capitalize">
+              {category.replace(/-/g, " ")}
+            </h1>
+            <p className="text-gray-600 mb-4">
+              {productsArray.length}{" "}
+              {productsArray.length === 1 ? "product" : "products"} found
+            </p>
+            <button
+              onClick={() => navigate("/products")}
+              className="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition"
+            >
+              ← View All Products
+            </button>
+          </div>
         ) : (
           <h1 className="text-3xl sm:text-4xl font-semibold text-gray-800 text-center">
-            Best Sellers
+            All Products
           </h1>
         )}
       </div>
@@ -687,13 +734,44 @@ function ProductsPage() {
               ))
             ) : (
               <div className="col-span-3 text-center py-20">
-                <p className="text-gray-500 text-lg mb-4">No Products Found</p>
-                <button
-                  onClick={clearAllFilters}
-                  className="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition"
-                >
-                  Clear All Filters
-                </button>
+                <div className="text-6xl mb-4">🛍️</div>
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                  No Products Found
+                </h3>
+                <p className="text-gray-500 mb-6">
+                  {category
+                    ? `We don't have any products in "${category.replace(
+                        /-/g,
+                        " "
+                      )}" category yet.`
+                    : query
+                    ? `No products match your search "${query}". Try different keywords.`
+                    : "No products are available at the moment. Check back later!"}
+                </p>
+                <div className="flex gap-3 justify-center">
+                  {(filters.availability.inStock ||
+                    filters.availability.outOfStock ||
+                    filters.colors.length > 0 ||
+                    filters.productTypes.length > 0 ||
+                    priceRange[0] !== 0 ||
+                    priceRange[1] !== 10000) && (
+                    <button
+                      onClick={clearAllFilters}
+                      className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition"
+                    >
+                      Clear Filters
+                    </button>
+                  )}
+                  {/* Only show Browse All Products button when on category or search page */}
+                  {(category || query) && (
+                    <button
+                      onClick={() => navigate("/products")}
+                      className="bg-pink-600 text-white px-6 py-2 rounded-lg hover:bg-pink-700 transition"
+                    >
+                      Browse All Products
+                    </button>
+                  )}
+                </div>
               </div>
             )}
           </div>

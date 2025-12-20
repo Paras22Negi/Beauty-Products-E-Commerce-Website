@@ -13,6 +13,9 @@ import {
   CREATE_RATING_SUCCESS,
   CREATE_RATING_FAILURE,
   CLEAR_REVIEW_STATE,
+  CHECK_ELIGIBILITY_REQUEST,
+  CHECK_ELIGIBILITY_SUCCESS,
+  CHECK_ELIGIBILITY_FAILURE,
 } from "./actionType";
 
 const API_URL = import.meta.env.VITE_BACKEND_URL;
@@ -39,18 +42,16 @@ export const getProductReviews = (productId) => async (dispatch) => {
   }
 };
 
-// Create a new review
-export const createReview = (productId, review) => async (dispatch) => {
+// Create a new review (with consolidated rating/description)
+export const createReview = (reqData) => async (dispatch) => {
   dispatch({ type: CREATE_REVIEW_REQUEST });
   try {
-    const res = await axios.post(
-      `${API_URL}/api/reviews/create`,
-      { productId, review },
-      { headers: getAuthHeader() }
-    );
+    const res = await axios.post(`${API_URL}/api/reviews/create`, reqData, {
+      headers: getAuthHeader(),
+    });
     dispatch({ type: CREATE_REVIEW_SUCCESS, payload: res.data });
     // Refresh reviews after creating
-    dispatch(getProductReviews(productId));
+    dispatch(getProductReviews(reqData.productId));
     return { success: true, data: res.data };
   } catch (error) {
     const errMsg = error.response?.data?.error || "Failed to create review";
@@ -105,20 +106,27 @@ export const getProductFeedback = (productId) => async (dispatch) => {
   ]);
 };
 
-// Submit review with rating
-export const submitReviewWithRating =
-  (productId, review, rating) => async (dispatch) => {
-    const [reviewResult, ratingResult] = await Promise.all([
-      dispatch(createReview(productId, review)),
-      dispatch(createRating(productId, rating)),
-    ]);
+// Submit review with rating (Consolidated)
+export const submitReviewWithRating = (reqData) => async (dispatch) => {
+  return await dispatch(createReview(reqData));
+};
 
-    return {
-      success: reviewResult.success && ratingResult.success,
-      review: reviewResult,
-      rating: ratingResult,
-    };
-  };
+// Check if user is eligible to review
+export const checkReviewEligibility = (productId) => async (dispatch) => {
+  dispatch({ type: CHECK_ELIGIBILITY_REQUEST });
+  try {
+    const res = await axios.get(
+      `${API_URL}/api/reviews/eligibility/${productId}`,
+      { headers: getAuthHeader() }
+    );
+    dispatch({ type: CHECK_ELIGIBILITY_SUCCESS, payload: res.data.isEligible });
+    return res.data.isEligible;
+  } catch (error) {
+    const errMsg = error.response?.data?.error || "Failed to check eligibility";
+    dispatch({ type: CHECK_ELIGIBILITY_FAILURE, payload: errMsg });
+    return false;
+  }
+};
 
 // Clear review state
 export const clearReviewState = () => ({

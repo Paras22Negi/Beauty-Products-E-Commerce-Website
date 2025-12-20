@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import toast from "react-hot-toast";
 import { ClipLoader } from "react-spinners";
 import {
   FaStar,
@@ -15,7 +16,6 @@ import { addToCart } from "../redux/cart/action";
 import RecommendedProducts from "../Components/RecommendedProducts";
 import ShowcaseStyle from "../Components/ShowcaseStyle";
 import ProductReviews from "../Components/ProductReviews";
-
 
 function ProductDetails() {
   const [selectedImage, setSelectedImage] = useState("");
@@ -69,6 +69,7 @@ function ProductDetails() {
 
   const { id } = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const { loading, error, productDetail, product } = useSelector(
     (state) => state.product
@@ -76,7 +77,7 @@ function ProductDetails() {
   console.log(product);
 
   const recommended = product
-    .filter((p) => p.id !== productDetail.id)
+    .filter((p) => p._id !== productDetail._id)
     .slice(0, 6);
 
   useEffect(() => {
@@ -96,15 +97,53 @@ function ProductDetails() {
       <p className="text-center text-red-500 font-semibold mt-10">{error}</p>
     );
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     const shades = [
       "01 Leading Lady",
       "02 Berry Bliss",
       "03 Coral Dreams",
       "04 Nude Elegance",
+      "05 Mauve Magic",
+      "06 Ruby Red",
+      "07 Mocha Muse",
+      "08 Pink Passion",
     ];
-    dispatch(addToCart(productDetail, quantity, shades[selectedShade]));
-    alert("Product added to cart!");
+    const size =
+      productDetail.sizes && productDetail.sizes.length > 0
+        ? productDetail.sizes[0].name
+        : shades[selectedShade];
+
+    const res = await dispatch(addToCart(productDetail._id, size));
+    if (res.success) {
+      toast.success("Product added to cart!");
+    } else {
+      toast.error(res.error || "Failed to add to cart");
+    }
+  };
+
+  const handleBuyNow = async () => {
+    const shades = [
+      "01 Leading Lady",
+      "02 Berry Bliss",
+      "03 Coral Dreams",
+      "04 Nude Elegance",
+      "05 Mauve Magic",
+      "06 Ruby Red",
+      "07 Mocha Muse",
+      "08 Pink Passion",
+    ];
+    const size =
+      productDetail.sizes && productDetail.sizes.length > 0
+        ? productDetail.sizes[0].name
+        : shades[selectedShade];
+
+    const res = await dispatch(addToCart(productDetail._id, size));
+    if (res.success) {
+      toast.success("Proceeding to checkout...");
+      navigate("/checkout");
+    } else {
+      toast.error(res.error || "Failed to process Buy Now");
+    }
   };
 
   const shadeColors = [
@@ -141,23 +180,27 @@ function ProductDetails() {
                 </div>
               )}
               <img
-                src={selectedImage || productDetail.thumbnail}
+                src={
+                  selectedImage ||
+                  productDetail.thumbnail ||
+                  productDetail.imageUrl?.[0]
+                }
                 alt={productDetail.title}
-                className="w-[420px] h-[420px] object-contain rounded-xl"
+                className="w-full max-w-[420px] aspect-square object-contain rounded-xl shadow-inner bg-gray-50"
                 onLoad={() => setImgLoading(false)}
               />
             </div>
 
             <div className="flex flex-wrap justify-center gap-3 mt-6">
-              {productDetail.images?.map((img, index) => (
+              {(productDetail.imageUrl || []).map((img, index) => (
                 <img
-                  key={index}
+                  key={productDetail._id + "-" + index}
                   src={img}
                   alt={`${productDetail.title}-${index}`}
                   className={`w-20 h-20 object-cover rounded-lg cursor-pointer border-2 transition ${
                     selectedImage === img
-                      ? "border-rose-600 scale-105"
-                      : "border-gray-300 hover:border-rose-500"
+                      ? "border-rose-600 scale-105 shadow-md"
+                      : "border-gray-200 hover:border-rose-300"
                   }`}
                   onClick={() => handleImgChange(img)}
                 />
@@ -208,7 +251,11 @@ function ProductDetails() {
                     ₹{productDetail.oldPrice || 499}
                   </span>{" "}
                   <span className="text-green-600 font-medium">
-                    ({productDetail.discountPercentage || 30}% OFF)
+                    (
+                    {productDetail.discountPersent ||
+                      productDetail.discountPercentage ||
+                      0}
+                    % OFF)
                   </span>
                 </p>
               </div>
@@ -262,7 +309,10 @@ function ProductDetails() {
                 >
                   ADD TO CART
                 </button>
-                <button className="flex-1 bg-rose-600 text-white py-3 rounded-lg hover:bg-rose-700 transition">
+                <button
+                  onClick={handleBuyNow}
+                  className="flex-1 bg-rose-600 text-white py-3 rounded-lg hover:bg-rose-700 transition"
+                >
                   BUY NOW
                 </button>
               </div>
@@ -338,6 +388,7 @@ function ProductDetails() {
       <RecommendedProducts products={recommended} />
       <ShowcaseStyle videos={myVideos} />
       <ProductReviews
+        productId={id}
         reviews={productDetail.reviews}
         rating={productDetail.rating}
       />

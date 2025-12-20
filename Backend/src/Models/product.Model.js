@@ -39,6 +39,9 @@ const productSchema = new mongoose.Schema({
     type: [String], // or simply `imageUrl: [String]` as shorthand
     validate: [(arr) => arr.length <= 6, "Maximum 6 images allowed"],
   },
+  thumbnail: {
+    type: String,
+  },
   ratings: [
     {
       type: mongoose.Schema.Types.ObjectId,

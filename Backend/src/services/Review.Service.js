@@ -1,10 +1,17 @@
 import Review from "../Models/reviews.Model.js";
 import * as productService from "./Product.Services.js";
+import Order from "../Models/order.Model.js";
 
 const createReview = async (reqData, user) => {
   const product = await productService.findProductById(reqData.productId);
   if (!product) {
-    throw new Error("Product not found with Id:");
+    throw new Error("Product not found");
+  }
+
+  // Check if user has bought the product
+  const hasBought = await checkReviewEligibility(user._id, product._id);
+  if (!hasBought) {
+    throw new Error("You must purchase the product before writing a review");
   }
   const review = new Review({
     user: user._id,
@@ -54,4 +61,19 @@ const getAllReviews = async (productId) => {
   };
 };
 
-export { createReview, getAllReviews };
+const checkReviewEligibility = async (userId, productId) => {
+  const orders = await Order.find({
+    user: userId,
+    "paymentDetails.paymentStatus": "COMPLETED",
+  }).populate("orderItems");
+
+  const hasBought = orders.some((order) =>
+    order.orderItems.some(
+      (item) => item.product.toString() === productId.toString()
+    )
+  );
+
+  return hasBought;
+};
+
+export { createReview, getAllReviews, checkReviewEligibility };

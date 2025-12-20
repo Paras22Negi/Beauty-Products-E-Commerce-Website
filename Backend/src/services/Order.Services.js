@@ -14,12 +14,17 @@ const createOrder = async (user, shippAddress, usedSuperCoins = 0) => {
   // Address setup
   if (shippAddress._id) {
     address = await Address.findById(shippAddress._id);
-  } else {
+  } else if (shippAddress.streetAddress) {
     address = new Address(shippAddress);
-    address.user = user;
+    address.user = user._id;
     await address.save();
-    user.addresses.push(address);
-    await user.save();
+
+    // Also update user's address list
+    const dbUser = await User.findById(user._id);
+    if (dbUser) {
+      dbUser.addresses.push(address);
+      await dbUser.save();
+    }
   }
 
   // Get cart & items
@@ -29,25 +34,28 @@ const createOrder = async (user, shippAddress, usedSuperCoins = 0) => {
   for (const item of cart.cartItems) {
     const orderItem = new OrderItem({
       price: item.price,
-      product: item.product,
+      product: item.product?._id || item.product,
       quantity: item.quantity,
       size: item.size,
-      userId: item.userId,
-      discountedPrice: item.discountedPrice,
+      userId: user._id,
+      discountedPrice: item.discountedPrice || item.price,
     });
     const createOrderItem = await orderItem.save();
     orderItems.push(createOrderItem);
   }
 
   // Super Coin Handling
-  const dbUser = await User.findById(userId);
+  const dbUser = await User.findById(user._id);
   if (!dbUser) {
     throw new Error("User not found");
   }
+
   if (usedSuperCoins > 0) {
     if (dbUser.superCoins < usedSuperCoins) {
       throw new Error("Insufficient Super Coins");
     }
+    // We deduct only when order is "Placed" or "Paid" usually,
+    // but here we deduct at creation as per previous logic.
     dbUser.superCoins -= usedSuperCoins;
     await dbUser.save();
   }
@@ -66,26 +74,29 @@ const createOrder = async (user, shippAddress, usedSuperCoins = 0) => {
 
   // Create Order
   const createdOrder = new Order({
-    user,
+    user: user._id,
     orderItems,
     totalPrice: cart.totalPrice,
     totalDiscountedPrice: finalPriceAfterCoinsAndCoupon,
-    discounte: cart.discounte,
+    discounte: cart.totalPrice - finalPriceAfterCoinsAndCoupon,
     totalItem: cart.totalItem,
-    shippingAddress: address,
+    shippingAddress: address?._id || address,
     usedSuperCoins,
     couponCode,
     couponDiscount,
     orderDate: new Date(),
     orderStatus: "PENDING",
-    paymentDetails: { paymentStatus: "PENDING" },
+    paymentDetails: {
+      paymentStatus: "PENDING",
+      paymentMethod: "", // To be updated by controller
+    },
     createdAt: new Date(),
   });
 
   return await createdOrder.save();
 };
 
-const placedOrder = async (orderId, paymentMeta = {}) => {
+const placeOrder = async (orderId, paymentMeta = {}) => {
   const order = await findOrderById(orderId);
   if (!order) throw new Error("Order not found");
 
@@ -151,7 +162,7 @@ const deliveredOrder = async (orderId) => {
   console.log("Reward Super Coins to:", order.user?._id, order.user?.email);
 
   try {
-    await rewardeSuperCoins(order.user._id, order._id);
+    await rewardSuperCoins(order.user._id, order._id);
   } catch (error) {
     console.error("⚠️ Failed to reward Super Coins:", error.message);
   }
@@ -162,7 +173,7 @@ const deliveredOrder = async (orderId) => {
     if (!product) continue;
 
     const sizeToUpdate = product.sizes.find((size) => size.name === item.size);
-    if (!sizeToUpdate) {
+    if (sizeToUpdate) {
       sizeToUpdate.quantity -= item.quantity;
       if (sizeToUpdate.quantity < 0) sizeToUpdate.quantity = 0;
 
@@ -273,6 +284,8 @@ const findOrderById = async (orderId) => {
     throw error;
   }
 };
+
+const findById = findOrderById;
 
 const usersOrderHistory = async (userId) => {
   const order = await Order.find({
@@ -506,7 +519,7 @@ export {
   findOrderById,
   usersOrderHistory,
   getAllOrders,
-  placedOrder,
+  placeOrder,
   confirmedOrder,
   shipOrder,
   outForDelivery,
@@ -518,4 +531,5 @@ export {
   getAdminDashboardOverview,
   rewardSuperCoins,
   applySuperCoins,
+  findById,
 };

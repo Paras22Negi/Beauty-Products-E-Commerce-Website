@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
-const Sidebar = () => {
+const Sidebar = ({ closeSidebar }) => {
   const navItems = [
     {
       label: "Dashboard",
@@ -40,6 +40,7 @@ const Sidebar = () => {
           <NavLink
             key={item.path}
             to={item.path}
+            onClick={closeSidebar} // Close sidebar on mobile when link clicked
             className={({ isActive }) =>
               `flex items-center gap-4 px-6 py-3 text-gray-400 transition hover:bg-white/5 hover:text-white ${
                 isActive

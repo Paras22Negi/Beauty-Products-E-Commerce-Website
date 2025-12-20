@@ -1,8 +1,8 @@
 import React from "react";
-import { Search, Bell, Mail, User, LogOut } from "lucide-react";
+import { Search, Bell, Mail, User, LogOut, Menu } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const Topbar = () => {
+const Topbar = ({ toggleSidebar }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -10,25 +10,33 @@ const Topbar = () => {
     navigate("/login");
   };
   return (
-    <header className="h-[65px] bg-zinc-900 border-b border-white/5 px-6 flex items-center justify-between">
-      {/* Left Side - Logo */}
+    <header className="h-[65px] bg-zinc-900 border-b border-white/5 px-4 lg:px-6 flex items-center justify-between sticky top-0 z-20">
+      {/* Left Side - Hamburger + Logo */}
       <div className="flex items-center gap-4">
-        <div
-          className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-indigo-800 flex items-center justify-center shadow-lg shadow-indigo-500/20"
-          style={{
-            clipPath:
-              "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
-          }}
+        <button
+          onClick={toggleSidebar}
+          className="p-2 -ml-2 text-gray-400 hover:text-white lg:hidden"
         >
-          <span className="text-xl font-bold text-white">VN</span>
+          <Menu size={24} />
+        </button>
+        <div className="flex items-center gap-3">
+          <div
+            className="w-8 h-8 lg:w-10 lg:h-10 bg-gradient-to-br from-indigo-600 to-indigo-800 flex items-center justify-center shadow-lg shadow-indigo-500/20"
+            style={{
+              clipPath:
+                "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+            }}
+          >
+            <span className="text-lg lg:text-xl font-bold text-white">VN</span>
+          </div>
+          <h1 className="text-base lg:text-lg font-bold text-white tracking-wide hidden sm:block">
+            NOVA NECTAR
+          </h1>
         </div>
-        <h1 className="text-lg font-bold text-white tracking-wide">
-          NOVA NECTAR
-        </h1>
       </div>
 
-      {/* Middle - Search */}
-      <div className="relative w-96">
+      {/* Middle - Search (Hidden on mobile) */}
+      <div className="relative w-96 hidden md:block">
         <Search
           className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
           size={18}
@@ -41,8 +49,8 @@ const Topbar = () => {
       </div>
 
       {/* Right Side - Stats + Icons */}
-      <div className="flex items-center gap-6">
-        <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3 lg:gap-6">
+        <div className="flex items-center gap-2 lg:gap-4">
           <div className="relative cursor-pointer">
             <Mail size={20} className="text-gray-400 hover:text-white" />
             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-semibold">

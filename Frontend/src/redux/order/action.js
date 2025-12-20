@@ -28,13 +28,13 @@ const getAuthHeader = () => {
 
 // Create a new order
 export const createOrder =
-  (shippingAddress, usedSuperCoins = 0) =>
+  (shippingAddress, usedSuperCoins = 0, paymentMethod = "COD") =>
   async (dispatch) => {
     dispatch({ type: CREATE_ORDER_REQUEST });
     try {
       const res = await axios.post(
         `${API_URL}/api/orders`,
-        { shippingAddress, usedSuperCoins },
+        { shippingAddress, usedSuperCoins, paymentMethod },
         { headers: getAuthHeader() }
       );
       dispatch({ type: CREATE_ORDER_SUCCESS, payload: res.data });
@@ -121,7 +121,7 @@ export const createOrderAndPay =
     try {
       // Step 1: Create order
       const orderResult = await dispatch(
-        createOrder(shippingAddress, usedSuperCoins)
+        createOrder(shippingAddress, usedSuperCoins, "ONLINE")
       );
       if (!orderResult.success) {
         return { success: false, error: orderResult.error };

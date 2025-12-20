@@ -15,15 +15,26 @@ const createCartItem = async (cartItemData) => {
 
 // Update a cart item
 const updateCartItem = async (userId, cartItemId, cartItemData) => {
-  const item = await CartItem.findById(cartItemId);
+  console.log(
+    "updateCartItem Service - userId:",
+    userId,
+    "cartItemId:",
+    cartItemId
+  );
+  const item = await CartItem.findById(cartItemId).populate("product");
   if (!item) {
     throw new Error("Cart item not found:", cartItemId);
   }
-  const user = await userService.findUser(item.userId);
+  const user = await userService.findUserById(item.userId);
   if (!user) {
     throw new Error("User not found:", item.userId);
   }
-  if (user.id === userId) {
+  console.log(
+    "Checking user ID match:",
+    user._id.toString(),
+    userId.toString()
+  );
+  if (user._id.toString() === userId.toString()) {
     item.quantity = cartItemData.quantity;
     item.price = item.product.price * item.quantity;
     item.discountedPrice = item.product.discountedPrice * item.quantity;

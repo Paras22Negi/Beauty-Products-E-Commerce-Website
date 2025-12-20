@@ -164,11 +164,11 @@ export default function OwnThisLookSwiper() {
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="relative bg-white rounded-2xl lg:rounded-3xl overflow-hidden shadow-2xl flex flex-col lg:flex-row w-full max-w-5xl max-h-[90vh] mx-auto"
+                className="relative bg-white rounded-2xl lg:rounded-3xl overflow-hidden shadow-2xl flex flex-col lg:flex-row w-fit max-w-[95vw] lg:max-w-5xl max-h-[90vh] mx-auto"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Left Side - Video */}
-                <div className="relative bg-black shrink-0 w-full lg:w-auto flex items-center justify-center bg-zinc-900">
+                <div className="relative shrink-0 w-full lg:w-auto flex items-center justify-center bg-zinc-900">
                   <video
                     src={selectedVideo.url}
                     controls
@@ -244,7 +244,7 @@ export default function OwnThisLookSwiper() {
                               key={product._id}
                               onClick={() => {
                                 setSelectedVideo(null);
-                                navigate(`/product/${product._id}`);
+                                navigate(`/productDetails/${product._id}`);
                               }}
                               className="flex gap-3 p-3 rounded-xl border border-gray-100 hover:border-[#CBE600] hover:shadow-md transition-all cursor-pointer group bg-white"
                             >

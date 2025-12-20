@@ -23,6 +23,8 @@ const AddProductForm = () => {
   const [success, setSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [thumbnailPreview, setThumbnailPreview] = useState("");
+  const [thumbnailFile, setThumbnailFile] = useState(null);
 
   const [formData, setFormData] = useState({
     _id: null,
@@ -40,6 +42,7 @@ const AddProductForm = () => {
     quantity: "",
     size: [],
     freeSize: "",
+    thumbnail: "",
   });
 
   // Populate form if editing
@@ -58,6 +61,7 @@ const AddProductForm = () => {
       thirdLevelCategory,
       thirdLavelCategory,
       imageUrl,
+      thumbnail,
     } = productToUpdate;
 
     const thirdCat = thirdLevelCategory || thirdLavelCategory || "";
@@ -84,6 +88,9 @@ const AddProductForm = () => {
 
     if (Array.isArray(imageUrl) && imageUrl.length > 0) {
       setPreviewImages(imageUrl);
+    }
+    if (thumbnail) {
+      setThumbnailPreview(thumbnail);
     }
   }, [productToUpdate]);
 
@@ -118,6 +125,17 @@ const AddProductForm = () => {
       });
       return limited.map((f) => URL.createObjectURL(f));
     });
+  };
+
+  const handleThumbnailChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setThumbnailFile(file);
+      if (thumbnailPreview && !thumbnailPreview.startsWith("http")) {
+        URL.revokeObjectURL(thumbnailPreview);
+      }
+      setThumbnailPreview(URL.createObjectURL(file));
+    }
   };
 
   const isEditing = !!formData._id;
@@ -177,6 +195,12 @@ const AddProductForm = () => {
         );
       }
 
+      if (thumbnailFile) {
+        payload.append("thumbnail", thumbnailFile);
+      } else if (thumbnailPreview) {
+        payload.append("existingThumbnailUrl", thumbnailPreview);
+      }
+
       if (isEditing && formData && formData._id) {
         payload.append("productId", formData._id);
       }
@@ -205,10 +229,13 @@ const AddProductForm = () => {
           quantity: "",
           size: [],
           freeSize: "",
+          thumbnail: "",
         });
         setImages([]);
         setSelectedFiles([]);
         setPreviewImages([]);
+        setThumbnailFile(null);
+        setThumbnailPreview("");
         setSizeChart(null);
         setSuccess(true);
         setSuccessMessage("Product created successfully.");
@@ -347,6 +374,42 @@ const AddProductForm = () => {
             />
           ))}
         </div>
+      </div>
+
+      {/* Thumbnail */}
+      <div className="mb-8 border-b border-white/5 pb-8">
+        <h3 className="text-white font-semibold mb-4 text-lg">
+          Product Thumbnail
+        </h3>
+        <label className="inline-flex items-center px-6 py-2 bg-rose-600 text-white rounded-md text-sm font-medium cursor-pointer hover:bg-rose-500 transition shadow-lg shadow-rose-500/20">
+          <span>Choose Thumbnail</span>
+          <input
+            type="file"
+            onChange={handleThumbnailChange}
+            className="hidden"
+            accept="image/*"
+          />
+        </label>
+
+        {thumbnailFile ? (
+          <span className="ml-3 text-gray-400 text-sm">
+            {thumbnailFile.name}
+          </span>
+        ) : !thumbnailPreview ? (
+          <span className="ml-3 text-gray-400 text-sm">
+            No thumbnail chosen
+          </span>
+        ) : null}
+
+        {thumbnailPreview && (
+          <div className="mt-4">
+            <img
+              src={thumbnailPreview}
+              alt="thumbnail preview"
+              className="w-32 h-32 object-contain rounded-lg border border-white/10 bg-black/20"
+            />
+          </div>
+        )}
       </div>
 
       {/* Brand & Title */}

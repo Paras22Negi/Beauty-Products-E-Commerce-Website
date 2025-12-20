@@ -5,16 +5,12 @@ import BlogMetadata from "./components/BlogMetadata_";
 import BlogContent from "./components/blogContent";
 import ShareSection from "./components/ShareSection";
 import NextArticle from "./components/NextArticle";
-import { blogsData } from "./BlogData";
 
 // ✅ Import AOS for animations
 import AOS from "aos";
 import "aos/dist/aos.css";
 
-const BlogDetailPage = ({ blog, onBack }) => {
-  const currentIndex = blogsData.findIndex((b) => b.id === blog.id);
-  const nextArticle = blogsData[(currentIndex + 1) % blogsData.length];
-
+const BlogDetailPage = ({ blog, nextArticle, onBack }) => {
   // ✅ Initialize AOS
   useEffect(() => {
     AOS.init({

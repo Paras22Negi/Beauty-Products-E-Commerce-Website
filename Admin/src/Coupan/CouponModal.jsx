@@ -101,7 +101,7 @@ const CouponModal = ({ onClose, couponData }) => {
         left: 0,
         width: "100%",
         height: "100%",
-        zIndex: 9999,
+        zIndex: 1400,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -175,21 +175,25 @@ const CouponModal = ({ onClose, couponData }) => {
             fullWidth
             required
             select
-            SelectProps={{
-              MenuProps: {
-                PaperProps: {
-                  sx: {
-                    bgcolor: "#18181b",
-                    color: "white",
-                    border: "1px solid #3f3f46",
-                    "& .MuiMenuItem-root": {
-                      "&:hover": { bgcolor: "#27272a" },
-                      "&.Mui-selected": {
-                        bgcolor: "#3730a3",
-                        "&:hover": { bgcolor: "#312e81" },
-                      }, // indigo-900/800
+            slotProps={{
+              select: {
+                MenuProps: {
+                  PaperProps: {
+                    sx: {
+                      zIndex: 1500,
+                      bgcolor: "#18181b",
+                      color: "white",
+                      border: "1px solid #3f3f46",
+                      "& .MuiMenuItem-root": {
+                        "&:hover": { bgcolor: "#27272a" },
+                        "&.Mui-selected": {
+                          bgcolor: "#3730a3",
+                          "&:hover": { bgcolor: "#312e81" },
+                        }, // indigo-900/800
+                      },
                     },
                   },
+                  disablePortal: true,
                 },
               },
             }}

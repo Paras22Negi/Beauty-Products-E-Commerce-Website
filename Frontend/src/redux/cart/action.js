@@ -60,7 +60,9 @@ export const addToCart = (productId, size) => async (dispatch) => {
     return { success: true, message: res.data.message };
   } catch (error) {
     const errMsg =
-      error.response?.data?.message || "Failed to add item to cart";
+      error.response?.data?.error ||
+      error.response?.data?.message ||
+      "Failed to add item to cart";
     dispatch({ type: ADD_TO_CART_FAILURE, payload: errMsg });
     return { success: false, error: errMsg };
   }

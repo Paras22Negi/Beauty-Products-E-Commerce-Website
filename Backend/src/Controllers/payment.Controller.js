@@ -12,10 +12,8 @@ const createPaymentLink = async (req, res) => {
 
 const updatePaymentInformation = async (req, res) => {
   try {
-    await PaymentServices.updatePaymentInformation(req.query);
-    return res
-      .status(200)
-      .json({ message: "payment information updated", status: true });
+    const result = await PaymentServices.updatePaymentInformation(req.query);
+    return res.status(200).json(result);
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

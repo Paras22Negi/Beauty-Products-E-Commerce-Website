@@ -19,6 +19,11 @@ import {
   TableHead,
   TableRow,
   Typography,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from "@mui/material";
 
 import { MdClose } from "react-icons/md";
@@ -34,6 +39,7 @@ import {
   shipOrder,
   outForDeliveryOrder,
   returnedOrder,
+  requestReturn,
 } from "../Redux/Admin/Orders/Action";
 import { motion } from "framer-motion";
 
@@ -57,6 +63,9 @@ const OrdersTable = () => {
   const [anchorElArray, setAnchorElArray] = useState([]);
   const [showReturnModal, setShowReturnModal] = useState(false);
   const [returnMessage, setReturnMessage] = useState("");
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [deleteOrderId, setDeleteOrderId] = useState(null);
+
   const [returnTime, setReturnTime] = useState(""); // In days
   const [isReturnAccepted, setIsReturnAccepted] = useState(true);
   const [adminNotes, setAdminNotes] = useState("");
@@ -143,11 +152,46 @@ const OrdersTable = () => {
     setOrderStatus("DELIVERED");
     setUpdatingOrderId(null);
   };
-  const handleDeleteOrder = async (orderId) => {
-    handleUpdateStatusMenuClose();
+
+  const handleReturnOrder = async (orderId, index) => {
+    handleUpdateStatusMenuClose(index);
     setUpdatingOrderId(orderId);
-    await dispatch(deleteOrder(orderId));
+    await dispatch(requestReturn(orderId));
+    setOrderStatus("RETURNED_REQUESTED");
     setUpdatingOrderId(null);
+  };
+
+  const handleReturnedOrder = async (orderId, index) => {
+    handleUpdateStatusMenuClose(index);
+    setUpdatingOrderId(orderId);
+    const payload = {
+      orderId,
+      status: "RETURNED_APPROVED",
+      adminNote: "Manually marked as returned by admin",
+    };
+    await dispatch(returnedOrder(payload));
+    setOrderStatus("RETURNED");
+    setUpdatingOrderId(null);
+  };
+
+  const handleDeleteOrder = (orderId) => {
+    handleUpdateStatusMenuClose();
+    setDeleteOrderId(orderId);
+    setOpenDeleteModal(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setOpenDeleteModal(false);
+    setDeleteOrderId(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (deleteOrderId) {
+      setUpdatingOrderId(deleteOrderId);
+      await dispatch(deleteOrder(deleteOrderId));
+      setUpdatingOrderId(null);
+    }
+    handleCloseDeleteModal();
   };
   const paidOrders = adminsOrder?.orders || [];
 
@@ -210,7 +254,7 @@ const OrdersTable = () => {
             }}
           >
             {/* Close Button */}
-            <div className="max-h-[90vh] overflow-y-auto p-6">
+            <div className="p-6">
               <button
                 onClick={handleCloseModal}
                 className="absolute top-4! right-4! w-12! h-12! bg-white/10 text-white rounded-full text-2xl hover:text-red-500 shadow-lg flex items-center justify-center z-50 transition-colors hover:bg-white/20"
@@ -776,7 +820,7 @@ const OrdersTable = () => {
               "& .MuiCardHeader-title": { color: "white", fontWeight: "bold" },
             }}
           />
-          <TableContainer>
+          <TableContainer sx={{ overflowX: "auto" }}>
             <Table sx={{ minWidth: 800 }} aria-label="table in dashboard">
               <TableHead>
                 <TableRow>
@@ -868,7 +912,7 @@ const OrdersTable = () => {
                         </Typography>
                         <Typography
                           variant="caption"
-                          sx={{ opacity: 0.6, color: "gray.400" }}
+                          sx={{ opacity: 0.6, color: "white" }}
                         >
                           {item.orderItems
                             .map((o) => o.product?.brand)
@@ -929,10 +973,14 @@ const OrdersTable = () => {
                             ? "warning"
                             : item.orderStatus === "SHIPPED"
                             ? "primary"
-                            : item.orderStatus === "OUTFORDELIVERY"
+                            : item.orderStatus === "OUT_FOR_DELIVERY"
                             ? "secondary"
                             : item.orderStatus === "DELIVERED"
                             ? "success"
+                            : item.orderStatus === "RETURNED"
+                            ? "success"
+                            : item.orderStatus === "RETURNED_REQUESTED"
+                            ? "warning"
                             : item.orderStatus === "CANCELLED"
                             ? "error"
                             : "default"
@@ -984,8 +1032,9 @@ const OrdersTable = () => {
                                 handleConfirmedOrder(item._id, index)
                               }
                               disabled={
-                                item.orderStatus === "DELEVERED" ||
+                                item.orderStatus === "DELIVERED" ||
                                 item.orderStatus === "SHIPPED" ||
+                                item.orderStatus === "OUT_FOR_DELIVERY" ||
                                 item.orderStatus === "CONFIRMED"
                               }
                             >
@@ -994,6 +1043,7 @@ const OrdersTable = () => {
                             <MenuItem
                               disabled={
                                 item.orderStatus === "DELIVERED" ||
+                                item.orderStatus === "OUT_FOR_DELIVERY" ||
                                 item.orderStatus === "SHIPPED"
                               }
                               onClick={() =>
@@ -1004,19 +1054,43 @@ const OrdersTable = () => {
                             </MenuItem>
                             <MenuItem
                               onClick={() =>
-                                handleOutForDeliveryOrder(item._id)
+                                handleOutForDeliveryOrder(item._id, index)
                               }
                               disabled={
                                 item.orderStatus === "DELIVERED" ||
-                                item.orderStatus === "OUTFORDELIVERY"
+                                item.orderStatus === "OUT_FOR_DELIVERY"
                               }
                             >
                               Out For Delivery
                             </MenuItem>
                             <MenuItem
-                              onClick={() => handleDeliveredOrder(item._id)}
+                              onClick={() =>
+                                handleDeliveredOrder(item._id, index)
+                              }
+                              disabled={
+                                item.orderStatus === "DELIVERED" ||
+                                item.orderStatus === "RETURNED_REQUESTED" ||
+                                item.orderStatus === "RETURNED"
+                              }
                             >
                               Delivered Order
+                            </MenuItem>
+                            <MenuItem
+                              onClick={() => handleReturnOrder(item._id, index)}
+                              disabled={
+                                item.orderStatus === "RETURNED_REQUESTED" ||
+                                item.orderStatus === "RETURNED"
+                              }
+                            >
+                              Return Order
+                            </MenuItem>
+                            <MenuItem
+                              onClick={() =>
+                                handleReturnedOrder(item._id, index)
+                              }
+                              disabled={item.orderStatus === "RETURNED"}
+                            >
+                              Returned Order
                             </MenuItem>
                           </Menu>
                         </div>
@@ -1025,7 +1099,7 @@ const OrdersTable = () => {
 
                     {/* Delete Options (Delete / Return) */}
                     <TableCell sx={{ textAlign: "center" }}>
-                      {item.orderStatus === "RETURN_REQUESTED" ? (
+                      {item.orderStatus === "RETURNED_REQUESTED" ? (
                         <Button
                           onClick={() => handleOpenReturnModal(item)}
                           variant="contained"
@@ -1063,6 +1137,32 @@ const OrdersTable = () => {
             </Table>
           </TableContainer>
         </Card>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog
+          open={openDeleteModal}
+          onClose={handleCloseDeleteModal}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"Confirm Deletion"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Are you sure you want to delete this order? This action cannot be
+              undone.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDeleteModal} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={handleConfirmDelete} color="error" autoFocus>
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     </div>
   );

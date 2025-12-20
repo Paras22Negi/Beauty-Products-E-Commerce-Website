@@ -134,7 +134,7 @@ function Coupan() {
                   <TableCell sx={{ color: "white", fontWeight: "bold" }}>
                     Expires At
                   </TableCell>
-                  <TableCell sx={{ color: "gray.400", fontWeight: "bold" }}>
+                  <TableCell sx={{ color: "white", fontWeight: "bold" }}>
                     Action
                   </TableCell>
                 </TableRow>
@@ -151,7 +151,7 @@ function Coupan() {
                     <TableCell sx={{ color: "white", fontWeight: "medium" }}>
                       {coupon.code}
                     </TableCell>
-                    <TableCell sx={{ color: "gray.300" }}>
+                    <TableCell sx={{ color: "white" }}>
                       {coupon.discountType}
                     </TableCell>
                     <TableCell sx={{ color: "white", fontWeight: "bold" }}>
@@ -159,13 +159,13 @@ function Coupan() {
                         ? `₹${coupon.discountValue}`
                         : `${coupon.discountValue}%`}
                     </TableCell>
-                    <TableCell sx={{ color: "gray.300" }}>
+                    <TableCell sx={{ color: "white" }}>
                       ₹{coupon.minOrderAmount}
                     </TableCell>
-                    <TableCell sx={{ color: "gray.300" }}>
+                    <TableCell sx={{ color: "white" }}>
                       {coupon.usageLimit}
                     </TableCell>
-                    <TableCell sx={{ color: "gray.300" }}>
+                    <TableCell sx={{ color: "white" }}>
                       {coupon.usedBy?.length || 0}
                     </TableCell>
                     <TableCell
@@ -176,7 +176,7 @@ function Coupan() {
                     >
                       {coupon.isActive ? "Active" : "Inactive"}
                     </TableCell>
-                    <TableCell sx={{ color: "gray.300" }}>
+                    <TableCell sx={{ color: "white" }}>
                       {coupon.expiresAt
                         ? new Date(coupon.expiresAt).toLocaleDateString()
                         : "N/A"}

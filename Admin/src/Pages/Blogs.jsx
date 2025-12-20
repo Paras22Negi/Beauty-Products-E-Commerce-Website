@@ -328,7 +328,7 @@ const Blogs = () => {
                 <TableRow>
                   <TableCell
                     colSpan={7}
-                    sx={{ textAlign: "center", py: 5, color: "gray.400" }}
+                    sx={{ textAlign: "center", py: 5, color: "white" }}
                   >
                     <CircularProgress size={40} sx={{ color: "indigo.500" }} />
                   </TableCell>
@@ -343,7 +343,7 @@ const Blogs = () => {
                       "&:hover": { backgroundColor: "#27272a !important" },
                     }}
                   >
-                    <TableCell sx={{ color: "gray.400" }}>
+                    <TableCell sx={{ color: "white" }}>
                       {startIndex + index + 1}
                     </TableCell>
                     <TableCell align="center">
@@ -385,7 +385,7 @@ const Blogs = () => {
                         {blog.title}
                       </Typography>
                     </TableCell>
-                    <TableCell sx={{ maxWidth: 150, color: "gray.400" }}>
+                    <TableCell sx={{ maxWidth: 150, color: "white" }}>
                       <Typography
                         sx={{
                           fontSize: "0.875rem",
@@ -399,7 +399,7 @@ const Blogs = () => {
                         {blog.summary}
                       </Typography>
                     </TableCell>
-                    <TableCell sx={{ maxWidth: 180, color: "gray.500" }}>
+                    <TableCell sx={{ maxWidth: 180, color: "white" }}>
                       <Typography
                         sx={{
                           fontSize: "0.875rem",
@@ -480,13 +480,13 @@ const Blogs = () => {
       >
         <DialogTitle sx={{ color: "white" }}>Confirm Delete</DialogTitle>
         <DialogContent>
-          <DialogContentText sx={{ color: "gray.400" }}>
+          <DialogContentText sx={{ color: "white" }}>
             Are you sure you want to delete this blog? This action cannot be
             undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={closeDeleteDialog} sx={{ color: "gray.400" }}>
+          <Button onClick={closeDeleteDialog} sx={{ color: "white" }}>
             Cancel
           </Button>
           <Button

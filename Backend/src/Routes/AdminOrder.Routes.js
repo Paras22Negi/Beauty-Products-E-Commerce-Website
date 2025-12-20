@@ -43,4 +43,6 @@ router.put(
   adminOrderController.approveReturnOrder
 );
 
+router.put("/:orderId/return", authenticate, adminOrderController.returnOrder);
+
 export default router;

@@ -6,7 +6,7 @@ import { IoSearchSharp, IoCartOutline } from "react-icons/io5";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { HeaderCategoryData } from "../Data/HeaderCategoryData";
 import SearchBar from "../../Components/SearchBar";
-import CartSidebar from "../../Components/CartSidebar"; 
+import CartSidebar from "../../Components/CartSidebar";
 import AccountDropdown from "../../Components/AcountDropdown";
 
 function Header() {
@@ -28,7 +28,7 @@ function Header() {
   const handleCategorySelect = (e) => {
     console.log(e.target.innerText.toLowerCase());
     navigate(`/products/${e.target.innerText.toLowerCase()}`);
-  }
+  };
 
   const handleMouseLeave = () => {
     clearTimeout(closeTimeout);
@@ -76,13 +76,13 @@ function Header() {
                 onClick={() => navigate("/storeLocator")}
                 className="cursor-pointer hover:text-gray-300"
               >
-                StoreLocator
+                Store Locator
               </li>
               <li
                 onClick={() => navigate("/aboutUs")}
                 className="cursor-pointer hover:text-gray-300"
               >
-                AboutUs
+                About Us
               </li>
               <li
                 onClick={() => navigate("/blog")}
@@ -172,14 +172,8 @@ function Header() {
         {isMenuOpen && (
           <div className="absolute right-4 top-full mt-2 bg-black border border-gray-700 rounded-lg shadow-lg z-[95] md:hidden">
             <ul className="flex flex-col py-2 text-sm sm:text-base">
-              <li
-                onClick={() => {
-                  navigate("/storeLocator");
-                  setIsMenuOpen(false);
-                }}
-                className="px-6 py-2 hover:bg-gray-800 cursor-pointer"
-              >
-                StoreLocator
+              <li className="px-6 py-2 hover:bg-gray-800 cursor-pointer">
+                Store Locator
               </li>
               <li
                 onClick={() => {
@@ -188,7 +182,7 @@ function Header() {
                 }}
                 className="px-6 py-2 hover:bg-gray-800 cursor-pointer"
               >
-                AboutUs
+                About Us
               </li>
               <li
                 onClick={() => {

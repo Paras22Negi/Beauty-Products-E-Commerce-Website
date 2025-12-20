@@ -3,119 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { IoClose } from "react-icons/io5";
 import { removeFromCart, updateCartQuantity } from "../redux/cart/action";
+import { fetchProduct } from "../redux/Product/action";
 import { IoChevronBackOutline, IoChevronForwardOutline } from "react-icons/io5";
-
-// mock data for recommended products
-const recommendedProducts = [
-  {
-    id: 1,
-    title: "Pout Perfect",
-    image: "https://via.placeholder.com/150",
-    price: 499,
-    originalPrice: 597,
-    discount: 16,
-    hasShades: true,
-  },
-  {
-    id: 2,
-    title: "Aayushi's Favourite",
-    image: "https://via.placeholder.com/150",
-    price: 299,
-    originalPrice: 318,
-    discount: 6,
-    hasShades: false,
-  },
-  {
-    id: 3,
-    title: "Bold Matte Lipstick",
-    image: "https://via.placeholder.com/150",
-    price: 349,
-    originalPrice: 499,
-    discount: 30,
-    hasShades: true,
-  },
-  {
-    id: 4,
-    title: "Everyday Kajal Pack",
-    image: "https://via.placeholder.com/150",
-    price: 199,
-    originalPrice: 249,
-    discount: 20,
-    hasShades: false,
-  },
-  {
-    id: 5,
-    title: "Glow Highlighter",
-    image: "https://via.placeholder.com/150",
-    price: 399,
-    originalPrice: 450,
-    discount: 11,
-    hasShades: true,
-  },
-  {
-    id: 6,
-    title: "Soft Glam Eyeshadow",
-    image: "https://via.placeholder.com/150",
-    price: 599,
-    originalPrice: 749,
-    discount: 20,
-    hasShades: true,
-  },
-  {
-    id: 7,
-    title: "Long Wear Foundation",
-    image: "https://via.placeholder.com/150",
-    price: 799,
-    originalPrice: 999,
-    discount: 20,
-    hasShades: true,
-  },
-  {
-    id: 8,
-    title: "Hydra Moist Face Cream",
-    image: "https://via.placeholder.com/150",
-    price: 249,
-    originalPrice: 320,
-    discount: 22,
-    hasShades: false,
-  },
-  {
-    id: 9,
-    title: "Ultra Black Eyeliner",
-    image: "https://via.placeholder.com/150",
-    price: 179,
-    originalPrice: 220,
-    discount: 19,
-    hasShades: false,
-  },
-  {
-    id: 10,
-    title: "Peach Blush",
-    image: "https://via.placeholder.com/150",
-    price: 349,
-    originalPrice: 429,
-    discount: 18,
-    hasShades: true,
-  },
-  {
-    id: 11,
-    title: "Nail Paint Duo",
-    image: "https://via.placeholder.com/150",
-    price: 249,
-    originalPrice: 280,
-    discount: 11,
-    hasShades: false,
-  },
-  {
-    id: 12,
-    title: "Soft Touch Compact",
-    image: "https://via.placeholder.com/150",
-    price: 299,
-    originalPrice: 399,
-    discount: 25,
-    hasShades: true,
-  },
-];
 
 const orderData = {
   id: 625,
@@ -155,6 +44,13 @@ const CartSidebar = ({ isOpen, onClose }) => {
   const { cartItems: items = [], totalPrice = 0 } = useSelector(
     (state) => state.cart
   );
+  const { product: products = [] } = useSelector((state) => state.product);
+
+  React.useEffect(() => {
+    if (products.length === 0) {
+      dispatch(fetchProduct());
+    }
+  }, [dispatch, products.length]);
 
   // ✅ Helper: format price for INR
   const formatPrice = (price) => {
@@ -174,7 +70,7 @@ const CartSidebar = ({ isOpen, onClose }) => {
     if (newQuantity < 1) {
       dispatch(removeFromCart(cartId));
     } else {
-      dispatch(updateCartQuantity(cartId, newQuantity));
+      dispatch(updateCartQuantity(cartId, { quantity: newQuantity }));
     }
   };
 
@@ -267,29 +163,31 @@ const CartSidebar = ({ isOpen, onClose }) => {
               <div className="space-y-4">
                 {items.map((item) => (
                   <div
-                    key={item.cartId}
+                    key={item._id}
                     className="flex gap-4 p-4 bg-gray-50 rounded-xl hover:shadow-md transition"
                   >
                     <img
-                      src={item.thumbnail || item.image}
-                      alt={item.title}
+                      src={
+                        item.product?.thumbnail || item.product?.imageUrl?.[0]
+                      }
+                      alt={item.product?.title}
                       className="w-20 h-20 object-cover rounded-lg"
                     />
                     <div className="flex-1">
                       <div className="flex justify-between items-start">
                         <div>
                           <h3 className="font-semibold text-gray-800 text-sm mb-1">
-                            {item.title}
+                            {item.product?.title}
                           </h3>
-                          {item.selectedShade && (
+                          {item.size && (
                             <p className="text-xs text-gray-600 mb-2">
-                              Color: {item.selectedShade}
+                              Shade/Size: {item.size}
                             </p>
                           )}
                         </div>
                         <button
-                          onClick={() => handleRemove(item.cartId)}
-                          className="text-red-500 hover:text-red-700 text-xs underline"
+                          onClick={() => handleRemove(item._id)}
+                          className="text-red-500 hover:text-red-700 cursor-pointer text-xs underline"
                         >
                           Remove
                         </button>
@@ -299,12 +197,9 @@ const CartSidebar = ({ isOpen, onClose }) => {
                         <div className="flex items-center gap-2 bg-white border border-gray-300 rounded-lg">
                           <button
                             onClick={() =>
-                              handleQuantityChange(
-                                item.cartId,
-                                item.quantity - 1
-                              )
+                              handleQuantityChange(item._id, item.quantity - 1)
                             }
-                            className="px-3 py-1 hover:bg-gray-100 transition"
+                            className="px-3 py-1 hover:bg-gray-100 cursor-pointer transition"
                           >
                             -
                           </button>
@@ -313,12 +208,9 @@ const CartSidebar = ({ isOpen, onClose }) => {
                           </span>
                           <button
                             onClick={() =>
-                              handleQuantityChange(
-                                item.cartId,
-                                item.quantity + 1
-                              )
+                              handleQuantityChange(item._id, item.quantity + 1)
                             }
-                            className="px-3 py-1 hover:bg-gray-100 transition"
+                            className="px-3 py-1 hover:bg-gray-100 cursor-pointer transition"
                           >
                             +
                           </button>
@@ -375,13 +267,20 @@ const CartSidebar = ({ isOpen, onClose }) => {
                     id="rec-carousel"
                     className="flex gap-4 overflow-x-auto scroll-smooth no-scrollbar py-1"
                   >
-                    {recommendedProducts.map((product) => (
+                    {products.slice(0, 10).map((product) => (
                       <div
-                        key={product.id}
-                        className="min-w-[150px] bg-gray-50 p-3 rounded-lg flex flex-col items-center shadow-sm h-[220px]"
+                        key={product._id}
+                        className="min-w-[150px] bg-gray-50 p-3 rounded-lg flex flex-col items-center shadow-sm h-[220px] cursor-pointer"
+                        onClick={() => {
+                          onClose();
+                          navigate(`/productDetails/${product._id}`);
+                        }}
                       >
                         <img
-                          src={product.image}
+                          src={
+                            product.imageUrl?.[0] ||
+                            "https://via.placeholder.com/150"
+                          }
                           alt={product.title}
                           className="w-24 h-24 object-cover mb-2 rounded-lg"
                         />
@@ -391,17 +290,17 @@ const CartSidebar = ({ isOpen, onClose }) => {
                         </h4>
 
                         <div className="flex items-center gap-2 text-xs mt-1">
-                          {product.discount > 0 && (
+                          {product.discountedPrice < product.price && (
                             <span className="line-through text-gray-400">
-                              Rs. {product.originalPrice}
+                              Rs. {product.price}
                             </span>
                           )}
                           <span className="font-bold text-gray-800">
-                            Rs. {product.price}
+                            Rs. {product.discountedPrice || product.price}
                           </span>
-                          {product.discount > 0 && (
+                          {product.discountPersent > 0 && (
                             <span className="text-green-600">
-                              {product.discount}% OFF
+                              {product.discountPersent}% OFF
                             </span>
                           )}
                         </div>
@@ -410,12 +309,14 @@ const CartSidebar = ({ isOpen, onClose }) => {
                         <div className="mt-auto w-full">
                           <button
                             className={`w-full py-1 text-sm rounded ${
-                              product.hasShades
+                              product.sizes?.length > 0
                                 ? "bg-black text-white hover:bg-gray-800"
                                 : "bg-rose-600 text-white hover:bg-rose-700"
-                            } transition`}
+                            } transition cursor-pointer`}
                           >
-                            {product.hasShades ? "Select Shades" : "Add to bag"}
+                            {product.sizes?.length > 0
+                              ? "Select Shades"
+                              : "View Details"}
                           </button>
                         </div>
                       </div>

@@ -4,10 +4,24 @@ import * as ProductControllers from "../Controllers/Product.Controller.js";
 import upload from "../middleware/upload.js";
 import SizeChart from "../Models/sizechart.model.js";
 
-router.post("/", upload.array("images", 4), ProductControllers.createProduct);
+router.post(
+  "/",
+  upload.fields([
+    { name: "images", maxCount: 4 },
+    { name: "thumbnail", maxCount: 1 },
+  ]),
+  ProductControllers.createProduct
+);
 router.post("/creates", ProductControllers.createMultipleProduct);
 router.delete("/:id", ProductControllers.deleteProduct);
-router.put("/:id", upload.array("images", 4), ProductControllers.updateProduct);
+router.put(
+  "/:id",
+  upload.fields([
+    { name: "images", maxCount: 4 },
+    { name: "thumbnail", maxCount: 1 },
+  ]),
+  ProductControllers.updateProduct
+);
 router.get("/:category", async (req, res) => {
   try {
     const chart = await SizeChart.findOne({ category: req.params.category });

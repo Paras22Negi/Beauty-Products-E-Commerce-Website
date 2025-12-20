@@ -1,8 +1,11 @@
-import { useState, Suspense, lazy } from "react";
+import { useState, Suspense, lazy, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { getCart } from "./redux/cart/action";
 import { Route, Routes } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import Loader from "./Components/Loader";
 import ProtectedRoute from "./Components/ProtectedRoute";
+import ScrollToTop from "./Components/ScrollToTop";
 
 // Lazy load all page components
 const Home = lazy(() => import("./Pages/Home/Home"));
@@ -28,11 +31,20 @@ const PaymentCallback = lazy(() =>
   import("./Pages/Payment/PaymentCallback.jsx")
 );
 
-function App() {
+const App = () => {
   const [count, setCount] = useState(0);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      dispatch(getCart());
+    }
+  }, [dispatch]);
 
   return (
     <Suspense fallback={<Loader />}>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/aboutUs" element={<AboutUs />} />
@@ -53,6 +65,7 @@ function App() {
         <Route path="*" element={<Login />} />
         <Route path="/productDetails/:id" element={<ProductDetails />} />
         <Route path="/products" element={<ProductsPage />} />
+        <Route path="/:lavelOne/:lavelTwo" element={<ProductsPage />} />
         <Route path="/products/:category" element={<ProductsPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/payment/:orderId" element={<PaymentCallback />} />
@@ -63,6 +76,6 @@ function App() {
       <Toaster position="top-center" reverseOrder={false} />
     </Suspense>
   );
-}
+};
 
 export default App;

@@ -8,14 +8,14 @@ const BlogCard = ({ blog, onClick }) => {
       className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer group"
     >
       <div className="relative h-64 overflow-hidden">
-        <div className={`absolute inset-0 ${blog.color} opacity-90`}></div>
+        <div className="absolute inset-0 bg-black/30"></div>
         <img
           src={blog.image}
           alt={blog.title}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
         />
         <div className="absolute inset-0 flex items-center justify-center p-8">
-          <h2 className="text-2xl font-bold text-gray-800 text-center leading-tight">
+          <h2 className="text-2xl font-bold text-white text-center leading-tight drop-shadow-md">
             {blog.title}
           </h2>
         </div>

@@ -10,13 +10,20 @@ import { ClipLoader } from "react-spinners";
 import { FaStar } from "react-icons/fa";
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 function ProductsPage() {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
-  const { category } = useParams(); // Get category from URL params
+  const { category, lavelOne, lavelTwo } = useParams(); // Get category from URL params
   const { loading, error, product } = useSelector((state) => state.product);
+
+  // Determine the effective category to use
+  const currentCategory =
+    category || (lavelOne === "products" ? lavelTwo : null) || lavelTwo;
+
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 8;
 
@@ -56,12 +63,21 @@ function ProductsPage() {
   useEffect(() => {
     if (query) {
       dispatch(searchProduct(query));
-    } else if (category) {
-      dispatch(fetchProductsByCategory(category));
+    } else if (currentCategory) {
+      dispatch(fetchProductsByCategory(currentCategory));
     } else {
       dispatch(fetchProduct());
     }
-  }, [dispatch, query, category]);
+  }, [dispatch, query, currentCategory]);
+
+  useEffect(() => {
+    AOS.init({
+      duration: 1000,
+      once: true,
+      easing: "ease-in-out",
+    });
+    AOS.refresh();
+  }, [product]);
 
   const productsArray = Array.isArray(product)
     ? product
@@ -665,29 +681,31 @@ function ProductsPage() {
           {/* Products Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {currentProducts.length > 0 ? (
-              currentProducts.map((product) => (
+              currentProducts.map((product, index) => (
                 <div
-                  key={product.id}
+                  key={product._id}
                   className="bg-white rounded-2xl shadow-sm hover:shadow-md transition p-5 flex flex-col relative group"
+                  data-aos="fade-up"
+                  data-aos-delay={(index % 4) * 100}
                 >
                   {/* Bestseller Tag */}
-                  <span className="absolute top-3 left-3 bg-pink-600 text-white text-xs font-semibold px-2 py-1 rounded">
+                  <span className="absolute top-3 left-3 bg-pink-600 text-white text-xs font-semibold px-2 py-1 rounded z-10">
                     BESTSELLER
                   </span>
 
                   {/* Stock Badge */}
                   {(product.stock === 0 ||
                     product.availabilityStatus === "Out of Stock") && (
-                    <span className="absolute top-3 right-3 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
+                    <span className="absolute top-3 right-3 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded z-10">
                       OUT OF STOCK
                     </span>
                   )}
 
-                  <div className="flex justify-center">
+                  <div className="flex justify-center bg-gray-50 rounded-xl mb-2 overflow-hidden">
                     <img
-                      src={product.thumbnail}
+                      src={product.thumbnail || product.imageUrl?.[0] || ""}
                       alt={product.title}
-                      className="w-full h-56 object-contain"
+                      className="w-full h-56 object-contain group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
                   <div className="mt-4 flex flex-col flex-grow">
@@ -711,8 +729,14 @@ function ProductsPage() {
                         reviews)
                       </span>
                     </div>
-                    <p className="font-semibold text-gray-800 text-sm mt-2">
-                      Rs. {product.price}
+                    <p className="font-bold text-rose-600 text-lg mt-2">
+                      Rs. {product.discountedPrice || product.price}
+                      {product.discountedPrice &&
+                        product.discountedPrice < product.price && (
+                          <span className="text-gray-400 text-xs line-through ml-2 font-normal">
+                            Rs. {product.price}
+                          </span>
+                        )}
                     </p>
                     <div className="flex gap-2 mt-3 mb-4">
                       {["#b84b62", "#6b1a3a", "#d57e89"].map((shade, index) => (
@@ -724,7 +748,7 @@ function ProductsPage() {
                       ))}
                     </div>
                     <Link
-                      to={`/productDetails/${product.id}`}
+                      to={`/productDetails/${product._id}`}
                       className="mt-auto bg-black text-white py-2 rounded-lg hover:bg-gray-800 text-sm transition text-center"
                     >
                       Select Shades

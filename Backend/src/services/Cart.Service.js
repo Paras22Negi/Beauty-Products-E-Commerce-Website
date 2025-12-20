@@ -4,65 +4,84 @@ import Product from "../Models/product.Model.js";
 import Coupon from "../Models/coupon.Model.js";
 
 // create new cart for user
-const createCart = async (user) => {
+export const createCart = async (user) => {
   const cart = new Cart({ user });
   const createdCart = await cart.save();
   return createdCart;
 };
 
-const findUserCart = async (userId) => {
-  const cart = await Cart.findOne({ user: userId });
+export const findUserCart = async (userId) => {
+  let cart = await Cart.findOne({ user: userId });
   if (!cart) {
     cart = await createCart(userId);
   }
   const cartItems = await CartItem.find({ cart: cart._id }).populate("product");
-  cart.cartItems = cartItems;
-  let totalPrice = (totalDiscountedPrice = totalItem = 0);
 
-  for (const cartItem of cart.cartItems) {
-    totalPrice += cartItem.product.price * cartItem.quantity;
-    totalDiscountedPrice += cartItem.product.discountedPrice;
-    totalItem += cartItem.quantity;
+  // Convert to plain object to avoid Mongoose validation errors when assigning populated objects
+  const cartObj = cart.toObject();
+  cartObj.cartItems = cartItems;
+
+  let totalPrice = 0;
+  let totalDiscountedPrice = 0;
+  let totalItem = 0;
+
+  for (const cartItem of cartItems) {
+    if (cartItem.product) {
+      totalPrice += cartItem.product.price * cartItem.quantity;
+      totalDiscountedPrice +=
+        cartItem.product.discountedPrice * cartItem.quantity;
+      totalItem += cartItem.quantity;
+    }
   }
 
-  cart.totalPrice = totalPrice;
-  cart.totalItem = totalItem;
-  cart.totalDiscountedPrice = totalDiscountedPrice;
-  cart.totalPriceAfterDiscount = totalPrice - totalDiscountedPrice;
-  cart.couponCode = cart.couponCode;
-  cart.couponDiscount = cart.couponDiscount;
-  return cart;
+  cartObj.totalPrice = totalPrice;
+  cartObj.totalItem = totalItem;
+  cartObj.totalDiscountedPrice = totalDiscountedPrice;
+  cartObj.totalPriceAfterDiscount = totalPrice - totalDiscountedPrice;
+  return cartObj;
 };
 
-const addCartItem = async (userId, req) => {
-  const cart = await Cart.findOne({ user: userId });
+export const addCartItems = async (userId, req) => {
+  let cart = await Cart.findOne({ user: userId });
+  if (!cart) {
+    cart = await createCart(userId);
+  }
+
   const product = await Product.findById(req.productId);
+  if (!product) {
+    throw new Error("Product not found");
+  }
+
   const isPresent = await CartItem.findOne({
     cart: cart._id,
     product: product._id,
     userId,
+    size: req.size,
   });
 
-  if (isPresent) {
+  if (!isPresent) {
     const cartItem = new CartItem({
       product: product._id,
       cart: cart._id,
       quantity: 1,
       userId,
-      price: product.discountedPrice,
+      price: product.discountedPrice || product.price,
       size: req.size,
-      discountedPrice: product.discountedPrice,
+      discountedPrice: product.discountedPrice || product.price,
     });
 
     const createdCartItem = await cartItem.save();
     cart.cartItems.push(createdCartItem);
     await cart.save();
+  } else {
+    isPresent.quantity += 1;
+    await isPresent.save();
   }
-  return "items added to cart";
+  return "Item added to cart";
 };
 
 // update applyCoupon() without orderId dependecy
-const applyCoupon = async (code, userId, cartId, cartTotal) => {
+export const applyCoupon = async (code, userId, cartId, cartTotal) => {
   const coupon = await Coupon.findOne({ code, isActive: true });
   if (!coupon) {
     throw new Error("Coupon not found");
@@ -101,7 +120,7 @@ const applyCoupon = async (code, userId, cartId, cartTotal) => {
   };
 };
 
-const allCoupon = async () => {
+export const allCoupon = async () => {
   const coupon = await Coupon.find().sort({ createdAt: -1 });
   return coupon;
 };
@@ -109,7 +128,7 @@ const allCoupon = async () => {
 export default {
   createCart,
   findUserCart,
-  addCartItem,
+  addCartItems,
   applyCoupon,
   allCoupon,
 };

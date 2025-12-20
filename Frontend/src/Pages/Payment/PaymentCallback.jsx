@@ -37,7 +37,9 @@ const PaymentCallback = () => {
             dispatch(clearCart());
             // Redirect to order success page after 2 seconds
             setTimeout(() => {
-              navigate(`/OrderSuccessPage?orderId=${orderId}`);
+              navigate(`/OrderSuccessPage`, {
+                state: { order: result.data.order },
+              });
             }, 2000);
           } else {
             setStatus("error");

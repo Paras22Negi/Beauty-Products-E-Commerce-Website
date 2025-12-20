@@ -378,18 +378,25 @@ const createProduct = async (req) => {
       Object.entries(req.body || {}).slice(0, 20)
     );
     if (req.files) {
-      console.log("Files received (count):", req.files.length);
-      req.files.forEach((f, idx) => {
-        console.log(
-          `file[${idx}]: fieldname=${f.fieldname} originalname=${
-            f.originalname
-          } mimetype=${f.mimetype} size=${f.size} bufferPresent=${!!f.buffer}`
-        );
-      });
+      if (Array.isArray(req.files)) {
+        console.log("Files received as array (count):", req.files.length);
+        req.files.forEach((f, idx) => {
+          console.log(
+            `file[${idx}]: fieldname=${f.fieldname} originalname=${f.originalname} mimetype=${f.mimetype} size=${f.size}`
+          );
+        });
+      } else {
+        console.log("Files received as object (keys):", Object.keys(req.files));
+        Object.keys(req.files).forEach((key) => {
+          req.files[key].forEach((f, idx) => {
+            console.log(
+              `file[${key}][${idx}]: originalname=${f.originalname} mimetype=${f.mimetype} size=${f.size}`
+            );
+          });
+        });
+      }
     } else {
-      console.warn(
-        "No req.files provided (multer may not be configured or form-data missing files)."
-      );
+      console.warn("No req.files provided.");
     }
 
     const reqData = req.body || {};
@@ -404,14 +411,25 @@ const createProduct = async (req) => {
       }
     }
 
-    // Validate images presence early and throw a friendly error
-    if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-      console.error(
-        "Create Product Error: No images uploaded - req.files is empty or missing"
-      );
-      console.error(
-        "Hint: Ensure the client sends multipart/form-data with file field(s). Example field name: 'images' or 'file'"
-      );
+    // Separate images and thumbnail
+    const imageFiles =
+      (req.files &&
+        (req.files.images ||
+          (Array.isArray(req.files)
+            ? req.files.filter((f) => f.fieldname === "images")
+            : []))) ||
+      [];
+    const thumbnailFiles =
+      (req.files &&
+        (req.files.thumbnail ||
+          (Array.isArray(req.files)
+            ? req.files.filter((f) => f.fieldname === "thumbnail")
+            : []))) ||
+      [];
+
+    // Validate presence
+    if (imageFiles.length === 0 && thumbnailFiles.length === 0) {
+      console.error("Create Product Error: No images or thumbnail uploaded");
       throw new Error("No images uploaded");
     }
 
@@ -472,43 +490,40 @@ const createProduct = async (req) => {
       });
     };
 
-    // Do uploads in parallel but with robust error handling
+    // Do uploads in parallel
+    const uploadToCloudinaryWithStatus = (file, options = {}) =>
+      uploadToCloudinary(file, options)
+        .then((r) => ({ ok: true, r, field: file.fieldname }))
+        .catch((err) => ({ ok: false, err, field: file.fieldname }));
+
     let uploadResults;
     try {
-      const uploads = req.files.map((file) =>
-        uploadToCloudinary(file, { folder: "ecommerce/products" })
-          .then((r) => ({ ok: true, r }))
-          .catch((err) => ({ ok: false, err }))
+      const allFiles = [...imageFiles, ...thumbnailFiles];
+      const uploads = allFiles.map((file) =>
+        uploadToCloudinaryWithStatus(file, { folder: "ecommerce/products" })
       );
       uploadResults = await Promise.all(uploads);
     } catch (e) {
-      // Shouldn't get here since we handle per-file errors, but catch defensively
-      console.error(
-        "Unexpected error during upload Promise.all:",
-        e?.message || e
-      );
+      console.error("Unexpected error during upload Promise.all:", e);
       throw new Error("Image upload failed");
     }
 
-    // Inspect upload results, fail if any critical errors
+    // Inspect results
     const failed = uploadResults.filter((u) => !u.ok);
     if (failed.length) {
-      console.error(
-        `Cloudinary: ${failed.length} uploads failed out of ${uploadResults.length}`
-      );
-      failed.forEach((f, i) =>
-        console.error(` - failed[${i}]:`, f.err?.message || f.err)
-      );
-      // You can choose to continue with successful uploads or fail entirely. Here we fail:
-      throw new Error(
-        "One or more image uploads failed. Check logs for details."
-      );
+      console.error(`Cloudinary: ${failed.length} uploads failed`);
+      throw new Error("One or more image uploads failed.");
     }
 
     const imageUrls = uploadResults
-      .map((u) => u.r.secure_url || u.r.url)
-      .filter(Boolean);
+      .filter((u) => u.field === "images")
+      .map((u) => u.r.secure_url || u.r.url);
+
+    const thumbnailUrl = uploadResults.find((u) => u.field === "thumbnail")?.r
+      .secure_url;
+
     console.log("Uploaded image URLs:", imageUrls);
+    console.log("Uploaded thumbnail URL:", thumbnailUrl);
 
     // Continue existing category logic (keep as-is)
     const topLevel =
@@ -550,6 +565,7 @@ const createProduct = async (req) => {
       quantity: reqData.quantity,
       color: reqData.color,
       category: thirdLevel._id,
+      thumbnail: thumbnailUrl,
     });
 
     const saved = await product.save();
@@ -609,38 +625,44 @@ const updateProduct = async (productId, req) => {
   }
 
   // New uploads
-  if (files && files.length > 0) {
-    const uploadToCloudinary = (file, options = {}) => {
-      return new Promise((resolve, reject) => {
-        if (file.buffer && file.buffer.length) {
-          const uploadStream = (
-            cloudinaryLib.uploader || cloudinaryLib
-          ).upload_stream(options, (err, result) => {
-            if (err) return reject(err);
-            resolve(result);
-          });
-          streamifier.createReadStream(file.buffer).pipe(uploadStream);
-        } else if (file.path) {
-          (cloudinaryLib.uploader || cloudinaryLib)
-            .upload(file.path, options)
-            .then(resolve)
-            .catch(reject);
-        } else {
-          return reject(new Error("File has neither buffer nor path"));
-        }
-      });
-    };
+  let newThumbnailUrl = null;
+  if (files) {
+    const imageFiles =
+      files.images ||
+      (Array.isArray(files)
+        ? files.filter((f) => f.fieldname === "images")
+        : []) ||
+      [];
+    const thumbnailFiles =
+      files.thumbnail ||
+      (Array.isArray(files)
+        ? files.filter((f) => f.fieldname === "thumbnail")
+        : []) ||
+      [];
 
-    const uploads = files.map((file) =>
-      uploadToCloudinary(file, { folder: "ecommerce/products" })
-        .then((r) => ({ ok: true, r }))
-        .catch((err) => ({ ok: false, err }))
-    );
-    const uploadResults = await Promise.all(uploads);
-    const newUrls = uploadResults
-      .filter((u) => u.ok)
-      .map((u) => u.r.secure_url || u.r.url);
-    imageUrls = [...imageUrls, ...newUrls];
+    const uploadToCloudinaryWithStatus = (file, options = {}) =>
+      uploadToCloudinary(file, options)
+        .then((r) => ({ ok: true, r, field: file.fieldname }))
+        .catch((err) => ({ ok: false, err, field: file.fieldname }));
+
+    const allFiles = [...imageFiles, ...thumbnailFiles];
+    if (allFiles.length > 0) {
+      const uploadResults = await Promise.all(
+        allFiles.map((f) =>
+          uploadToCloudinaryWithStatus(f, { folder: "ecommerce/products" })
+        )
+      );
+
+      const newUrls = uploadResults
+        .filter((u) => u.ok && u.field === "images")
+        .map((u) => u.r.secure_url || u.r.url);
+      imageUrls = [...imageUrls, ...newUrls];
+
+      const thumbResult = uploadResults.find(
+        (u) => u.ok && u.field === "thumbnail"
+      );
+      if (thumbResult) newThumbnailUrl = thumbResult.r.secure_url;
+    }
   }
 
   // 3. Resolve Category if provided
@@ -692,6 +714,12 @@ const updateProduct = async (productId, req) => {
     sizes: sizes,
     imageUrl: imageUrls,
   };
+
+  if (newThumbnailUrl) {
+    updateData.thumbnail = newThumbnailUrl;
+  } else if (reqData.existingThumbnailUrl) {
+    updateData.thumbnail = reqData.existingThumbnailUrl;
+  }
 
   if (categoryId) {
     updateData.category = categoryId;
@@ -850,6 +878,11 @@ const searchProducts = async (query) => {
   return products;
 };
 
+// Find products by category (implementation missing previously)
+const findProductByCategory = async (category) => {
+  return await getProductsByCategoryName(category);
+};
+
 export {
   createProduct,
   deleteProduct,
@@ -861,5 +894,6 @@ export {
   findBestProduct,
   getProductInfo,
   getProductsByCategoryName,
+  findProductByCategory, // Export added
   resolveProductFromQuery,
 };

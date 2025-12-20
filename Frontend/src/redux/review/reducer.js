@@ -11,6 +11,9 @@ import {
   CREATE_RATING_REQUEST,
   CREATE_RATING_SUCCESS,
   CREATE_RATING_FAILURE,
+  CHECK_ELIGIBILITY_REQUEST,
+  CHECK_ELIGIBILITY_SUCCESS,
+  CHECK_ELIGIBILITY_FAILURE,
   CLEAR_REVIEW_STATE,
 } from "./actionType";
 
@@ -19,6 +22,7 @@ const initialState = {
   ratings: [],
   averageRating: 0,
   totalRatings: 0,
+  isEligible: false,
   loading: false,
   submitting: false,
   error: null,
@@ -40,7 +44,11 @@ const reviewReducer = (state = initialState, action) => {
       return {
         ...state,
         loading: false,
-        reviews: action.payload,
+        reviews: action.payload.reviews || action.payload || [],
+        averageRating:
+          action.payload.ratingSummary?.averageRating || state.averageRating,
+        totalRatings:
+          action.payload.ratingSummary?.totalRatings || state.totalRatings,
         error: null,
       };
     case GET_REVIEWS_FAILURE:
@@ -84,6 +92,19 @@ const reviewReducer = (state = initialState, action) => {
       };
     case CREATE_RATING_FAILURE:
       return { ...state, submitting: false, error: action.payload };
+
+    // Check Eligibility
+    case CHECK_ELIGIBILITY_REQUEST:
+      return { ...state, loading: true, error: null };
+    case CHECK_ELIGIBILITY_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        isEligible: action.payload,
+        error: null,
+      };
+    case CHECK_ELIGIBILITY_FAILURE:
+      return { ...state, loading: false, error: action.payload };
 
     // Clear State
     case CLEAR_REVIEW_STATE:

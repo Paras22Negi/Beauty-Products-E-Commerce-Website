@@ -5,5 +5,10 @@ import * as reviewController from "../Controllers/review.Controller.js";
 
 router.post("/create", authenticate, reviewController.createReview);
 router.get("/product/:productId", reviewController.getAllReview);
+router.get(
+  "/eligibility/:productId",
+  authenticate,
+  reviewController.checkReviewEligibility
+);
 
 export default router;

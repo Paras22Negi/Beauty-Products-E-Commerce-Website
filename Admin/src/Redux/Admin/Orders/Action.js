@@ -1,4 +1,3 @@
-
 import api from "../../../Config/api";
 import {
   canceledOrderFailure,
@@ -22,18 +21,16 @@ import {
   shipOrderFailure,
   shipOrderRequest,
   shipOrderSuccess,
-    outForDeliveryOrderFailure,
+  outForDeliveryOrderFailure,
   outForDeliveryOrderRequest,
   outForDeliveryOrderSuccess,
-    returnedOrderRequest,
+  returnedOrderRequest,
   returnedOrderSuccess,
   returnedOrderFailure,
   dashboardOverviewRequest,
   dashboardOverviewSuccess,
   dashboardOverviewFailure,
 } from "./ActionCreator";
-
-
 
 // export const getOrders = ({ page = 1, pageSize = 10 } = {}) => {
 //   return async (dispatch) => {
@@ -47,7 +44,12 @@ import {
 //   };
 // };
 
-export const getOrders = ({ page = 1, pageSize = 10, status = "", sort = "Newest" } = {}) => {
+export const getOrders = ({
+  page = 1,
+  pageSize = 10,
+  status = "",
+  sort = "Newest",
+} = {}) => {
   return async (dispatch) => {
     dispatch(getOrdersRequest());
     try {
@@ -66,17 +68,13 @@ export const getOrders = ({ page = 1, pageSize = 10, status = "", sort = "Newest
   };
 };
 
-
-
 export const confirmOrder = (orderId) => async (dispatch) => {
   dispatch(confirmedOrderRequest());
 
   try {
-    const response = await api.put(
-      `/api/admin/orders/${orderId}/confirmed`
-    );
+    const response = await api.put(`/api/admin/orders/${orderId}/confirmed`);
     const data = response.data;
-    console.log("confirm_order ",data)
+    console.log("confirm_order ", data);
     dispatch(confirmedOrderSuccess(data));
   } catch (error) {
     dispatch(confirmedOrderFailure(error.message));
@@ -87,8 +85,8 @@ export const shipOrder = (orderId) => {
   return async (dispatch) => {
     try {
       dispatch(shipOrderRequest());
-      const {data} = await api.put(`/api/admin/orders/${orderId}/ship`);
-      console.log(" shipped order",data)
+      const { data } = await api.put(`/api/admin/orders/${orderId}/ship`);
+      console.log(" shipped order", data);
       dispatch(shipOrderSuccess(data));
     } catch (error) {
       dispatch(shipOrderFailure(error.message));
@@ -100,11 +98,9 @@ export const deliveredOrder = (orderId) => async (dispatch) => {
   dispatch(deliveredOrderRequest());
 
   try {
-    const response = await api.put(
-      `/api/admin/orders/${orderId}/deliver`
-    );
+    const response = await api.put(`/api/admin/orders/${orderId}/deliver`);
     const data = response.data;
-    console.log("dilivered order ",data)
+    console.log("dilivered order ", data);
     dispatch(deliveredOrderSuccess(data));
   } catch (error) {
     dispatch(deliveredOrderFailure(error.message));
@@ -115,9 +111,7 @@ export const cancelOrder = (orderId) => async (dispatch) => {
   dispatch(canceledOrderRequest());
 
   try {
-    const response = await api.put(
-      `/api/admin/orders/${orderId}/cancel`
-    );
+    const response = await api.put(`/api/admin/orders/${orderId}/cancel`);
     const data = response.data;
     dispatch(canceledOrderSuccess(data));
   } catch (error) {
@@ -127,17 +121,16 @@ export const cancelOrder = (orderId) => async (dispatch) => {
 
 // Async action creator for deleting an order
 export const deleteOrder = (orderId) => {
-  return async(dispatch) => {
-    dispatch(deleteOrderRequest());     
-   try {
-     const {data} = await api.delete(`/api/admin/orders/${orderId}/delete`);
-     console.log("delete order ",data)
-     dispatch(deleteOrderSuccess(orderId));
-   } catch (error) {
-    console.log("catch error ",error)
-     dispatch(deleteOrderFailure(error));
-   }
-      
+  return async (dispatch) => {
+    dispatch(deleteOrderRequest());
+    try {
+      const { data } = await api.delete(`/api/admin/orders/${orderId}/delete`);
+      console.log("delete order ", data);
+      dispatch(deleteOrderSuccess(orderId));
+    } catch (error) {
+      console.log("catch error ", error);
+      dispatch(deleteOrderFailure(error));
+    }
   };
 };
 
@@ -153,12 +146,13 @@ export const deleteOrder = (orderId) => {
 //   }
 // };
 
-
 export const outForDeliveryOrder = (orderId) => async (dispatch) => {
   dispatch(outForDeliveryOrderRequest());
 
   try {
-    const response = await api.put(`/api/admin/orders/${orderId}/out-for-delivery`);
+    const response = await api.put(
+      `/api/admin/orders/${orderId}/out-for-delivery`
+    );
     const data = response.data;
     console.log("out-for-delivery order", data);
     dispatch(outForDeliveryOrderSuccess(data));
@@ -177,6 +171,18 @@ export const returnedOrder = (payload) => async (dispatch) => {
     );
     const data = response.data;
     console.log("returned order", data);
+    dispatch(returnedOrderSuccess(data));
+  } catch (error) {
+    dispatch(returnedOrderFailure(error.message));
+  }
+};
+
+export const requestReturn = (orderId) => async (dispatch) => {
+  dispatch(returnedOrderRequest()); // Reusing returnedOrder types for now as mostly status update
+  try {
+    const response = await api.put(`/api/admin/orders/${orderId}/return`, {});
+    const data = response.data;
+    console.log("return requested order", data);
     dispatch(returnedOrderSuccess(data));
   } catch (error) {
     dispatch(returnedOrderFailure(error.message));

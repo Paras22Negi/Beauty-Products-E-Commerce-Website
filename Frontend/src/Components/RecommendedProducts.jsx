@@ -4,6 +4,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
 import { FaStar } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const RecommendedProducts = ({ products }) => {
   return (
@@ -23,21 +24,30 @@ const RecommendedProducts = ({ products }) => {
         }}
       >
         {products?.map((item) => {
-          const originalPrice = (
-            item.price /
-            (1 - item.discountPercentage / 100)
-          ).toFixed(0);
+          const originalPrice = item.price;
+          const discount = item.discountPersent || item.discountPercentage || 0;
+          const discountedPrice =
+            item.discountedPrice ||
+            (item.price * (1 - discount / 100)).toFixed(0);
           const reviewCount = item.reviews?.length || 0;
 
           return (
-            <SwiperSlide key={item.id}>
-              <div className="bg-[#f5f5f5] rounded-lg p-4 shadow-sm">
+            <SwiperSlide key={item._id}>
+              <Link
+                to={`/productDetails/${item._id}`}
+                className="bg-[#f5f5f5] rounded-lg p-4 shadow-sm block"
+              >
                 {/* IMAGE BOX */}
-                <div className="bg-white rounded-lg flex justify-center items-center h-72 w-full mb-3">
+                <div className="bg-white rounded-lg flex justify-center items-center h-72 w-full mb-3 overflow-hidden">
                   <img
-                    src={item.thumbnail || item.images?.[0] || ""}
+                    src={
+                      item.thumbnail ||
+                      item.imageUrl?.[0] ||
+                      item.images?.[0] ||
+                      ""
+                    }
                     alt={item.title}
-                    className="object-contain h-60"
+                    className="object-contain h-60 w-full hover:scale-105 transition-transform duration-300"
                   />
                 </div>
 
@@ -63,21 +73,31 @@ const RecommendedProducts = ({ products }) => {
                 {/* PRICE SECTION */}
                 <div className="mt-2 flex items-center gap-2">
                   <span className="text-red-600 font-bold text-lg">
-                    Rs. {item.price}
+                    Rs. {discountedPrice}
                   </span>
-                  <span className="line-through text-gray-400 text-sm">
-                    Rs. {originalPrice}
-                  </span>
-                  <span className="text-red-500 text-xs">
-                    | {Math.round(item.discountPercentage)}% OFF
-                  </span>
+                  {discount > 0 && (
+                    <>
+                      <span className="line-through text-gray-400 text-sm">
+                        Rs. {originalPrice}
+                      </span>
+                      <span className="text-red-500 text-xs text-nowrap">
+                        | {Math.round(discount)}% OFF
+                      </span>
+                    </>
+                  )}
                 </div>
 
                 {/* ADD TO BAG BUTTON */}
-                <button className="mt-4 bg-black text-white py-3 rounded-lg w-full text-base font-medium hover:bg-gray-900 transition">
+                <button
+                  className="mt-4 bg-black text-white py-3 rounded-lg w-full text-base font-medium hover:bg-gray-900 transition"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    // Additional logic if needed
+                  }}
+                >
                   Add to bag
                 </button>
-              </div>
+              </Link>
             </SwiperSlide>
           );
         })}

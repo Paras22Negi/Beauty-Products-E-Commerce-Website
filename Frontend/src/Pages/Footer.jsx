@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
 import {
   FaTwitter,
   FaFacebookF,
@@ -56,7 +57,9 @@ const Dropdown = ({ title, items, isOpen, toggle }) => {
               key={idx}
               className="hover:text-pink-500 cursor-pointer transition-colors text-sm sm:text-base"
             >
-              {item.includes("@") ? (
+              {typeof item === "object" ? (
+                <Link to={item.path}>{item.label}</Link>
+              ) : item.includes("@") ? (
                 <a href={`mailto:${item.split(": ")[1]}`} className="underline">
                   {item}
                 </a>

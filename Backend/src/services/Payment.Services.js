@@ -9,14 +9,18 @@ const createPaymentLink = async (
   couponDiscount = 0
 ) => {
   try {
-    const order = await orderService.findById(orderId);
+    console.log(
+      "Debugging PaymentService: orderService keys:",
+      Object.keys(orderService)
+    );
+    const order = await orderService.findOrderById(orderId);
     if (!order) throw new Error("Order not found");
     const existingPayment = await PaymentInformation.findOne({
       order: order._id,
     });
     if (existingPayment)
       throw new Error("Payment already exists for this order");
-    const user = await User.findById(order.user);
+    const user = order.user;
     if (!user) throw new Error("User not found for this order");
 
     // Calculate final amount
@@ -43,15 +47,17 @@ const createPaymentLink = async (
       amount: finalAmount * 100,
       currency: "INR",
       customer: {
-        name: user.firstName + " " + user.lastName,
+        name:
+          ((user.firstName || "") + " " + (user.lastName || "")).trim() ||
+          "Guest User",
         email: user.email,
-        contact: user.mobile,
+        contact: order.shippingAddress?.mobile || user.mobile || "9876543210",
       },
       notify: { sms: true, email: true },
       reminder_enable: true,
       callback_url: `http://localhost:5173/payment/${orderId}`,
       // callback_url: `http://fluteon.com/payment/${orderId}`,
-      callback_method: "POST",
+      callback_method: "get",
     };
 
     // Razorpay Request Preview
@@ -64,8 +70,10 @@ const createPaymentLink = async (
       paymentLinkUrl: paymentLink.short_url,
     };
   } catch (error) {
-    console.error("❌ Error creating payment link:", error.message);
-    throw new Error(error.message);
+    console.error("❌ Error creating payment link:", error);
+    throw new Error(
+      error.error?.description || error.message || "Razorpay Error"
+    );
   }
 };
 
@@ -74,7 +82,7 @@ const updatePaymentInformation = async (reqData) => {
   try {
     const paymentId = reqData.payment_id;
     const orderId = reqData.order_id;
-    const order = await orderService.findById(orderId);
+    const order = await orderService.findOrderById(orderId);
     if (!order) throw new Error("Order not found");
 
     const payment = await razorpay.payments.fetch(paymentId);
@@ -93,7 +101,7 @@ const updatePaymentInformation = async (reqData) => {
       }
 
       // Deduct usedSuperCoins now
-      const user = await User.findById(order.user);
+      const user = order.user;
       if (!user) throw new Error("User not found");
 
       if (order.usedSuperCoins && order.usedSuperCoins > 0) {
@@ -134,9 +142,12 @@ const updatePaymentInformation = async (reqData) => {
         transactionId: payment.acquirer_data?.bank_transaction_id || "",
       });
 
+      // Fetch updated order with populations
+      const updatedOrder = await orderService.findOrderById(orderId);
+
       return {
         message: "order placed & payment recorded",
-        orderId: order._id,
+        order: updatedOrder,
         paymentId: paymentInfo._id,
       };
     } else {

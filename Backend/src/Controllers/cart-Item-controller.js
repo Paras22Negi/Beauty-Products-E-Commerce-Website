@@ -1,4 +1,4 @@
-import * as CartItemServices from "../services/cartItem.Services.js";
+import * as CartItemServices from "../services/Cart-Item-Services.js";
 
 const updateCartItem = async (req, res) => {
   const user = req.user;

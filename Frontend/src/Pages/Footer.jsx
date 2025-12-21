@@ -142,9 +142,12 @@ function Footer() {
       </div>
 
       {/* Help Button */}
-      <button className="fixed bottom-6 right-6 bg-gray-700 text-white px-5 py-2 rounded-full hover:bg-gray-600 flex items-center gap-2 text-sm sm:text-base shadow-lg transition z-[9999]">
+      <Link
+        to="/support"
+        className="fixed bottom-6 right-6 bg-gray-700 text-white px-5 py-2 rounded-full hover:bg-gray-600 flex items-center gap-2 text-sm sm:text-base shadow-lg transition z-[9999]"
+      >
         <span className="text-lg">❓</span> HELP
-      </button>
+      </Link>
     </footer>
   );
 }

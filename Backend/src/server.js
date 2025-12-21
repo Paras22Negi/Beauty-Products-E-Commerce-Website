@@ -5,7 +5,7 @@ import ProductRoutes from "./Routes/Product.Routes.js";
 import connectDB from "./config/db.Config.js";
 import dotenv from "dotenv";
 import CartRoutes from "./Routes/Cart.Routes.js";
-import CartItemsRoutes from "./Routes/CartItems.Routes.js";
+import CartItemsRoutes from "./Routes/Cart-Items.Routes.js";
 import OrderRoutes from "./Routes/Order.Routes.js";
 import PaymentRoutes from "./Routes/Payment.Routes.js";
 import BlogRoutes from "./Routes/Blog.Routes.js";

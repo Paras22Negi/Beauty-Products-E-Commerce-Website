@@ -123,7 +123,9 @@ const placeOrder = async (orderId, paymentMeta = {}) => {
 
   // ✅ Send order confirmation email
   if (updatedOrder?.user?.email) {
-    await sendOrderConfirmationEmail(updatedOrder.user.email, updatedOrder);
+    sendOrderConfirmationEmail(updatedOrder.user.email, updatedOrder).catch(
+      (err) => console.error("Failed to send email:", err)
+    );
   }
 
   return updatedOrder;

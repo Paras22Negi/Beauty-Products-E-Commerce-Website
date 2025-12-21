@@ -1,6 +1,6 @@
 import express from "express";
 import upload from "../middleware/upload.js";
-import * as BlogController from "../Controllers/blog.controller.js";
+import * as BlogController from "../Controllers/blog-controller.js";
 
 const Router = express.Router();
 

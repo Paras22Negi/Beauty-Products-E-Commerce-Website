@@ -1,5 +1,5 @@
 import express from "express";
-import * as videoController from "../Controllers/Video.Controller.js";
+import * as videoController from "../Controllers/video-controller.js";
 import upload from "../middleware/upload.js"; // Assuming you have a multer middleware configuration
 
 const router = express.Router();

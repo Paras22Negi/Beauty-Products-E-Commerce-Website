@@ -1,6 +1,6 @@
 import express from "express";
 import authenticate from "../middleware/authenticat.js";
-import * as cartController from "../Controllers/Cart-Controller.js";
+import * as cartController from "../Controllers/cart-controller.js";
 const router = express.Router();
 
 // GET: /api/cart

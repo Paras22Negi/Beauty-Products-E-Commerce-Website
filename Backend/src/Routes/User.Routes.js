@@ -2,7 +2,7 @@
 
 import express from "express";
 import * as authController from "../Controllers/auth.Controller.js";
-import * as userController from "../Controllers/User.Controller.js";
+import * as userController from "../Controllers/user-controller.js";
 import authenticate from "../middleware/authenticat.js";
 
 const router = express.Router();

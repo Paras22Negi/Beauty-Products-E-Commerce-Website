@@ -1,5 +1,5 @@
 import express from "express";
-import * as couponController from "../controllers/coupon.controller.js";
+import * as couponController from "../Controllers/coupon-controller.js";
 const router = express.Router();
 
 // User: Apply a coupon (during checkout)

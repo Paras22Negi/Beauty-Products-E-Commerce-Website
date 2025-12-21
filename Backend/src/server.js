@@ -9,7 +9,7 @@ import CartItemsRoutes from "./Routes/CartItems.Routes.js";
 import OrderRoutes from "./Routes/Order.Routes.js";
 import PaymentRoutes from "./Routes/Payment.Routes.js";
 import BlogRoutes from "./Routes/Blog.Routes.js";
-import CouponRoutes from "./Routes/Coupon.Routes.js";
+import CouponRoutes from "./Routes/coupon.Routes.js";
 import RatingRoutes from "./Routes/Ratings.Routes.js";
 import ReviewRoutes from "./Routes/Review.Routes.js";
 import UserQueryRoutes from "./Routes/UserQuery.Routes.js";

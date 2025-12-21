@@ -1,6 +1,6 @@
 import express from "express";
 const router = express.Router();
-import * as ProductControllers from "../Controllers/Product.Controller.js";
+import * as ProductControllers from "../Controllers/product-controller.js";
 import upload from "../middleware/upload.js";
 import SizeChart from "../Models/sizechart.model.js";
 

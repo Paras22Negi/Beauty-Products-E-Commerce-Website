@@ -1,7 +1,7 @@
 import express from "express";
 import authenticate from "../middleware/authenticat.js";
 const router = express.Router();
-import * as adminOrderController from "../Controllers/admin.order.controller.js";
+import * as adminOrderController from "../Controllers/admin-order-controller.js";
 
 // Dashboard Overview
 router.get(

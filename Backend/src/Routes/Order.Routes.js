@@ -1,7 +1,7 @@
 import express from "express";
 import authenticate from "../middleware/authenticat.js";
 const router = express.Router();
-import * as orderController from "../Controllers/order.Controller.js";
+import * as orderController from "../Controllers/order-controller.js";
 
 router.post("/", authenticate, orderController.createOrder);
 router.get("/user", authenticate, orderController.OrderHistory);

@@ -1,5 +1,5 @@
 import express from "express";
-import * as userQueryController from "../Controllers/userQuery.Controller.js";
+import * as userQueryController from "../Controllers/user-Query-controller.js";
 import authenticate from "../middleware/authenticat.js";
 
 const router = express.Router();

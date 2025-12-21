@@ -1,7 +1,7 @@
 // routes/auth.routes.js
 
 import express from "express";
-import * as authController from "../Controllers/auth.Controller.js";
+import * as authController from "../Controllers/auth-controller.js";
 import * as userController from "../Controllers/user-controller.js";
 import authenticate from "../middleware/authenticat.js";
 

@@ -24,7 +24,10 @@ const Port = process.env.PORT;
 const app = express();
 app.use(
   cors({
-    origin: [process.env.FRONTEND_URL1, process.env.FRONTEND_URL2],
+    origin: [
+      process.env.FRONTEND_URL1?.replace(/\/$/, ""),
+      process.env.FRONTEND_URL2?.replace(/\/$/, ""),
+    ].filter(Boolean),
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],

@@ -38,9 +38,11 @@ const OrderSuccessPage = ({ order: propOrder }) => {
 
   // Map backend fields to component fields
   const displayId = order._id || order.id || "N/A";
-  const customerName = order.user
+  const customerName = order.user?.firstName
     ? `${order.user.firstName} ${order.user.lastName}`
-    : order.customerName || "Customer";
+    : order.shippingAddress?.firstName
+    ? `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}`
+    : "Customer";
   const email = order.user?.email || order.email || "";
   const address = order.shippingAddress
     ? `${order.shippingAddress.streetAddress}, ${order.shippingAddress.city}, ${order.shippingAddress.state} - ${order.shippingAddress.zipCode}`

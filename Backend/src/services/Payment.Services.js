@@ -55,7 +55,7 @@ const createPaymentLink = async (
       },
       notify: { sms: true, email: true },
       reminder_enable: true,
-      callback_url: `http://localhost:5173/payment/${orderId}`,
+      callback_url: `${process.env.FRONTEND_URL1}/payment/${orderId}`,
       // callback_url: `http://fluteon.com/payment/${orderId}`,
       callback_method: "get",
     };

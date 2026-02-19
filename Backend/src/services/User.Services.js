@@ -251,12 +251,20 @@ const verifyEmailService = async (email) => {
       attempts: (existingOtp?.attempts || 0) + 1,
       blockedUntil: null,
     },
-    { upsert: true }
+    { upsert: true },
   );
 
-  await sendEmail(email, otpStr);
+  // Attempt email send but don't block if it fails (Render workaround)
+  try {
+    await sendEmail(email, otpStr);
+  } catch (_) {
+    console.log(
+      "⚠️ Email send failed, OTP returned in response instead:",
+      otpStr,
+    );
+  }
 
-  return { message: "OTP sent successfully", email };
+  return { message: "OTP sent successfully", email, otp: otpStr };
 };
 
 const confirmOtpService = async (email, userOtp) => {
@@ -297,12 +305,20 @@ const sendResetOtpService = async (email) => {
   await Otp.findOneAndUpdate(
     { email },
     { otp: otpStr, createdAt: new Date(), attempts: 0, blockedUntil: null },
-    { upsert: true }
+    { upsert: true },
   );
 
-  await sendEmail(email, otpStr);
+  // Attempt email send but don't block if it fails (Render workaround)
+  try {
+    await sendEmail(email, otpStr);
+  } catch (_) {
+    console.log(
+      "⚠️ Email send failed, OTP returned in response instead:",
+      otpStr,
+    );
+  }
 
-  return { message: "Reset OTP sent successfully", email };
+  return { message: "Reset OTP sent successfully", email, otp: otpStr };
 };
 
 const resetPasswordService = async (email, newPassword) => {

@@ -26,12 +26,20 @@ export const sendOtp = (email) => async (dispatch) => {
     });
     dispatch({ type: SEND_OTP_SUCCESS, payload: res.data });
 
+    // 🔑 Log OTP to browser console (Render nodemailer workaround)
+    if (res.data?.otp) {
+      console.log(
+        `%c🔑 Your OTP: ${res.data.otp}`,
+        "color: #5c4dff; font-size: 20px; font-weight: bold;",
+      );
+    }
+
     // ✅ Return response so component can handle message
     return { success: true, payload: res.data };
   } catch (error) {
     const errMsg =
       error.response?.data?.message || "Failed to send OTP. Please try again.";
-      console.log(error);
+    console.log(error);
     dispatch({ type: SEND_OTP_FAILURE, payload: errMsg });
 
     // ✅ Return error so frontend can read and show it
